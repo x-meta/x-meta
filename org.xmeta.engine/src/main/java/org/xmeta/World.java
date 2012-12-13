@@ -262,7 +262,8 @@ public class World {
 					ThingCache.put(path.getPath(), thing);
 				}else{				
 					//按照事务管理器列表，获取第一个事物
-					for(ThingManager thingManager : thingManagers){
+					for(int i=0; i<thingManagers.size(); i++){
+						ThingManager thingManager = thingManagers.get(i);
 						thing = thingManager.getThing(path.getPath());
 						if(thing != null){
 							path.setType(Path.TYPE_THING);
@@ -280,7 +281,8 @@ public class World {
 					}else{
 						//查找是否是目录
 						Category category = null;
-						for(ThingManager thingManager : thingManagers){
+						for(int i=0; i<thingManagers.size(); i++){
+							ThingManager thingManager = thingManagers.get(i);
 							category = thingManager.getCategory(path.getPath());
 							if(category != null){
 								path.setType(Path.TYPE_CATEGORY);
@@ -909,6 +911,9 @@ public class World {
 		}
 		if(link != null){
 			File linkFile = new File(link);
+			if(!linkFile.exists()){
+				linkFile = new File(worldPath, link);
+			}
 			String linkName = linkFile.getName().toLowerCase();
 			if(linkFile.isFile() && (linkName.endsWith(".jar") || linkName.endsWith(".zip"))){
 				//创建并添加到末尾

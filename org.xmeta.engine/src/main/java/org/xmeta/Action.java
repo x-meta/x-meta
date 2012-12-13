@@ -575,7 +575,7 @@ public class Action extends Semaphore{
 					initContext(thingContext.getThing(), context);
 				}
 			}
-						
+			
 			if(useOtherAction){
 				//因已经压入一个栈，这样如果直接调用还会压入一个栈，这样某些程序无法找到self变量，所以取上一级bindings
 				Bindings callerBindings = context.getScope(context.getScopesSize() - 2);
@@ -596,7 +596,7 @@ public class Action extends Semaphore{
 			}else{
 				//如果不是Java，那么当前事物的描述者实现了运行该动作的方法
 				if(isSelfInterpretationType){
-					result = thing.run("run", context, null, isSubAction);
+					result = thing.run("run", context, (Map<String, Object>) null, isSubAction, true);
 				}else{
 					Thing actionThing = thing.getActionThing("run");
 					if(actionThing != null){
@@ -607,6 +607,8 @@ public class Action extends Semaphore{
 				//result = thing.doAction("run", context, parameters, isSubAction);
 			}
 			
+			/*
+			 * 子流程取消，2012-12-12，使用
 			//执行下级流程
 			bindings.put("_return", result);					
 			int status = context.getStatus();
@@ -628,7 +630,7 @@ public class Action extends Semaphore{
 						}
 					}					
 				}					
-			} 				
+			} */				
 			
 			if(context.getStatus() == ActionContext.EXCEPTION && isSubAction == false){
 				//动作抛除异常
