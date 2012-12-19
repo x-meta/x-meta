@@ -678,7 +678,7 @@ public class Action extends Semaphore{
 					if(exception instanceof RuntimeException){
 						throw (RuntimeException) exception;
 					}else{
-						throw new ActionException("", exception);
+						throw new ActionException(exception);
 					}
 				}
 			}			
@@ -1083,7 +1083,7 @@ public class Action extends Semaphore{
 							continue;
 						}
 					}
-					result = data.getAction().run(null, actionContext, null, true);					
+					result = data.getAction().run(actionContext, null, true);					
 					if(result instanceof String){
 						if("success".equals(result)){
 							successed = true;

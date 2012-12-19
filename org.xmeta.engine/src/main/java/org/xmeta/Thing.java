@@ -645,8 +645,8 @@ public class Thing {
 	 * @param bindings 变量容器
 	 * @return 执行后的返回结果
 	 */
-	public Object doAction(String name, ActionContext context){
-		return run(name, context, (Map<String, Object>) null, false, true);
+	public Object doAction(String name, ActionContext actionContext){
+		return run(name, actionContext, (Map<String, Object>) null, false, true);
 	}
 	
 	/**
@@ -657,8 +657,8 @@ public class Thing {
 	 * @param paraments 参数
 	 * @return 执行后的返回结果
 	 */
-	public Object doAction(String name, ActionContext context, Map<String, Object> parameters){
-		return run(name, context, parameters, false, true);
+	public Object doAction(String name, ActionContext actionContext, Map<String, Object> parameters){
+		return run(name, actionContext, parameters, false, true);
 	}
 		
 	/**
@@ -670,8 +670,8 @@ public class Thing {
 	 * @param isSubAction
 	 * @return
 	 */
-	public Object doAction(String name, ActionContext context, Map<String, Object> parameters, boolean isSubAction){
-		return run(name, context, parameters, isSubAction, true);
+	public Object doAction(String name, ActionContext actionContext, Map<String, Object> parameters, boolean isSubAction){
+		return run(name, actionContext, parameters, isSubAction, true);
 	}
 	
 	/**
