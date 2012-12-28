@@ -34,8 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import ognl.Ognl;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmeta.cache.ThingEntry;
@@ -436,7 +434,7 @@ public class Action extends Semaphore{
 	}
 	
 	public Object run(ActionContext context){
-		return run(context, (Map<String, Object>) null, null, false);
+		return runMapParams(context, null, null, false);
 	}
 	
 	public Object exec(Object... params){

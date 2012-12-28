@@ -8,12 +8,12 @@ public class ReplaceAllThings {
 			//World.getInstance().init("E:\\work\\xworker\\");
 			//World.getInstance().init("D:\\xmeta\\xmeta1.2\\alpha\\");
 			try{
-				World.getInstance().init("D:\\xworker-1.3.3\\xworker\\");
+				World.getInstance().init("E:\\git\\xworker\\xworker\\");
 			}catch(Exception e){
 				e.printStackTrace();
 			}
 			
-			RefactorUtil.replaceAll("xworker.app.utils.DbUtil", "xworker.dataObject.utils.DbUtil", new RefactorListener(){
+			RefactorUtil.replaceAll("xworker.ide.util.TextTemplate", "xworker.lang.text.TextTemplate", new RefactorListener(){
 
 				@Override
 				public void onStart(int count) {
