@@ -136,6 +136,9 @@ public class Action extends Semaphore{
 	/** 外部的Java类名 */
 	private String outerClassName;
 	
+	/** 是否在执行时替换属性模板 */
+	private boolean attributeTemplate;	
+	
 	/** 编译后并且装载了的类 */
 	public Class<?> actionClass = null;
 	
@@ -594,7 +597,15 @@ public class Action extends Semaphore{
 			}else{
 				//如果不是Java，那么当前事物的描述者实现了运行该动作的方法
 				if(isSelfInterpretationType){
-					result = thing.run("run", context, (Map<String, Object>) null, isSubAction, true);
+					if(attributeTemplate){
+						//改变属性，属性可以包含模板
+						Thing fthing = (Thing) thing.run("processAttributeTemplate", context, (Map<String, Object>) null, isSubAction, true);
+						if(fthing != null){
+							fthing.run("run", context, (Map<String, Object>) null, isSubAction, true);
+						}
+					}else{
+						result = thing.run("run", context, (Map<String, Object>) null, isSubAction, true);
+					}
 				}else{
 					Thing actionThing = thing.getActionThing("run");
 					if(actionThing != null){
