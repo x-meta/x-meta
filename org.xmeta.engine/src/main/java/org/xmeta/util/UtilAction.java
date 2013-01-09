@@ -55,10 +55,46 @@ public class UtilAction {
 	 */
 	public static void putVarByActioScope(Thing action, String varName, Object var, ActionContext actionContext){
 		if(varName != null && !"".equals(varName)){
-            Bindings bindings = (Bindings) action.doAction("getVarScope", actionContext);
+            Bindings bindings = getVarScope(action, actionContext);
             if(bindings != null){
                 bindings.put(varName, var);
             }
         }
 	}
+	
+	/**
+	 * 获取变量范围。
+	 * 
+	 * @param self
+	 * @param actionContext
+	 * @return
+	 */
+	public static Bindings getVarScope(Thing action, ActionContext actionContext){
+		if(action == null){
+			return actionContext.getScope();
+		}else{		
+	    	Bindings binding = null;
+	        String varScope = action.getString("varScope");
+	        if(varScope == null || "".equals(varScope)){
+	        	binding = actionContext.getScope();
+	        }else  if("Global".equals(varScope)){
+	            binding = actionContext.getScope(0);    
+	        }else if("Local".equals(varScope)){
+	            binding = actionContext.getScope();
+	        }else{    
+	            try{
+	                int scopeIndex = Integer.parseInt(varScope);
+	                if(scopeIndex >= 0){
+	                    binding = actionContext.getScope(scopeIndex);
+	                }else{
+	                	binding = actionContext.getScope(actionContext.getScopesSize() + scopeIndex);
+	                }
+	            }catch(Exception e){
+	                binding = actionContext.getScope(varScope);
+	            }
+	        }
+	        
+	        return binding;
+		}
+    }
 }

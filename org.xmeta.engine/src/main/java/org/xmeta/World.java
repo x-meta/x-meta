@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmeta.cache.ThingCache;
 import org.xmeta.cache.ThingEntry;
-import org.xmeta.codes.XerCoder;
 import org.xmeta.codes.XerThingCoder;
 import org.xmeta.codes.XmlThingCoder;
 import org.xmeta.thingManagers.ClassThingManager;
