@@ -214,6 +214,9 @@ public class Action extends Semaphore{
 			}
 		}
 		
+		//属性模板
+		attributeTemplate = thing.getBoolean("attributeTemplate");
+		
 		useOtherAction = thing.getBoolean("useOtherAction");
 		otherActionPath = thing.getString("otherActionPath");		
 		disableGlobalContext = thing.getBoolean("disableGlobalContext");
