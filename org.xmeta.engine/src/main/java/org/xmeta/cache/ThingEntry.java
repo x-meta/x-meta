@@ -24,7 +24,7 @@ import org.xmeta.Thing;
 import org.xmeta.World;
 
 /**
- * 若引用事物。
+ * 用于引用事物，当事物变更时总能获取最新的事物。
  * 
  * @author zyx
  *

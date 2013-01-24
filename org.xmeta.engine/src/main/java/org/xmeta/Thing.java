@@ -40,6 +40,7 @@ import org.xml.sax.SAXException;
 import org.xmeta.cache.LinkedThingEntry;
 import org.xmeta.cache.ThingCache;
 import org.xmeta.cache.ThingEntry;
+import org.xmeta.codes.XerThingCoder;
 import org.xmeta.codes.XmlCoder;
 import org.xmeta.thingManagers.TransientThingManager;
 import org.xmeta.util.UtilData;
@@ -708,13 +709,14 @@ public class Thing {
 				bindings.put("self", this);
 				
 				try{
-					return action.run(context, parameters, this, isSubAction);
+					return action.runMapParams(context, parameters, this, isSubAction);
+					//return action.run(context, parameters, this, isSubAction);
 				}finally{
 					context.pop();
 					//log.info("run action time " + actionThing.getMetadata().getPath() + " : " + (System.currentTimeMillis() - start));
 				}
 			}else{
-				return action.run(context, parameters, this, isSubAction);
+				return action.runMapParams(context, parameters, this, isSubAction);
 			}
 		}
 	}
@@ -2294,6 +2296,7 @@ public class Thing {
 			child.getMetadata().setRemoved(true);
 		}
 		
+		child.setParent(null);
 		childs.remove(child);			
 		updateLastModified();
 	}	
@@ -2369,6 +2372,46 @@ public class Thing {
 			return manager.save(root);
 		}else{
 			return false;
+		}
+	}
+	
+	/**
+	 * 把自己按照指定的路径保存到指定的目录下。
+	 * 
+	 * @param thingManager
+	 * @param path
+	 */
+	public void saveAs(String thingManager, String path){
+		Thing thing = this.getRoot();
+		int dotIndex = path.lastIndexOf(".");
+		String thingName = null;
+		String category = null;
+		if(dotIndex == -1){
+			category = "";
+			thingName = path;
+		}else{
+			category = path.substring(0, dotIndex);
+			thingName = path.substring(dotIndex + 1, path.length());
+		}
+		
+		ThingManager manager = World.getInstance().getThingManager(thingManager);		
+		if(manager != null){
+			Category cat = manager.getCategory(category);
+			if(cat == null){
+				manager.createCategory(category);				
+				cat = manager.getCategory(category);
+			}
+			thing.getMetadata().setCategory(cat);
+			thing.getMetadata().setReserve(thingName);
+			//thing.getMetadata().setReserve(root.getMetadata().getReserve());
+			thing.getMetadata().initPath();
+			thing.getMetadata().setCoderType(XerThingCoder.TYPE);
+			thing.initChildPath();
+			
+			
+			manager.save(thing);
+		}else{
+			throw new XMetaException("Thing manager not exists, name=" + thingManager);
 		}
 	}
 	
