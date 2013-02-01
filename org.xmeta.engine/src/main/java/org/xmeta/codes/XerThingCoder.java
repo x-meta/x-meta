@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xmeta.Thing;
 import org.xmeta.ThingCoder;
 import org.xmeta.ThingCoderException;
@@ -35,6 +37,8 @@ import org.xmeta.ThingIndex;
  *
  */
 public class XerThingCoder implements ThingCoder{
+	private static final Logger logger = LoggerFactory.getLogger(XerThingCoder.class);
+	
 	public static String TYPE = "xer";
 	
 	@Override
@@ -43,7 +47,8 @@ public class XerThingCoder implements ThingCoder{
 		try{
 			XerCoder.decode(thing, in);			
 		}catch(Exception e){
-			throw new ThingCoderException(e);
+			logger.error("decode thing error, still return part decoded thing", e);
+			//throw new ThingCoderException(e);
 		}finally{
 			thing.endModify(false);
 		}

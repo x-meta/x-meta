@@ -287,9 +287,6 @@ public class Action extends Semaphore{
 			results.add(result);
 		}
 		
-		//日志
-		logger = LoggerFactory.getLogger(this.className);
-		
 		long classCompileTime = 0;
 		
 		if(thing.getMetadata().getThingManager() instanceof ClassThingManager){
@@ -390,6 +387,9 @@ public class Action extends Semaphore{
 			if(lastModified != classCompileTime){
 				changed = true;
 			}			
+			
+			//非Java调用才初始化日志
+			logger = LoggerFactory.getLogger(this.className);
 		}
 	}
 	
@@ -557,7 +557,9 @@ public class Action extends Semaphore{
 				
 		//总是输入一些常量，以后要取消
 		bindings.put("world", world);
-		bindings.put("log", logger);
+		if(logger != null){
+			bindings.put("log", logger);
+		}
 				
 		Object result = null;
 		List<ThingEntry> allContexts = new ArrayList<ThingEntry>();
