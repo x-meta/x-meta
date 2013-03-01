@@ -57,7 +57,7 @@ public class TxtCoder {
 
 	public static final String STRING_ENCODING = "UTF-8";
 	
-	private static final String STRING_TAG = "@#$text@#$";
+	private static final String STRING_TAG = "#$@text#$@";
 
 	/**
 	 * 编码。
@@ -82,7 +82,7 @@ public class TxtCoder {
 		//版本和数据头
 		ThingMetadata meta = thing.getMetadata();
 		//路径
-		out.println(meta.getPath());
+		out.println(TYPE_NODE + meta.getPath());
 		//最后修改时间
 		out.println(meta.getLastModified());
 		//标识
@@ -291,6 +291,11 @@ public class TxtCoder {
 		if (!labelSetted) {
 			encodeString("label", thing.getMetadata().getLabel(), out);
 		}		
+		
+		//编码子节点
+		for(Thing child : thing.getChilds()){
+			TxtCoder.encode(child, out, context);
+		}
 	}
 
 
@@ -301,7 +306,7 @@ public class TxtCoder {
 	}
 
 	public static void encodeString(String name, String value, PrintWriter out) throws IOException {
-		if (value == null) {
+		if (value == null || "".equals(value)) {
 			return;
 		}
 		
@@ -309,12 +314,17 @@ public class TxtCoder {
 			//多行
 			encodeName(out, name, TYPE_STRINGS);
 			out.println(STRING_TAG); //文本起始符
-			for(String line : value.split("[\n]")){
+			ByteArrayInputStream bin = new ByteArrayInputStream(value.getBytes());
+			BufferedReader br = new BufferedReader(new InputStreamReader(bin));
+			String line = null;
+			while((line = br.readLine()) != null){
 				if(line.length() == STRING_TAG.length() && line.equals(STRING_TAG)){
 					line = "\\" + line;
 				}
 				out.println(line);
 			}
+			br.close();
+			bin.close();
 			out.println(STRING_TAG); //文本结束符
 		}else{
 			//单行
@@ -340,6 +350,7 @@ public class TxtCoder {
 		String path = br.readLine();
 		if(path != null){
 			Thing current = thing;
+			Map<String, Object> attributes = current.getAttributes();
 			//第一个是路径
 			thing.getMetadata().setPath(path.substring(1, path.length()));
 			//最后修改日期
@@ -352,6 +363,9 @@ public class TxtCoder {
 				char type = line.charAt(0);
 				String name = line.substring(1, line.length());
 				if(type == TxtCoder.TYPE_NODE){
+					if(!full){
+						break;
+					}
 					current = getPathParent(current, name);
 					if(current != null){
 						Thing childThing = new Thing(null, null, null, false);
@@ -363,80 +377,81 @@ public class TxtCoder {
 						current.addChild(childThing);
 						
 						current = childThing;
+						attributes = current.getAttributes();
 					}
 				}else{
 					//其他都是属性
 					if (type == TYPE_INT) {						
 						try {
-							current.put(name, Integer.parseInt(br.readLine()));
+							attributes.put(name, Integer.parseInt(br.readLine()));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TYPE_LONG) {
 						try {
-							current.put(name, Long.parseLong(br.readLine()));
+							attributes.put(name, Long.parseLong(br.readLine()));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TYPE_DOUBLE) {
 						try {
-							current.put(name, Double.parseDouble(br.readLine()));
+							attributes.put(name, Double.parseDouble(br.readLine()));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TYPE_FLOAT) {
 						try {
-							current.put(name, Float.parseFloat(br.readLine()));
+							attributes.put(name, Float.parseFloat(br.readLine()));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TxtCoder.TYPE_BIGDECIMAL) {
 						try {
-							current.put(name, new BigDecimal(br.readLine()));
+							attributes.put(name, new BigDecimal(br.readLine()));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TxtCoder.TYPE_BIGINTEGER) {
 						try {
-							current.put(name, new BigInteger(br.readLine()));
+							attributes.put(name, new BigInteger(br.readLine()));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TxtCoder.TYPE_BOOLEAN) {
 						try {
-							current.put(name, Boolean.parseBoolean(br.readLine()));
+							attributes.put(name, Boolean.parseBoolean(br.readLine()));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TYPE_BYTE) {
 						try {
-							current.put(name, Byte.parseByte(br.readLine()));
+							attributes.put(name, Byte.parseByte(br.readLine()));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TYPE_BYTES) {
 						try {
 							byte[] value = UtilString.hexStringToByteArray(br.readLine());
-							current.put(name, value);
+							attributes.put(name, value);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TYPE_CHAR) {
 						try {
-							current.put(name, (char) Integer.parseInt(br.readLine()));
+							attributes.put(name, (char) Integer.parseInt(br.readLine()));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TYPE_SHORT) {
 						try {
-							current.put(name, Short.parseShort(br.readLine()));
+							attributes.put(name, Short.parseShort(br.readLine()));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TYPE_DATE) {
 						try {
 							Date value = new Date(Long.parseLong(br.readLine()));
-							current.put(name, value);
+							attributes.put(name, value);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -450,7 +465,7 @@ public class TxtCoder {
 								ByteArrayInputStream bin = new ByteArrayInputStream(bytes);
 								ObjectInputStream oin = new ObjectInputStream(bin);
 								Object value = oin.readObject();
-								current.put(name, value);
+								attributes.put(name, value);
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
@@ -461,6 +476,10 @@ public class TxtCoder {
 						String l = null;
 						String value = null;
 						while((l = br.readLine()) != null){
+							if(l.length() == 1 && '\r' == l.charAt(0)){
+								continue;
+							}
+							
 							if(l.length() == STRING_TAG.length() && l.equals(STRING_TAG)){
 								//字符串结束
 								break;
@@ -469,19 +488,19 @@ public class TxtCoder {
 								if(value != null){
 									value = value + "\n" + l.substring(1, l.length());
 								}else{
-									value = value + l.substring(1, l.length());
+									value = l.substring(1, l.length());
 								}
 							}else{
 								if(value != null){
 									value = value + "\n" + l;
 								}else{
-									value = value + l;
+									value = l;
 								}
 							}
 						}
-						current.put(name, value);
+						attributes.put(name, value);
 					} else if(type == TYPE_STRING){
-						current.put(name, br.readLine());
+						attributes.put(name, br.readLine());
 					}
 				}
 			}
@@ -490,11 +509,16 @@ public class TxtCoder {
 	}
 	
 	private static Thing getPathParent(Thing current, String path){
-		if(path.startsWith(current.getMetadata().getPath())){
-			return current;
-		}else{
-			current = current.getParent();
-			return getPathParent(current, path);
+		String currentPath = current.getMetadata().getPath();
+		if(path.startsWith(currentPath + "/")){
+			String subpath = path.substring(currentPath.length(), path.length());
+			//父应该是直接的父，所以最后的/一定是第一个字母
+			if(subpath.lastIndexOf("/") == 0){
+				return current;
+			}
 		}
+		
+		current = current.getParent();
+		return getPathParent(current, path);
 	}
 }

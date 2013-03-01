@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmeta.cache.ThingCache;
 import org.xmeta.cache.ThingEntry;
+import org.xmeta.codes.TxtThingCoder;
 import org.xmeta.codes.XerThingCoder;
 import org.xmeta.codes.XmlThingCoder;
 import org.xmeta.thingManagers.ClassThingManager;
@@ -639,6 +640,7 @@ public class World {
 		thingCoders.clear();
 		thingCoders.add(new XerThingCoder());
 		thingCoders.add(new XmlThingCoder());
+		thingCoders.add(new TxtThingCoder());
 		
 		//添加World目录下的事物管理器
 		thingManagers.clear();

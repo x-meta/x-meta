@@ -3,6 +3,7 @@ package org.xmeta.codes;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.HashMap;
 
@@ -13,6 +14,12 @@ import org.xmeta.ThingCoder;
 import org.xmeta.ThingCoderException;
 import org.xmeta.ThingIndex;
 
+/**
+ * 提供一种文本格式的编码，目的是保持读写性能以及可以方便的在版本管理中合并。
+ * 
+ * @author Administrator
+ *
+ */
 public class TxtThingCoder implements ThingCoder{
 	private static final Logger logger = LoggerFactory.getLogger(XerThingCoder.class);
 	
@@ -52,7 +59,10 @@ public class TxtThingCoder implements ThingCoder{
 	@Override
 	public void encode(Thing thing, OutputStream out) {
 		try {
-			TxtCoder.encode(thing, new PrintWriter(out), new HashMap<Thing, String>());
+			PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, TxtCoder.STRING_ENCODING));
+			
+			TxtCoder.encode(thing, writer, new HashMap<Thing, String>());
+			writer.flush();
 		} catch (IOException e) {
 			throw new ThingCoderException(e);
 		}

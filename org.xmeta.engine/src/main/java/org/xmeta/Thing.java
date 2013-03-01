@@ -227,7 +227,7 @@ public class Thing {
 					childThingId = childThing.getMetadata().getName();
 				}
 				if(childThingId != null){					
-					//过滤掉'和"
+					//过滤掉任何和路径相关的字符，ID不能包含这些字符
 					childThingId = childThingId.replace('\'', '_');
 					childThingId = childThingId.replace('\"', '_');
 					childThingId = childThingId.replace(':'	, '_');
@@ -237,6 +237,9 @@ public class Thing {
 					childThingId = childThingId.replace('#'	, '_');
 					childThingId = childThingId.replace('$'	, '_');
 					childThingId = childThingId.replace('%'	, '_');
+					childThingId = childThingId.replace('/'	, '_');
+					childThingId = childThingId.replace('.'	, '_');
+					childThingId = childThingId.replace('\\', '_');
 				}
 				
 				//判断子节点的ID是否重复，如果有重复那么重新设置一个
@@ -2081,6 +2084,16 @@ public class Thing {
 	 * @return 是否是该事物
 	 */
 	public boolean isThingByName(String descriptorName){
+		List<Thing> allDescriptors = this.getAllDescriptors();
+		for(int i=0; i<allDescriptors.size() - 1; i++){
+			Thing descriptor = allDescriptors.get(i);
+			if(descriptor.getMetadata().getName().equals(descriptorName)){
+				return true;
+			}
+		}
+		
+		return false;
+		/*
 		//long start = System.currentTimeMillis();
 		if(descriptorsCaches == null || descriptorsCaches.length == 0){
 			initDescriptors();
@@ -2105,7 +2118,8 @@ public class Thing {
 		}
 		
 		//System.out.println("Thing 1461 isThingByName : " + (System.currentTimeMillis() - start));
-		return false;	 
+		return false;	
+		*/ 
 	}
 	
 	private synchronized void removeDescriptorsCache(int index){
