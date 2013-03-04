@@ -1,4 +1,4 @@
-package org.xmeta.util;
+package org.xmeta.tools;
 
 import java.io.FileInputStream;
 

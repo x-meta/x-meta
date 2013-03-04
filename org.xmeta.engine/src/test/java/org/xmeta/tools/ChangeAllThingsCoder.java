@@ -1,4 +1,4 @@
-package org.xmeta.util;
+package org.xmeta.tools;
 
 import java.io.File;
 import java.util.Iterator;
@@ -56,19 +56,21 @@ public class ChangeAllThingsCoder {
 		}
 	}
 	
+
 	public static void main(String args[]){
 		World world = World.getInstance();
 		
-		String worldPath = "D:\\dist\\xworker-1.3.3\\"; 
+		//String worldPath = "D:\\dist\\xworker-1.3.3\\"; 
+		String worldPath = "..\\..\\xworker\\xworker\\";
 		world.init(worldPath);
 		
-		//convertCoder("xer.txt");
+		convertCoder("xer.txt");
 		//deleteFile(new File(worldPath), ".xer");
 		
 		long start = System.currentTimeMillis();
 
-		Thing thing = world.getThing("xworker.ide.worldExplorer.swt.SimpleExplorerRunner");
-		thing.doAction("run");
+		//Thing thing = world.getThing("xworker.ide.worldExplorer.swt.SimpleExplorerRunner");
+		//thing.doAction("run");
 		System.out.println("time=" + (System.currentTimeMillis() - start));
 		//System.exit(0);
 	}

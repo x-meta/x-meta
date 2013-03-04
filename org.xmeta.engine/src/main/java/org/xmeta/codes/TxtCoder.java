@@ -27,7 +27,7 @@ public class TxtCoder {
 	
 	public static final char TYPE_STRING = 's';
 	
-	public static final char TYPE_STRINGS = 'm';
+	public static final char TYPE_STRINGS = 'S';
 
 	public static final char TYPE_BIGDECIMAL = 'D';
 
@@ -51,7 +51,7 @@ public class TxtCoder {
 
 	public static final char TYPE_OBJECT = 'o';
 
-	public static final char TYPE_DATE = 'E';
+	public static final char TYPE_DATE = 't';
 
 	public static final char TYPE_LONG = 'l';
 
@@ -84,9 +84,9 @@ public class TxtCoder {
 		//路径
 		out.println(TYPE_NODE + meta.getPath());
 		//最后修改时间
-		out.println(meta.getLastModified());
+		//out.println(meta.getLastModified());
 		//标识
-		out.println(meta.getId());
+		//out.println(meta.getId());
 		
 		//输出属性
 		List<Thing> fields = thing.getAllAttributesDescriptors();
@@ -332,6 +332,20 @@ public class TxtCoder {
 			out.println(value);
 		}
 	}
+	
+	private static String getId(String path){
+		int index = path.lastIndexOf("@");
+		if(index != -1){
+			return path.substring(index + 1, path.length());
+		}
+		
+		index = path.lastIndexOf(".");
+		if(index != -1){
+			return path.substring(index + 1, path.length());
+		}
+		
+		return path;
+	}
 
 	/**
 	 * 解码。
@@ -352,11 +366,12 @@ public class TxtCoder {
 			Thing current = thing;
 			Map<String, Object> attributes = current.getAttributes();
 			//第一个是路径
-			thing.getMetadata().setPath(path.substring(1, path.length()));
+			path = path.substring(1, path.length());
+			thing.getMetadata().setPath(path);
 			//最后修改日期
-			current.getMetadata().setLastModified(Long.parseLong(br.readLine()));
+			//current.getMetadata().setLastModified(Long.parseLong(br.readLine()));
 			//标识
-			current.getMetadata().setId(br.readLine());
+			current.getMetadata().setId(getId(path));
 			
 			while((line = br.readLine()) != null){
 				//属性或子节点
@@ -371,9 +386,9 @@ public class TxtCoder {
 						Thing childThing = new Thing(null, null, null, false);
 						childThing.getMetadata().setPath(name);
 						//最后修改日期
-						childThing.getMetadata().setLastModified(Long.parseLong(br.readLine()));
+						//childThing.getMetadata().setLastModified(Long.parseLong(br.readLine()));
 						//标识
-						childThing.getMetadata().setId(br.readLine());
+						childThing.getMetadata().setId(getId(name));
 						current.addChild(childThing);
 						
 						current = childThing;

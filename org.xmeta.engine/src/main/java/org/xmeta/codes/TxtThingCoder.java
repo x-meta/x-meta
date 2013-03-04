@@ -26,10 +26,11 @@ public class TxtThingCoder implements ThingCoder{
 	public static String TYPE = "xer.txt";
 	
 	@Override
-	public void decode(Thing thing, InputStream in, long loastModifyed) {
+	public void decode(Thing thing, InputStream in, long lastModifyed) {
 		thing.beginModify();
 		try{
 			TxtCoder.decode(thing, in, true);			
+			thing.getMetadata().setLastModified(lastModifyed);
 		}catch(Exception e){
 			logger.error("decode thing error, still return part decoded thing", e);
 			//throw new ThingCoderException(e);

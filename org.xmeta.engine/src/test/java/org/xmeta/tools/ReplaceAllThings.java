@@ -1,6 +1,8 @@
-package org.xmeta.util;
+package org.xmeta.tools;
 
 import org.xmeta.World;
+import org.xmeta.util.RefactorListener;
+import org.xmeta.util.RefactorUtil;
 
 public class ReplaceAllThings {
 	public static void main(String args[]){

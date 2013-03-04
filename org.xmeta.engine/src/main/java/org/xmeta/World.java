@@ -638,9 +638,9 @@ public class World {
 		
 		//事物编码
 		thingCoders.clear();
-		thingCoders.add(new XerThingCoder());
-		thingCoders.add(new XmlThingCoder());
 		thingCoders.add(new TxtThingCoder());
+		thingCoders.add(new XerThingCoder());
+		thingCoders.add(new XmlThingCoder());		
 		
 		//添加World目录下的事物管理器
 		thingManagers.clear();
