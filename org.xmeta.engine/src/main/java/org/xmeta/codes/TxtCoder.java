@@ -356,7 +356,7 @@ public class TxtCoder {
 	 * @return
 	 * @throws IOException
 	 */
-	public static Thing decode(Thing thing, InputStream input, boolean full)
+	public static Thing decode(Thing thing, InputStream input, boolean full, long lastModified)
 			throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(input, STRING_ENCODING));
 		
@@ -368,6 +368,8 @@ public class TxtCoder {
 			//第一个是路径
 			path = path.substring(1, path.length());
 			thing.getMetadata().setPath(path);
+			thing.getMetadata().setLastModified(lastModified);
+			
 			//最后修改日期
 			//current.getMetadata().setLastModified(Long.parseLong(br.readLine()));
 			//标识
@@ -384,11 +386,13 @@ public class TxtCoder {
 					current = getPathParent(current, name);
 					if(current != null){
 						Thing childThing = new Thing(null, null, null, false);
-						childThing.getMetadata().setPath(name);
+						ThingMetadata childMetadata = childThing.getMetadata();
+						childMetadata.setPath(name);
+						childMetadata.setLastModified(lastModified);
 						//最后修改日期
 						//childThing.getMetadata().setLastModified(Long.parseLong(br.readLine()));
 						//标识
-						childThing.getMetadata().setId(getId(name));
+						childMetadata.setId(getId(name));
 						current.addChild(childThing);
 						
 						current = childThing;
