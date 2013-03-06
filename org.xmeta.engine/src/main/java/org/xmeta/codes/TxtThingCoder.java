@@ -40,12 +40,12 @@ public class TxtThingCoder implements ThingCoder{
 
 	
 	@Override
-	public void decodeIndex(ThingIndex thingIndex, InputStream in, long lastModifyed) {
+	public void decodeIndex(ThingIndex thingIndex, InputStream in) {
 		
 		try{
 			Thing thing = new Thing();
 			thing.beginModify();
-			TxtCoder.decode(thing, in, false, lastModifyed);	
+			TxtCoder.decode(thing, in, false, 0);	
 			thing.endModify(false);
 			
 			thingIndex.label = thing.getMetadata().getLabel();
