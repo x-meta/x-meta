@@ -40,7 +40,7 @@ public class TxtThingCoder implements ThingCoder{
 
 	
 	@Override
-	public void decodeIndex(ThingIndex thingIndex, InputStream in) {
+	public void decodeIndex(ThingIndex thingIndex, InputStream in, long lastModifyed) {
 		
 		try{
 			Thing thing = new Thing();
