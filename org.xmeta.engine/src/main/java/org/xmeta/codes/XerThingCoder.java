@@ -68,6 +68,7 @@ public class XerThingCoder implements ThingCoder{
 			thingIndex.label = thing.getMetadata().getLabel();
 			thingIndex.description = thing.getString("description");
 			thingIndex.descriptors = thing.getString("descriptors");
+			thingIndex.lastModified = lastModifyed;
 		}catch(Exception e){
 			throw new ThingCoderException(e);
 		}

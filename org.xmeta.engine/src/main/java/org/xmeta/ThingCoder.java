@@ -54,7 +54,7 @@ public interface ThingCoder {
 	 * @param in
 	 * @return
 	 */
-	public void decodeIndex(ThingIndex thingIndex, InputStream in);
+	public void decodeIndex(ThingIndex thingIndex, InputStream in, long lastModifyed);
 	
 	/**
 	 * 返回编码器的类型，通常是文件的后缀名。

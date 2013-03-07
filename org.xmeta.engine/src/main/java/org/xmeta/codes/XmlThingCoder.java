@@ -72,7 +72,7 @@ public class XmlThingCoder implements ThingCoder{
 	}
 
 	@Override
-	public void decodeIndex(ThingIndex thingIndex, InputStream in) {
+	public void decodeIndex(ThingIndex thingIndex, InputStream in, long lastModified) {
 		try{
 			Document document = null;
 	        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -86,6 +86,7 @@ public class XmlThingCoder implements ThingCoder{
 	        thingIndex.description = root.getAttribute(Thing.DESCRIPTION);
 	        thingIndex.name = root.getAttribute("name");
 	        thingIndex.label = root.getAttribute("label");
+	        thingIndex.lastModified = lastModified;
 		}catch(Exception e){
 			throw new ThingCoderException(e);
 		}
