@@ -97,6 +97,8 @@ public class World {
 	public int helpSize = 100;
 	/** 是否打印装载信息 */
 	private boolean verbose = false;
+	/** 是否已初始化 */
+	private boolean inited = false;
 	/** 打印verbose的缓存，相同的不需要再次打印 */
 	private Map<String, String> verboseThingCache = null;
 	/** 事物管理器列表 */
@@ -117,7 +119,13 @@ public class World {
 	 * 私有构造方法，目前系统中只允许存在一个世界。
 	 * 
 	 */
-	private World() {
+	private World() {		
+		//默认事物编码
+		thingCoders.clear();
+		thingCoders.add(new TxtThingCoder());
+		thingCoders.add(new XerThingCoder());
+		thingCoders.add(new XmlThingCoder());		
+		
 		try{
 			ThingOgnlAccessor.init();
 		}catch(Exception e){			
@@ -636,12 +644,6 @@ public class World {
 		metaThing = new MetaThing();
 		refresh();
 		
-		//事物编码
-		thingCoders.clear();
-		thingCoders.add(new TxtThingCoder());
-		thingCoders.add(new XerThingCoder());
-		thingCoders.add(new XmlThingCoder());		
-		
 		//添加World目录下的事物管理器
 		thingManagers.clear();
 		File projectsFiles = new File(f, "projects");
@@ -658,8 +660,19 @@ public class World {
 		if(config != null){
 			config.doAction("init");
 		}
+		
+		//设置状态为已初始化，避免其他地方重复初始化
+		inited = true;
 	}
-	
+
+	/**
+	 * 返回是否已经初始化过。
+	 * 
+	 * @return
+	 */
+	public boolean isInited(){
+		return inited;
+	}
 
 	public static void addLibraryDir(String s) {
 		try {
