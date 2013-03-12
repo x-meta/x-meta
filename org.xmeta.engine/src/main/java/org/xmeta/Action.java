@@ -892,7 +892,7 @@ public class Action extends Semaphore{
 		return thingEntry.getThing();
 	}
 	
-	private static long getClassCompileTime(String classFileName){
+	public static long getClassCompileTime(String classFileName){
 		File file = new File(classFileName);
 		String path = file.getParentFile().getAbsolutePath();
 		String className = file.getName();

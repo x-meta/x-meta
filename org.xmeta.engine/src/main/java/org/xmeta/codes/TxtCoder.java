@@ -67,8 +67,7 @@ public class TxtCoder {
 	 * @param context
 	 * @throws IOException
 	 */
-	public static void encode(Thing thing, PrintWriter out,
-			Map<Thing, String> context) throws IOException {
+	public static void encode(Thing thing, PrintWriter out,	Map<Thing, String> context) throws IOException {
 		if (context == null) {
 			context = new HashMap<Thing, String>();
 		}
