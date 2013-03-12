@@ -353,8 +353,12 @@ public class World {
 						thing.beginModify();
 						
 						long lastModified = 0;
-						if(url.getProtocol().toLowerCase().equals("file")){
-							lastModified = new File(url.getFile()).lastModified();
+						String fileName = url.getFile();
+						if(fileName != null){
+							File file = new File(fileName);
+							if(file.exists()){
+								lastModified = file.lastModified();
+							}
 						}
 						coder.decode(thing, fin, lastModified);
 					}catch(Exception e){

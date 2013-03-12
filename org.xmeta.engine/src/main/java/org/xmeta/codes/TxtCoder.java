@@ -23,6 +23,8 @@ import org.xmeta.ThingMetadata;
 import org.xmeta.util.UtilString;
 
 public class TxtCoder {
+	public static final char TYPE_LASTMODIFIED = '^';
+	
 	public static final char TYPE_NODE = '@';
 	
 	public static final char TYPE_STRING = 's';
@@ -80,6 +82,12 @@ public class TxtCoder {
 
 		//版本和数据头
 		ThingMetadata meta = thing.getMetadata();
+		
+		if(thing.getParent() == null){
+			//最后修改时间
+			out.println(TxtCoder.TYPE_LASTMODIFIED + String.valueOf(meta.getLastModified()));
+		}
+		
 		//路径
 		out.println(TYPE_NODE + meta.getPath());
 		//最后修改时间
@@ -361,6 +369,14 @@ public class TxtCoder {
 		
 		String line = null;
 		String path = br.readLine();
+		if(TYPE_LASTMODIFIED == path.charAt(0)){
+			//修改时间, 2012-03-12日加入
+			lastModified = Long.parseLong(path.substring(1, path.length()));
+			
+			//其次才是路径
+			path = br.readLine();
+		}
+		
 		if(path != null){
 			Thing current = thing;
 			Map<String, Object> attributes = current.getAttributes();

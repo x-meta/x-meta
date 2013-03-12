@@ -292,9 +292,13 @@ public class Action extends Semaphore{
 		if(thing.getMetadata().getThingManager() instanceof ClassThingManager){
 			//如果是从类路径装载的事物，尽量直接读取class，因为可能是打包运行的而不是开发环境的
 			try{
-				actionClass = classLoader.loadClass(this.className);
-				if(actionClass != null){
-					classCompileTime = lastModified;
+				classCompileTime = getClassCompileTime(classFileName);
+				if(classCompileTime != 0 && classCompileTime == lastModified){
+					//不需要重新编译才直接读取，2013-03-12
+					actionClass = classLoader.loadClass(this.className);
+					if(actionClass != null){
+						classCompileTime = lastModified;
+					}
 				}
 			}catch(Throwable t){	
 				classCompileTime = getClassCompileTime(classFileName);
