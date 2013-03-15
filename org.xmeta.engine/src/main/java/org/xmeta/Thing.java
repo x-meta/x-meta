@@ -2383,7 +2383,16 @@ public class Thing {
 			if(root.getMetadata().getPath() == null || "".equals(root.getMetadata().getPath())){
 				root.getMetadata().initPath();
 			}
-			return manager.save(root);
+			
+			
+			boolean saved = manager.save(root);
+			
+			//如果不在缓存中，加入到缓存中
+			if(ThingCache.get(root.getMetadata().getPath()) == null){
+				ThingCache.put(root.getMetadata().getPath(), this);
+			}
+			
+			return saved;
 		}else{
 			return false;
 		}

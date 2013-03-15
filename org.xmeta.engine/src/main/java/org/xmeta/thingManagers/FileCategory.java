@@ -23,8 +23,11 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xmeta.Category;
 import org.xmeta.ThingCoder;
+import org.xmeta.ThingCoderException;
 import org.xmeta.ThingIndex;
 import org.xmeta.ThingManager;
 import org.xmeta.World;
@@ -37,6 +40,8 @@ import org.xmeta.XMetaException;
  *
  */
 public class FileCategory extends CachedCategory{
+	private static Logger logger = LoggerFactory.getLogger(FileCategory.class);
+	
 	/**
 	 * 构造函数。
 	 * 
@@ -126,6 +131,9 @@ public class FileCategory extends CachedCategory{
 										child.path = name + "." + thingName;
 										child.thingManager = thingManager;
 										child.lastModified = file.lastModified();
+									}catch(ThingCoderException e){
+										logger.error("File category load index error, " + file.getPath(), e);
+										throw e;
 									}finally{
 										fin.close();
 									}
