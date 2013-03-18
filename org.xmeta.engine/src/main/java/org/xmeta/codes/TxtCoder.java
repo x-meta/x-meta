@@ -368,7 +368,10 @@ public class TxtCoder {
 		BufferedReader br = new BufferedReader(new InputStreamReader(input, STRING_ENCODING));
 		
 		String line = null;
-		String path = br.readLine();
+		String path = br.readLine().trim();
+		if(path.charAt(0) == 65279){ //去掉FF FE两个字节，如果存在
+			path = path.substring(1, path.length());
+		}
 		if(TYPE_LASTMODIFIED == path.charAt(0)){
 			//修改时间, 2012-03-12日加入
 			lastModified = Long.parseLong(path.substring(1, path.length()));
