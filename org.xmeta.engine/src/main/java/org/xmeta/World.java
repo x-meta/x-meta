@@ -294,6 +294,7 @@ public class World {
 							category = thingManager.getCategory(path.getPath());
 							if(category != null){
 								path.setType(Path.TYPE_CATEGORY);
+
 								return category;
 							}
 						}

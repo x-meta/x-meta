@@ -181,7 +181,7 @@ public class Thing {
 			String id = "" + manager.getNextId();
 			metadata.setId(id);
 			metadata.setPath("_transient.p" + id);
-			metadata.setCategory(manager.getCategory("_transient"));
+			metadata.setCategory(manager.getCategory("_transient"));			
 			
 			isTransient = true;
 			this.save();
