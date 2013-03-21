@@ -116,12 +116,16 @@ public interface Category {
 	/**
 	 * 获得当前目录下的事物列表。
 	 * 
+	 * 取具体事物是请用World，World负责缓存。
+	 * 
 	 * @return 事物列表
 	 */
 	public List<Thing> getThings();
 	
 	/**
 	 * 返回指定事物的列表。
+	 * 
+	 * 取具体事物是请用World，World负责缓存。
 	 * 
 	 * @param descriptor
 	 * @return
@@ -131,6 +135,8 @@ public interface Category {
 	/**
 	 * 遍历当前目录下的所有事物。
 	 * 
+	 * 取具体事物是请用World，World负责缓存。
+	 * 
 	 * @param includeChildCategory 是否包含子目录
 	 * @return 事物遍历器
 	 */
@@ -138,6 +144,8 @@ public interface Category {
 	
 	/**
 	 * 通过指定的描述者名称遍历当前目录下的所有事物。
+	 * 
+	 * 取具体事物是请用World，World负责缓存。
 	 * 
 	 * @param descriptorPath 描述者的路径
 	 * @param includeChildCategory 是否包含子目录

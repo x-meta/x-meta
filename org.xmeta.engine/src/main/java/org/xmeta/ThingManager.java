@@ -80,6 +80,8 @@ public interface ThingManager {
 	/**
 	 * 通过事物的名称取得事物。
 	 * 
+	 * 比方法一般是World调用的，应用中取事物请通过World，World负责缓存。
+	 * 
 	 * @param thingName 事物的名称，此名称为全名（包含目录）
 	 * @return 事物
 	 */

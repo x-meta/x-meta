@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.xmeta.Category;
 import org.xmeta.Thing;
@@ -14,7 +16,6 @@ import org.xmeta.ThingCoder;
 import org.xmeta.ThingMetadata;
 import org.xmeta.World;
 import org.xmeta.XMetaException;
-import org.xmeta.cache.ThingCache;
 import org.xmeta.thingManagers.FileMonitor.FileEntry;
 import org.xmeta.util.ThingClassLoader;
 import org.xmeta.util.UtilFile;
@@ -37,6 +38,9 @@ public class FileThingManager extends AbstractThingManager{
 	@Override
 	public Thing doLoadThing(String thingName) {
 		try{
+			if("xworker.lang.actions.GroovyAction".equals(name)){
+				System.out.println("FileTHingManager : groovy action reloaded");
+			}
 			String thingPath = thingName.replace('.', '/');
 			World world = World.getInstance();
 			for(ThingCoder thingCoder : world.getThingCoders()){
@@ -108,18 +112,15 @@ public class FileThingManager extends AbstractThingManager{
 					FileOutputStream fout = new FileOutputStream(thingFile);
 					try{
 						thingCoder.encode(rootThing, fout);
+						fout.flush();
 					}finally{
 						fout.close();						
 					}
 					thingFile.setLastModified(rootThing.getMetadata().getLastModified());
 					if(fileEntry != null){
 						fileEntry.lastModified = thingFile.lastModified();
-					}else{
+					}else{						
 						FileMonitor.getInstance().addFile(rootThingPath, rootThing, thingFile);
-					}
-					if(ThingCache.get(rootThingPath) == null){
-						//新建事物也放到缓存中
-						ThingCache.put(rootThingPath, rootThing);
 					}
 				}
 				return true;

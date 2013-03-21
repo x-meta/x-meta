@@ -435,7 +435,11 @@ public class ActionContext implements Map<String, Object> {
 	 * @see java.util.Map#get(java.lang.Object)
 	 */
 	public Object get(Object key) {
-
+		if(key == null || "".equals(key)){
+			//所有空的key返回null
+			return null;
+		}
+		
 		Object value = null;
 		Stack<Bindings> bindingsStack = getBindingStack();
 		for (int i = bindingsStack.size() - 1; i >= 0; i--) {

@@ -9,6 +9,7 @@ import org.xmeta.Category;
 import org.xmeta.Thing;
 import org.xmeta.ThingIndex;
 import org.xmeta.ThingManager;
+import org.xmeta.World;
 import org.xmeta.XMetaException;
 
 /**
@@ -81,9 +82,12 @@ public abstract class CachedCategory implements Category{
 	@Override
 	public Thing getThing(String thingName) {	
 		if(name != null && !name.equals("")){
-			return thingManager.getThing(name + "." + thingName);
+			//改为从world获取事物
+			return World.getInstance().getThing(name + "." + thingName);
+			//return thingManager.getThing();
 		}else{
-			return thingManager.getThing(thingName);
+			return World.getInstance().getThing(thingName);
+			//return thingManager.getThing(thingName);
 		}
 	}
 	
@@ -122,7 +126,8 @@ public abstract class CachedCategory implements Category{
 	public List<Thing> getThings() {
 		List<Thing> things = new ArrayList<Thing>();
 		for(ThingIndex index : thingIndexs){
-			Thing thing = thingManager.getThing(index.path);
+			//通过World获取事物，zhangyuxiang 2013-03-15
+			Thing thing = World.getInstance().getThing(index.path);
 			if(thing != null){
 				things.add(thing);
 			}
@@ -138,7 +143,9 @@ public abstract class CachedCategory implements Category{
 			if(index.descriptors != null){
 				for(String desc : index.descriptors.split("[,]")){
 					if(desc.equals(descriptor)){
-						Thing thing = thingManager.getThing(index.path);
+						//通过World获取事物，zhangyuxiang 2013-03-15
+						Thing thing = World.getInstance().getThing(index.path);
+						
 						if(thing != null){
 							things.add(thing);
 						}
@@ -189,7 +196,9 @@ public abstract class CachedCategory implements Category{
 						entry.thingIndexs = thingIndexs;
 					}
 					if(entry.thingIndex < thingIndexs.size()){
-						current = entry.category.getThing(thingIndexs.get(entry.thingIndex).getName());
+						//所有的事物都应该通过, 修改从world获取事物，2013-03-15
+						current = World.getInstance().getThing(thingIndexs.get(entry.thingIndex).path); 
+							//entry.category.getThing(thingIndexs.get(entry.thingIndex).getName());
 						entry.thingIndex ++;
 						return;
 					}else{
