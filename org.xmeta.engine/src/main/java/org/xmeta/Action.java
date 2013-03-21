@@ -42,6 +42,7 @@ import org.xmeta.util.JavaCompiler15;
 import org.xmeta.util.JavaCompiler16;
 import org.xmeta.util.Semaphore;
 import org.xmeta.util.ThingClassLoader;
+import org.xmeta.util.UtilAction;
 
 /**
  * 动作是可以运行的程序，是事物的另一种形态。<p/>
@@ -165,6 +166,12 @@ public class Action extends Semaphore{
 	
 	/** 输入参数的定义 事物 */
 	Thing params = null;
+	
+	/** 是否保存返回值 */
+	boolean saveReturn;
+	
+	/** 返回值变量名 */
+	String returnVarName;
 		
 	//----------构造函数和其他方法------------
 	/**
@@ -222,6 +229,10 @@ public class Action extends Semaphore{
 		disableGlobalContext = thing.getBoolean("disableGlobalContext");
 		
 		isSelfInterpretationType = "Self".equals(thing.getString("interpretationType"));
+		
+		//返回值
+		returnVarName = thing.getString("returnVarName");
+		saveReturn = thing.getBoolean("saveReturn");
 		
 		//设置代码文件名、类名和编译后的类路径等
 		Thing parent = thing.getParent();			
@@ -623,6 +634,14 @@ public class Action extends Semaphore{
 					}
 				}
 				//result = thing.doAction("run", context, parameters, isSubAction);
+			}
+			
+			//返回值的变量保存
+			if(saveReturn && returnVarName != null  && !"".equals(returnVarName)){
+				Bindings returnVarBindings = UtilAction.getVarScope(thingEntry.getThing(), context);
+				if(returnVarBindings != null){
+					returnVarBindings.put(returnVarName, result);
+				}
 			}
 			
 			/*
