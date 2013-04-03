@@ -569,6 +569,67 @@ public class UtilData {
 		return new String(buf);
 	}
 	 
+	 /**
+		 * 转换数据类型。
+		 * 
+		 * @param sourceValue
+		 * @param targetType
+		 * @param pattern
+		 * @param patternType
+		 * @param patternAction
+		 * @return
+		 * @throws ParseException
+		 */
+	public static Object transfer(Object sourceValue, String targetType, String pattern, String patternType, String patternAction) throws ParseException{
+		if (pattern != null  && !"".equals(pattern) && sourceValue != null && !"".equals(sourceValue)) {
+			if ("parse".equals(patternAction)) {
+				return UtilData.parse(sourceValue.toString(), targetType, pattern);
+			} else {
+				sourceValue = UtilData.format(sourceValue, pattern);
+			}
+		}
+
+		// 数据转换
+		Object targetValue = sourceValue;
+		if (targetType != null && !"".equals(targetType)) {
+			if ("byte".equals(targetType)) {
+				targetValue = UtilData.getByte(sourceValue, (byte) 0);
+			} else if ("short".equals(targetType)) {
+				targetValue = UtilData.getShort(sourceValue, (short) 0);
+			} else if ("int".equals(targetType)) {
+				targetValue = (int) UtilData.getLong(sourceValue, 0);
+			} else if ("long".equals(targetType)) {
+				targetValue = UtilData.getLong(sourceValue, 0);
+			} else if ("float".equals(targetType)) {
+				targetValue = UtilData.getFloat(sourceValue, 0);
+			} else if ("double".equals(targetType)) {
+				targetValue = UtilData.getDouble(sourceValue, 0);
+			} else if ("boolean".equals(targetType)) {
+				targetValue = UtilData.getBoolean(sourceValue, false);
+			} else if ("byte[]".equals(targetType)) {
+				if (sourceValue instanceof String) {
+					targetValue = UtilString
+							.hexStringToByteArray((String) sourceValue);
+				} else if (sourceValue instanceof byte[]) {
+					targetValue = sourceValue;
+				} else {
+					targetValue = null;
+				}
+			} else if ("hex_byte[]".equals(targetType)) {
+				if (sourceValue instanceof byte[]) {
+					targetValue = UtilString.toHexString((byte[]) sourceValue);
+				} else if (sourceValue instanceof String) {
+					targetValue = sourceValue;
+				} else {
+					targetValue = null;
+				}
+			} else
+				targetValue = sourceValue;
+		}
+		
+		return targetValue;
+	}
+	 
     /** A table of hex digits */
     private static final char[] hexDigit = {
 	'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'
