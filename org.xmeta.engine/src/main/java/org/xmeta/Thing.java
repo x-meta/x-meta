@@ -1537,11 +1537,11 @@ public class Thing {
 	 * 
 	 * @return 描述者的名称为指定名称的子事物
 	 */
-	public List<Thing> getChilds(String descriptorName){
+	public List<Thing> getChilds(String thingName){
 		List<Thing> childThings = new ArrayList<Thing>();
 		
 		for(Thing child : getChilds()){
-			if(child.isThingByName(descriptorName)){
+			if(child.isThingByName(thingName)){
 				UtilData.addToSource(childThings, child, true);
 			}
 		}
