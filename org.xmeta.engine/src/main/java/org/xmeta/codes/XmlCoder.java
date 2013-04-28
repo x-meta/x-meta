@@ -374,7 +374,7 @@ public class XmlCoder {
 		if (node.getNodeType() == Node.ELEMENT_NODE ) {		
 			if(((Element) node).getAttributes().getLength() == 0 && node.getChildNodes().getLength() == 1){				
 				Node childNode = node.getFirstChild();
-				if(childNode.getNodeType() == Node.CDATA_SECTION_NODE){
+				if(childNode.getNodeType() == Node.CDATA_SECTION_NODE || childNode.getNodeType() == Node.TEXT_NODE){					
 					return true;
 				}
 			}

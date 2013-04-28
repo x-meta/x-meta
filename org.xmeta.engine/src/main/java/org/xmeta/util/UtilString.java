@@ -441,6 +441,14 @@ public class UtilString {
 			}else{
 				return World.getInstance().getThing(thingPath).getMetadata().getDescription();
 			}
+		}else if(value.startsWith("attr:")){
+			String thingPath = value.substring(5, value.length());
+			Object obj = World.getInstance().get(thingPath);
+			if(obj != null){
+				return String.valueOf(obj);
+			}else{
+				return thingPath;
+			}
 		}
 		
 		String v = value;
