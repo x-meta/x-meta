@@ -31,4 +31,33 @@ public class UtilThing {
 		
 		return t;
 	}
+	
+	/**
+	 * 判断一个事物作为描述者时是否是给定的类型，即判断这个事物的路径以及所有继承事物的路径是否是指定的descritpor。
+	 * 
+	 * @param descriptorThing
+	 * @param descriptor
+	 * @return
+	 */
+	public static boolean isDescriptorEquals(Thing descriptorThing, String descriptor){
+		if(descriptorThing == null){
+	        return false;
+	    }
+	    
+	    if(descriptorThing.getMetadata().getPath().equals(descriptor)){
+	        return true;
+	    }
+	    
+	    for(Thing ext : descriptorThing.getAllExtends()){
+	        if(ext.getMetadata().getPath().equals(descriptor)){
+	            return true;
+	        }
+	    }
+	    
+	    return false;
+	}
+	
+	public static boolean isDescriptorEquals1(String descriptorFor, String descriptor){
+		return isDescriptorEquals(World.getInstance().getThing(descriptorFor), descriptor);
+	}
 }
