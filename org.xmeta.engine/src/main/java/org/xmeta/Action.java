@@ -172,6 +172,9 @@ public class Action extends Semaphore{
 	
 	/** 返回值变量名 */
 	String returnVarName;
+	
+	/** 是否要创建本地变量范围  */
+	boolean isCreateLocalVarScope;
 		
 	//----------构造函数和其他方法------------
 	/**
@@ -297,6 +300,8 @@ public class Action extends Semaphore{
 			ActionResult result = new ActionResult(child);		
 			results.add(result);
 		}
+		
+		isCreateLocalVarScope = thing.getBoolean("createLocalVarScope");
 		
 		long classCompileTime = 0;
 		
@@ -565,7 +570,7 @@ public class Action extends Semaphore{
 		
 		//外面的调用已经压入
 		context.push(bindings);		
-		if(!isSubAction){
+		if(!isSubAction || isCreateLocalVarScope){
 			bindings.isVarScopeFlag = true;//可以判定是函数调用的入口，因此设置一个局部变量范围标志
 		}
 		context.pushAction(this);

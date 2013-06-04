@@ -64,7 +64,7 @@ public class UtilAction {
 	
 	/**
 	 * 获取变量范围。
-	 * 
+	 *  
 	 * @param self
 	 * @param actionContext
 	 * @return
