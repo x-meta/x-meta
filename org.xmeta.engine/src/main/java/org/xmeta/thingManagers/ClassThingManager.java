@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.xmeta.Category;
 import org.xmeta.Thing;
@@ -155,6 +156,12 @@ public class ClassThingManager implements ThingManager{
 	public boolean save(Thing athing) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public void init(Properties properties) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

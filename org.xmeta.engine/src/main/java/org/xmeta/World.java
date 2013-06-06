@@ -107,7 +107,8 @@ public class World {
 	private List<ThingCoder> thingCoders = new ArrayList<ThingCoder>();
 	/** 目录缓存 */
 	private Map<String, CategoryCache> categoryCaches = new HashMap<String, CategoryCache>();
-	
+	/** 事物管理器所属的工作组 */
+	private Map<String, String> thingManagerWorkingSets = new HashMap<String, String>();
 	/**
 	 * 运行时所有的事物基本都通过World获取，为提交性能增加路径缓存。
 	 * 
@@ -899,9 +900,20 @@ public class World {
 		UtilFile.delete(new File(worldPath + "/projects/" + thingManager.getName()));
 	}
 	
+	/**
+	 * 根据事物管理器的名称获取工作组。
+	 * 
+	 * @param thingManagerName
+	 * @return
+	 */
+	public String getWorkingSet(String thingManagerName){
+		return thingManagerWorkingSets.get(thingManagerName);
+	}
+	
 	public ThingManager initThingManager(File rootPath){
 		String name = rootPath.getName();
 		String link = null;
+		String workingSet = null;
 		if(rootPath.isDirectory()){
 			File configFile = new File(rootPath, "config.properties");
 			if(configFile.exists()){
@@ -915,6 +927,8 @@ public class World {
 					if(link != null && link.trim().equals("")){
 						link = null;
 					}
+					workingSet = properties.getProperty("workingSet");
+					thingManagerWorkingSets.put(name, workingSet);
 				}catch(Exception e){
 					throw new XMetaException("init thing manager error, path=" + rootPath, e);
 				}finally{
@@ -928,6 +942,7 @@ public class World {
 				}
 			}
 		}
+		
 		if(link != null){
 			File linkFile = new File(link);
 			if(!linkFile.exists()){

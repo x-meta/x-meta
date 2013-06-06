@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -379,4 +380,7 @@ public class TransientThingManager implements ThingManager{
 		return null;
 	}
 
+	@Override
+	public void init(Properties properties) {
+	}
 }

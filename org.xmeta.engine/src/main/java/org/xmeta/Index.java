@@ -21,8 +21,10 @@ package org.xmeta;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.xmeta.cache.ThingEntry;
 
@@ -43,6 +45,7 @@ public class Index {
 	public static final String TYPE_THINGMANAGER = "thingManager";
 	public static final String TYPE_CATEGORY = "category";
 	public static final String TYPE_THING = "thing";
+	public static final String TYPE_WORKING_SET = "workingSet";
 
 	/** 被索引的事物 */
 	private Object indexObject;
@@ -53,11 +56,14 @@ public class Index {
 	/** 子索引列表 */
 	private List<Index> childs = null;
 	
+	/** 是否显示工作组 */
+	public boolean showWorkingSet = true;
+	
 	/**
 	 * 构造函数，创建世界的根索引。
 	 *
 	 */
-	private Index(){
+	public Index(){
 		indexObject = World.getInstance();
 	}
 	
@@ -380,11 +386,58 @@ public class Index {
 		childs = newChilds;
 	}
 	
+	private void initWorkingSet(Index parentIndex, String workingSet, ThingManager thingManager, Map<String, Index> workingSets){
+		String path = null;
+		String[] ws = workingSet.split("[.]");
+		Index workingSetIndex = workingSets.get(workingSet);
+		
+		if(workingSetIndex == null){
+			
+		}
+	}
+	
+	private void initThingManagers(Index parentIndex, List<ThingManager> managers){
+		for(ThingManager manager : managers){
+			//TransientThingManager不显示
+			if(manager == World.getInstance().getTransientThingManager()){
+				continue;
+			}
+			
+			boolean have = false;
+			for(Index index : parentIndex.childs){
+				if(index.getName().equals(manager.getName())){
+					have = true;
+					break;
+				}									
+			}
+			
+			if(!have){
+				parentIndex.childs.add(new Index(this, manager));
+			}
+		}
+		
+		for(Iterator<Index> iter = parentIndex.childs.iterator(); iter.hasNext();){
+			Index index = iter.next();
+			
+			boolean have = false;
+			for(ThingManager manager : managers){
+				if(index.getName().equals(manager.getName())){
+					have = true;
+					break;
+				}									
+			}
+			
+			if(!have){
+				iter.remove();
+			}
+		}
+	}
+	
 	/**
 	 * 刷新子索引。
 	 *
 	 */
-	public void refresh(){
+	public boolean refresh(){
 		if(childs == null){
 			childs = new ArrayList<Index>();
 		}
@@ -392,6 +445,9 @@ public class Index {
 		if(indexObject instanceof World){
 			//根
 			if(childs.size() == 0){
+				if(this.showWorkingSet){
+					//显示工作组
+				}
 				childs.add(new Index(this, "ThingManagers"));
 			}
 			
@@ -399,40 +455,7 @@ public class Index {
 			//事物管理器列表
 			List<ThingManager> managers = World.getInstance().getThingManagers();
 			
-			for(ThingManager manager : managers){
-				//TransientThingManager不显示
-				if(manager == World.getInstance().getTransientThingManager()){
-					continue;
-				}
-				
-				boolean have = false;
-				for(Index index : childs){
-					if(index.getName().equals(manager.getName())){
-						have = true;
-						break;
-					}									
-				}
-				
-				if(!have){
-					childs.add(new Index(this, manager));
-				}
-			}
-			
-			for(Iterator<Index> iter = childs.iterator(); iter.hasNext();){
-				Index index = iter.next();
-				
-				boolean have = false;
-				for(ThingManager manager : managers){
-					if(index.getName().equals(manager.getName())){
-						have = true;
-						break;
-					}									
-				}
-				
-				if(!have){
-					iter.remove();
-				}
-			}
+			initThingManagers(this, managers);
 		}else if(indexObject instanceof ThingManager){
 			ThingManager thingManager = (ThingManager) indexObject;
 			Category root = thingManager.getCategory(null);
@@ -483,6 +506,108 @@ public class Index {
 				
 			});
 		}
+		
+		return true;
+	}
+	
+	public void refreshWorkingSetIndex(Index parent){
+		Map<String, WorkingSet> workingSets = getWorkingSets();
+		
+		if(parent.getType().equals(Index.TYPE_WORLD)){
+			WorkingSet  workingSet = workingSets.get("");
+			for(WorkingSet childSet : workingSet.childs){
+				boolean have = false;
+				for(Index child : parent.childs){
+					if(child.getType().equals(Index.TYPE_WORKING_SET) && child.getPath().equals(childSet.path)){
+						have = true;
+						break;
+					}
+				}
+				
+				if(!have){
+					Index windex = new Index(parent, childSet.name);
+					//windex.
+				}
+			}
+		}
 	}
 		
+	public Map<String, WorkingSet> getWorkingSets(){
+		Map<String, WorkingSet> context = new HashMap<String, WorkingSet>();
+		
+		for(ThingManager thingManager : World.getInstance().getThingManagers()){
+			String ws = World.getInstance().getWorkingSet(thingManager.getName());
+			if(ws == null){
+				ws = "";
+				WorkingSet workingSet = context.get(ws);
+				if(workingSet == null){
+					workingSet = new WorkingSet();
+					workingSet.path = ws;
+					int index = ws.lastIndexOf(".");
+					if(index != -1){
+						workingSet.name = ws.substring(index + 1, ws.length());
+					}else{
+						workingSet.name = ws;
+					}
+					context.put(ws,  workingSet);
+					
+					initParentWorkingSet(ws, workingSet, context);
+				}
+				
+				workingSet.thingManagers.add(thingManager);
+			}
+		}
+		for(String key : context.keySet()){
+			WorkingSet workingSet = context.get(key);
+			workingSet.sort();
+		}
+		
+		return context;
+	}
+	
+	private void initParentWorkingSet(String ws, WorkingSet workingSet, Map<String, WorkingSet> context){
+		//初始化父
+		int index = -1;
+		while((index = ws.lastIndexOf(".")) != -1){
+			ws = ws.substring(0, index);
+			
+			WorkingSet wset = context.get(ws);
+			if(wset == null){
+				wset = new WorkingSet();
+				wset.path = ws;
+				int index2 = ws.lastIndexOf(".");
+				if(index != -1){
+					wset.name = ws.substring(index2 + 1, ws.length());
+				}else{
+					wset.name = ws;
+				}
+				
+				context.put(ws,  wset);
+				
+				wset.childs.add(workingSet);
+				workingSet = wset;				
+			}
+		}
+	}
+	
+	class WorkingSet{
+		String name;
+		String path;
+		List<ThingManager> thingManagers = new ArrayList<ThingManager>();
+		List<WorkingSet> childs = new ArrayList<WorkingSet>();
+		
+		public void sort(){
+			Collections.sort(thingManagers, new Comparator<ThingManager>(){
+				public int compare(ThingManager o1, ThingManager o2) {
+					return o1.getName().compareTo(o2.getName());
+				}
+			});
+			
+			Collections.sort(childs, new Comparator<WorkingSet>(){
+				public int compare(WorkingSet o1, WorkingSet o2) {
+					return o1.name.compareTo(o2.name);
+				}
+			});
+		}
+	}
 }

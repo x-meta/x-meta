@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 
 import org.xmeta.Category;
 import org.xmeta.Thing;
@@ -228,5 +229,9 @@ public class FileThingManager extends AbstractThingManager{
 		}
 		
 		return null;
+	}
+
+	@Override
+	public void init(Properties properties) {
 	}
 }

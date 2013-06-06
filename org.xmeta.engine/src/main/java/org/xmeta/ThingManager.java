@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import org.xmeta.util.ThingClassLoader;
 
@@ -225,4 +226,11 @@ public interface ThingManager {
 	 * @return
 	 */
 	public URL findResource(String name);
+	
+	/**
+	 * 初始化事物管理器。
+	 * 
+	 * @param properties
+	 */
+	public void init(Properties properties);
 }

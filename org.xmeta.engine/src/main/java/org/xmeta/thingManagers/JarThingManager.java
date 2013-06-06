@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -212,4 +213,7 @@ public class JarThingManager extends AbstractThingManager{
 		return null;
 	}
 
+	@Override
+	public void init(Properties properties) {
+	}
 }
