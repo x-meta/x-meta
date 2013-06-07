@@ -149,4 +149,8 @@ public abstract class Index {
 	 *
 	 */
 	public abstract boolean refresh();
+	
+	public long getLastModified(){
+		return 0;
+	}
 }

@@ -51,17 +51,17 @@ public class WorldIndex extends Index{
 
 	@Override
 	public String getDescription() {
-		return "World";
+		return "Projects";
 	}
 
 	@Override
 	public String getLabel() {
-		return "World";
+		return "Project";
 	}
 
 	@Override
 	public String getName() {
-		return "World";
+		return "Projects";
 	}
 
 	@Override
