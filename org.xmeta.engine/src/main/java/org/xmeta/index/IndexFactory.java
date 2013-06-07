@@ -4,14 +4,40 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.xmeta.Category;
 import org.xmeta.Index;
 import org.xmeta.Thing;
+import org.xmeta.ThingIndex;
 import org.xmeta.ThingManager;
 
 public abstract class IndexFactory {
 	public abstract Index createIndex(Index parent, Object obj);
 	
 	public abstract String getName(Object obj);
+	
+	public static IndexFactory thingIndexFactory = new IndexFactory(){
+		@Override
+		public Index createIndex(Index parent, Object obj) {
+			return new ThingIndexIndex(parent, (ThingIndex) obj);
+		}
+
+		@Override
+		public String getName(Object obj) {
+			return ((ThingIndex) obj).name;
+		}
+	};
+	
+	public static IndexFactory categoryIndexFactory = new IndexFactory(){
+		@Override
+		public Index createIndex(Index parent, Object obj) {
+			return new CategoryIndex(parent, (Category) obj);
+		}
+
+		@Override
+		public String getName(Object obj) {
+			return ((Category) obj).getName();
+		}
+	};
 	
 	public static IndexFactory workingSetIndexFactory = new IndexFactory(){
 		@Override

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.xmeta.Index;
 import org.xmeta.Thing;
+import org.xmeta.ThingManager;
 import org.xmeta.World;
 
 public class WorldIndex extends Index{
@@ -21,6 +22,9 @@ public class WorldIndex extends Index{
 	 * 事物管理器的缓存索引
 	 */
 	Map<String, ThingManagerIndex> thingManagerIndexs = new HashMap<String, ThingManagerIndex>();
+	
+	/** 是否显示工作组 */
+	public boolean showWorkingSet = true;
 	
 	public WorldIndex(){
 		refresh();
@@ -76,19 +80,49 @@ public class WorldIndex extends Index{
 			childs = new ArrayList<Index>();
 		}
 		
-		//事物管理器的索引
-		IndexFactory.addOrRemoveChilds(this, childs, World.getInstance().getThingManagers(),
-				IndexFactory.thingManagerIndexFactory, Index.TYPE_THINGMANAGER);
-		
 		//工作组的事物管理器索引
-		Thing workingSet = World.getInstance().getThing("_local.xworker.worldExplorer.WorkingSet");
-		if(workingSet != null){
-			IndexFactory.addOrRemoveChilds(this, childs, workingSet.getChilds(),
-					IndexFactory.workingSetIndexFactory, Index.TYPE_WORKING_SET);
+		if(showWorkingSet){
+			Thing workingSet = World.getInstance().getThing("_local.xworker.worldExplorer.WorkingSet");
+			if(workingSet != null){
+				IndexFactory.addOrRemoveChilds(this, childs, workingSet.getChilds(), IndexFactory.workingSetIndexFactory, Index.TYPE_WORKING_SET);
+			}else{
+				IndexFactory.addOrRemoveChilds(this, childs, Collections.emptyList(), IndexFactory.workingSetIndexFactory, Index.TYPE_WORKING_SET);
+			}
+		}else{
+			IndexFactory.addOrRemoveChilds(this, childs, Collections.emptyList(), IndexFactory.workingSetIndexFactory, Index.TYPE_WORKING_SET);
 		}
+		
+		//已经在WorkingSet下的事物管理器不放到World下
+		Map<String, Index> context = new HashMap<String, Index>();
+		for(Index childIndex : childs){
+			initWorkingSetThingManagers(childIndex, context);
+		}
+		
+		List<ThingManager> thingManagers = new ArrayList<ThingManager>();
+		for(ThingManager thingManager : World.getInstance().getThingManagers()){
+			if(context.get(thingManager.getName()) == null){
+				thingManagers.add(thingManager);
+			}
+		}
+		
+		//事物管理器的索引
+		IndexFactory.addOrRemoveChilds(this, childs, thingManagers,	IndexFactory.thingManagerIndexFactory, Index.TYPE_THINGMANAGER);
 		
 		sort(childs);
 		return true;
+	}
+	
+	private void initWorkingSetThingManagers(Index workingSetIndex, Map<String, Index> thingManagers){
+		if(workingSetIndex instanceof WorkingSetIndex){
+			WorkingSetIndex wsetIndex = (WorkingSetIndex) workingSetIndex;
+			for(Index childIndex : wsetIndex.getChilds()){
+				if(childIndex instanceof ThingManagerIndex){
+					thingManagers.put(childIndex.getName(), childIndex);
+				}else if(childIndex instanceof WorkingSetIndex){
+					initWorkingSetThingManagers(childIndex, thingManagers);
+				}
+			}
+		}
 	}
 	
 	public static void sort(List<Index> indexs){
@@ -100,6 +134,14 @@ public class WorldIndex extends Index{
 				}
 				
 				if(Index.TYPE_WORKING_SET.equals(o2.getType()) && Index.TYPE_THINGMANAGER.equals(o1.getType())){
+					return 1;
+				}
+				
+				if(Index.TYPE_CATEGORY.equals(o1.getType()) && Index.TYPE_THING.equals(o2.getType())){
+					return -1;
+				}
+				
+				if(Index.TYPE_THING.equals(o2.getType()) && Index.TYPE_CATEGORY.equals(o1.getType())){
 					return 1;
 				}
 				
