@@ -35,7 +35,7 @@ public abstract class IndexFactory {
 
 		@Override
 		public String getName(Object obj) {
-			return ((Category) obj).getName();
+			return ((Category) obj).getSimpleName();
 		}
 	};
 	

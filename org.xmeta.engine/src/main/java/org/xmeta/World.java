@@ -107,8 +107,7 @@ public class World {
 	private List<ThingCoder> thingCoders = new ArrayList<ThingCoder>();
 	/** 目录缓存 */
 	private Map<String, CategoryCache> categoryCaches = new HashMap<String, CategoryCache>();
-	/** 事物管理器所属的工作组 */
-	private Map<String, String> thingManagerWorkingSets = new HashMap<String, String>();
+
 	/**
 	 * 运行时所有的事物基本都通过World获取，为提交性能增加路径缓存。
 	 * 
@@ -632,6 +631,10 @@ public class World {
 	 */
 	public void init(String worldPath) {
 		// 设置事物的路径
+		if(worldPath == null){
+			worldPath = ".";
+		}
+		
 		File f = new File(worldPath);
 		this.worldPath = f.getAbsolutePath();
 
@@ -844,6 +847,20 @@ public class World {
 	public boolean isHaveActionListener(){
 		return actionListener != null;
 	}
+	
+	/**
+	 * 返回指定的文件名是否是保存事物的文件。
+	 * 
+	 * @param fileName
+	 * @return
+	 */
+	public boolean isThingFile(String fileName){
+		for(ThingCoder coder : this.thingCoders){
+			if(fileName.endsWith("." + coder.getType()));
+		}
+		
+		return false;
+	}
 
 	/**
 	 * 添加事物管理器。
@@ -903,21 +920,10 @@ public class World {
 		//同时删除目录
 		UtilFile.delete(new File(worldPath + "/projects/" + thingManager.getName()));
 	}
-	
-	/**
-	 * 根据事物管理器的名称获取工作组。
-	 * 
-	 * @param thingManagerName
-	 * @return
-	 */
-	public String getWorkingSet(String thingManagerName){
-		return thingManagerWorkingSets.get(thingManagerName);
-	}
-	
+
 	public ThingManager initThingManager(File rootPath){
 		String name = rootPath.getName();
 		String link = null;
-		String workingSet = null;
 		if(rootPath.isDirectory()){
 			File configFile = new File(rootPath, "config.properties");
 			if(configFile.exists()){
@@ -931,8 +937,6 @@ public class World {
 					if(link != null && link.trim().equals("")){
 						link = null;
 					}
-					workingSet = properties.getProperty("workingSet");
-					thingManagerWorkingSets.put(name, workingSet);
 				}catch(Exception e){
 					throw new XMetaException("init thing manager error, path=" + rootPath, e);
 				}finally{
@@ -947,36 +951,44 @@ public class World {
 			}
 		}
 		
+		boolean isLink = false;
 		if(link != null){
 			File linkFile = new File(link);
 			if(!linkFile.exists()){
 				linkFile = new File(worldPath, link);
 			}
-			String linkName = linkFile.getName().toLowerCase();
-			if(linkFile.isFile() && (linkName.endsWith(".jar") || linkName.endsWith(".zip"))){
-				//创建并添加到末尾
-				ThingManager thingManager = new JarThingManager(name, linkFile);
-				addThingManager(thingManager);
-				
-				//添加到类库
-				getClassLoader().addJarOrZip(linkFile);
-				getClassLoader().addJarOrZip(new File(rootPath, "lib"));
-				return thingManager;
-			}else{
-				ThingManager thingManager = new FileThingManager(name, linkFile);
-				addThingManager(thingManager);
-				
-				//添加类库
-				getClassLoader().addJarOrZip(new File(linkFile, "lib"));
-				return thingManager;
+			if(linkFile.exists()){
+				isLink = true;
+				String linkName = linkFile.getName().toLowerCase();
+				if(linkFile.isFile() && (linkName.endsWith(".jar") || linkName.endsWith(".zip"))){
+					//创建并添加到末尾
+					ThingManager thingManager = new JarThingManager(name, linkFile);
+					addThingManager(thingManager);
+					
+					//添加到类库
+					getClassLoader().addJarOrZip(linkFile);
+					getClassLoader().addJarOrZip(new File(rootPath, "lib"));
+					return thingManager;
+				}else{
+					ThingManager thingManager = new FileThingManager(name, linkFile);
+					addThingManager(thingManager);
+					
+					//添加类库
+					getClassLoader().addJarOrZip(new File(linkFile, "lib"));
+					return thingManager;
+				}
 			}
-		}else{
+		}
+		
+		if(!isLink){
 			ThingManager thingManager = new FileThingManager(name, rootPath);
 			addThingManager(thingManager);
 			
 			//添加类库
 			getClassLoader().addJarOrZip(new File(rootPath, "lib"));
 			return thingManager;
+		}else{
+			return null;
 		}
 	}
 	

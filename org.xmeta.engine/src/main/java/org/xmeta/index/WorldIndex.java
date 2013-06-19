@@ -80,6 +80,8 @@ public class WorldIndex extends Index{
 			childs = new ArrayList<Index>();
 		}
 		
+		World.getInstance().refresh();
+		
 		//工作组的事物管理器索引
 		if(showWorkingSet){
 			Thing workingSet = World.getInstance().getThing("_local.xworker.worldExplorer.WorkingSet");

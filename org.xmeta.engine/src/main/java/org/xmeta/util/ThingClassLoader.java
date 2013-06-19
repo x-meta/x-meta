@@ -4,15 +4,12 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.xmeta.ThingManager;
 import org.xmeta.World;
 
 public class ThingClassLoader extends URLClassLoader {
-	/** 类装载的路径 */
-	protected String classPath = "";
 	
 	/**
 	 * 构建一个世界级的类装载器。
@@ -22,8 +19,12 @@ public class ThingClassLoader extends URLClassLoader {
 	public ThingClassLoader(ClassLoader parent) {
 		super(new URL[] {}, parent);
 
+		if(parent instanceof URLClassLoader){
+			
+		}
 		File libFile = new File(World.getInstance().getPath() + "/lib/");
 		addJarOrZip(libFile);
+		
 //		initClassPath();
 	}
 
@@ -43,8 +44,6 @@ public class ThingClassLoader extends URLClassLoader {
 			} else {
 				String fileName = file.getName().toLowerCase();
 				if (fileName.endsWith(".jar") || fileName.endsWith(".zip")) {
-					classPath += File.pathSeparator + file.getAbsolutePath();
-					
 					try {
 						this.addURL(file.toURI().toURL());
 					} catch (MalformedURLException e) {
@@ -56,10 +55,28 @@ public class ThingClassLoader extends URLClassLoader {
 	}
 	
 	public String getClassPath() {
+		Map<String, String> context = new HashMap<String, String>();
+		return getClassPathFormClassLoader(this, "", context);
+	}
+	
+	public static String getClassPathFormClassLoader(URLClassLoader loader, String classPath, Map<String, String> context){		
+		for(URL url : loader.getURLs()){
+			String filePath = url.getFile();
+			if(filePath != null && context.get(filePath) == null){
+				context.put(filePath, filePath);
+				classPath = classPath + File.pathSeparator + filePath;
+			}
+		}
+		
+		ClassLoader parent = loader.getParent();
+		if(parent instanceof URLClassLoader){
+			classPath = getClassPathFormClassLoader((URLClassLoader) parent, classPath, context);
+		}
+		
 		return classPath;
 	}
 	
 	public String getCompileClassPath() {
-		return classPath ;
+		return getClassPath();
 	}
 }

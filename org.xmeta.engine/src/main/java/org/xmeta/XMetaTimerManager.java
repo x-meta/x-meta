@@ -4,7 +4,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class XMetaTimerManager {
-	private static Timer timer = new Timer("X-Meta engine timer");
+	private static Timer timer = new Timer("X-Meta engine timer", true);
 	
 	/**
 	 * 注册定时器。

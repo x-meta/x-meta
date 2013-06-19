@@ -51,7 +51,7 @@ public class CategoryIndex extends Index{
 
 	@Override
 	public String getName() {
-		return category.getName();
+		return category.getSimpleName();
 	}
 
 	@Override
@@ -81,6 +81,7 @@ public class CategoryIndex extends Index{
 		}
 		//刷新下级节点
 		List<Category> categorys = new ArrayList<Category>();
+		category.refresh();
 		for(Category cat : category.getCategorys()){
 			if(cat.getName() != null && !"".equals(cat.getName())){
 				categorys.add(cat);

@@ -73,6 +73,7 @@ public class ThingManagerIndex extends Index{
 			childs = new ArrayList<Index>();
 		}
 				
+		thingManager.refresh();
 		List<Category> categorys = new ArrayList<Category>();
 		for(Category category : thingManager.getCategorys()){
 			if(category.getName() != null && !"".equals(category.getName())){
