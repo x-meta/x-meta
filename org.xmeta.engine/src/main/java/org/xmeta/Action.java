@@ -603,7 +603,7 @@ public class Action extends Semaphore{
 			}
 			
 			if(useOtherAction){
-				//因已经压入一个栈，这样如果直接调用还会压入一个栈，这样某些程序无法找到self变量，所以取上一级bindings
+				//如果一个动作是引用其他动作的，那么执行被引用的动作 
 				Bindings callerBindings = context.getScope(context.getScopesSize() - 2);
 				try{
 					context.push(callerBindings);
@@ -612,6 +612,7 @@ public class Action extends Semaphore{
 					context.pop();
 				}
 			}else if(isJava){
+				//如果动作时原生动作，即Java动作，那么通过反射机制调用 
 				if(actionClass != null){
 					if(method != null){
 						result = method.invoke(actionClass, new Object[]{context});
@@ -620,10 +621,12 @@ public class Action extends Semaphore{
 					}
 				}
 			}else{
-				//如果不是Java，那么当前事物的描述者实现了运行该动作的方法
+				//如果不是Java，那么调用当前动作事物的run行为，run行为有可能是自定义的也有可能是其描述者定义的 
+			    //此方法很重要，用这个方法可以实现其他语言的支持，比如Groovy、JavaScript等脚本语言 
 				if(isSelfInterpretationType){
+					//self类型的动作，当一个动作作为子动作时，而变量self还需要是自己，那么需要定义成此类型 
 					if(attributeTemplate){
-						//改变属性，属性可以包含模板
+						//属性模板，动作的属性可以设置成freemarker模板，在执行时用模板生成真正的属性值 
 						Thing fthing = (Thing) thing.run("processAttributeTemplate", context, (Map<String, Object>) null, isSubAction, true);
 						if(fthing != null){
 							fthing.run("run", context, (Map<String, Object>) null, isSubAction, true);
@@ -632,6 +635,7 @@ public class Action extends Semaphore{
 						result = thing.run("run", context, (Map<String, Object>) null, isSubAction, true);
 					}
 				}else{
+					//获取事物自己的行为run，然后执行 
 					Thing actionThing = thing.getActionThing("run");
 					if(actionThing != null){
 						Action ac = actionThing.getAction();
