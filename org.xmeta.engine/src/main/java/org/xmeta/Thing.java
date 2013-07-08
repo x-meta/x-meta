@@ -1832,6 +1832,25 @@ public class Thing {
 		return getString(name, null);
 	}
 	
+	/**
+	 * 获取字符串，trim()后的空字符串也返回null。
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public String getStringBlankAsNull(String name){
+		String attr = getString(name);
+		if(attr != null){
+			attr = attr.trim();
+		}
+		
+		if(attr == null || "".equals(attr)){
+			return null;
+		}else{
+			return attr;
+		}
+	}
+	
 	public String getString(String name, String defaultValue){
 		return UtilData.getString(getAttribute(name), defaultValue);
 	}
