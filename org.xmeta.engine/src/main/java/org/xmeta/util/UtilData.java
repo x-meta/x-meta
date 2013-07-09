@@ -67,6 +67,27 @@ public class UtilData {
 	public static final String TYPE_OBJECT = "object";
 	
 	/**
+	 * 如果str和matchs中任何一个匹配返回true，如果str=null或者matchs=null，返回false。
+	 * 
+	 * @param str
+	 * @param matchs
+	 * @return
+	 */
+	public static boolean equalsOne(String str, String[] matchs){
+		if(str == null || matchs == null){
+			return false;
+		}
+		
+		for(String match : matchs){
+			if(match.equals(str)){
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * 把数据对象转换为字符串类型。
 	 * 
 	 * @param value
