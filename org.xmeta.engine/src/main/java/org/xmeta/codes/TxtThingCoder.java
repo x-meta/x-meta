@@ -31,7 +31,7 @@ public class TxtThingCoder implements ThingCoder{
 		try{
 			TxtCoder.decode(thing, in, true, lastModifyed);			
 		}catch(Exception e){
-			logger.error("decode thing error, still return part decoded thing", e);
+			logger.error("decode thing error, still return part decoded thing, thing=" + thing.getMetadata().getPath(), e);
 			//throw new ThingCoderException(e);
 		}finally{
 			thing.endModify(false);

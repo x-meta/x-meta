@@ -301,6 +301,11 @@ public class TxtCoder {
 		
 		//编码子节点
 		for(Thing child : thing.getChilds()){
+			if(child.getParent() != thing){
+				//如果是在程序里软添加的，不保存
+				continue;
+			}
+			
 			TxtCoder.encode(child, out, context);
 		}
 	}
@@ -556,6 +561,9 @@ public class TxtCoder {
 		}
 		
 		current = current.getParent();
+		if(current == null){
+			return null;
+		}
 		return getPathParent(current, path);
 	}
 }
