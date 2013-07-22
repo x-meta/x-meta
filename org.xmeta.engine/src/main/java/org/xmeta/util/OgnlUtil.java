@@ -32,7 +32,7 @@ public class OgnlUtil {
 	 */
 	public static Object getValue(Thing thing, String pathAttributeName, String pathAttributeValue, Object root) throws OgnlException{
 		String key = CACHE + pathAttributeName;
-		PathCache pathCache = (PathCache) thing.getData("key");
+		PathCache pathCache = (PathCache) thing.getData(key);
 		if(pathCache == null || pathCache.lastModified != thing.getMetadata().getLastModified()){
 			if(pathCache == null){
 				pathCache = new PathCache();
