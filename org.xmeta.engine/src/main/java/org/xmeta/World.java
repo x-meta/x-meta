@@ -651,16 +651,10 @@ public class World {
 
 		// 初始化项目等
 		metaThing = new MetaThing();
-		refresh();
 		
 		//添加World目录下的事物管理器
 		thingManagers.clear();
-		File projectsFiles = new File(f, "projects");
-		if(projectsFiles.exists()){
-			for(File projectFile : projectsFiles.listFiles()){
-				this.initThingManager(projectFile);			
-			}
-		}
+		refresh();
 		thingManagers.add(transientThingManager);
 		//thingManagers.add(classThingManager);
 		
@@ -712,6 +706,27 @@ public class World {
 	 * 
 	 */
 	public void refresh() {
+		Map<String, String> context = new HashMap<String, String>();
+		for(ThingManager manager : thingManagers){
+			context.put(manager.getName(), manager.getName());
+		}
+		
+		File projectsFiles = new File(worldPath, "projects");
+		if(projectsFiles.exists()){
+			for(File projectFile : projectsFiles.listFiles()){
+				if(projectFile.isFile()){
+					continue;
+				}
+				
+				String name = projectFile.getName();
+				if(context.get(name) != null){
+					continue;
+				}else{
+					this.initThingManager(projectFile);
+					context.put(name, name);
+				}
+			}
+		}
 	}
 
 	/**
