@@ -25,12 +25,16 @@ public class OgnlUtil {
 	 * 
 	 * @param thing
 	 * @param pathAttribute
-	 * @param path  是事物的属性值
+	 * @param path  是事物的属性值，如果为空返回null
 	 * @param root
 	 * @return
 	 * @throws OgnlException
 	 */
 	public static Object getValue(Thing thing, String pathAttributeName, String pathAttributeValue, Object root) throws OgnlException{
+		if(pathAttributeValue == null || "".equals(pathAttributeValue)){
+			return null;
+		}
+		
 		String key = CACHE + pathAttributeName;
 		PathCache pathCache = (PathCache) thing.getData(key);
 		if(pathCache == null || pathCache.lastModified != thing.getMetadata().getLastModified()){
