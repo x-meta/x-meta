@@ -21,6 +21,7 @@ package org.xmeta;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -115,6 +116,8 @@ public class World {
 	private Map<String, Path> pathCache1 = new HashMap<String, Path>(5000);
 	private Map<String, Path> pathCache2 = new HashMap<String, Path>(5000);
 
+	private String OS;
+	private String PROCESSOR_ARCHITECTURE;
 	/**
 	 * 私有构造方法，目前系统中只允许存在一个世界。
 	 * 
@@ -498,7 +501,7 @@ public class World {
 	 * @param actionContext
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"rawtypes" })
 	public Class getActionClass(Thing actionThing, ActionContext actionContext){
 		if(actionThing != null){
 			return actionThing.getAction().getActionClass(actionContext);
@@ -623,6 +626,51 @@ public class World {
 		return worldClassLoader;
 	}
 
+	private void initLibraryPath(){
+		File f = new File(worldPath);
+		
+		String libraryPath = System.getProperty("java.library.path");
+		
+		//设置world目录下的library/<OS>/为类库位置
+		String path = new File(f, "library/" + OS).getAbsolutePath();
+		libraryPath = libraryPath + File.pathSeparator + path;
+		addLibraryDir(path);
+		
+		//设置 world目下下的library/<OS>/<PROCESSOR_ARCHITECTURE>/为类库位置
+		path = new File(f, "library/" + OS + "/" + PROCESSOR_ARCHITECTURE).getAbsolutePath();
+		libraryPath = libraryPath + File.pathSeparator + path;
+		addLibraryDir(path);
+				
+		System.setProperty("java.library.path", libraryPath);
+	}
+	
+	private void initOsProperites(){
+		try{
+			OS = System.getenv("OS").toLowerCase();			
+			PROCESSOR_ARCHITECTURE = System.getenv("PROCESSOR_ARCHITECTURE").toLowerCase();
+			File file = new File(worldPath + "/xworker.properties");
+			if(file.exists()){
+				Properties p = new Properties();
+				FileReader fr = new FileReader(file);
+				try{
+					p.load(fr);
+				}finally{
+					fr.close();
+				}
+				String value = p.getProperty(OS);
+				if(value != null && !"".equals(value)){
+					OS = value;
+				}
+				value = p.getProperty(PROCESSOR_ARCHITECTURE);
+				if(value != null && !"".equals(value)){
+					PROCESSOR_ARCHITECTURE = value;
+				}
+			}			
+		}catch(Exception e){
+			
+		}
+	}
+	
 	/**
 	 * 通过给定事物的存放路径来初始化世界。
 	 * 
@@ -638,17 +686,16 @@ public class World {
 		File f = new File(worldPath);
 		this.worldPath = f.getAbsolutePath();
 
+		//os和架构等变量的初始化
+		initOsProperites();
+		
 		//初始化类库路径
 		// 设置类装载器
 		worldClassLoader = new ThingClassLoader(Thread.currentThread().getContextClassLoader());
 		
 		// 设置library path
-		String libraryPath = System.getProperty("java.library.path");
-		String worldLibraryPath = new File(f, "library").getAbsolutePath();
-		libraryPath = libraryPath + File.pathSeparator + worldLibraryPath;
-		System.setProperty("java.library.path", libraryPath);
-		addLibraryDir(worldLibraryPath);
-
+		initLibraryPath();
+		
 		// 初始化项目等
 		metaThing = new MetaThing();
 		
@@ -983,6 +1030,8 @@ public class World {
 					//添加到类库
 					getClassLoader().addJarOrZip(linkFile);
 					getClassLoader().addJarOrZip(new File(rootPath, "lib"));
+					getClassLoader().addJarOrZip(new File(rootPath, "lib_" + OS));
+					getClassLoader().addJarOrZip(new File(rootPath, "lib_" + OS + "_" + PROCESSOR_ARCHITECTURE));
 					return thingManager;
 				}else{
 					ThingManager thingManager = new FileThingManager(name, linkFile);
@@ -990,6 +1039,8 @@ public class World {
 					
 					//添加类库
 					getClassLoader().addJarOrZip(new File(linkFile, "lib"));
+					getClassLoader().addJarOrZip(new File(linkFile, "lib_" + OS));
+					getClassLoader().addJarOrZip(new File(linkFile, "lib_" + OS + "_" + PROCESSOR_ARCHITECTURE));
 					return thingManager;
 				}
 			}
@@ -1001,6 +1052,8 @@ public class World {
 			
 			//添加类库
 			getClassLoader().addJarOrZip(new File(rootPath, "lib"));
+			getClassLoader().addJarOrZip(new File(rootPath, "lib_" + OS));
+			getClassLoader().addJarOrZip(new File(rootPath, "lib_" + OS + "_" + PROCESSOR_ARCHITECTURE));
 			return thingManager;
 		}else{
 			return null;
