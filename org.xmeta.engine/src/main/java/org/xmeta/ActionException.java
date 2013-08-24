@@ -20,6 +20,8 @@ package org.xmeta;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 动作的异常。
@@ -30,6 +32,9 @@ import java.io.PrintWriter;
 public class ActionException extends RuntimeException{
 	private static final long serialVersionUID = 1L;
 
+	/** XWorker自身的堆栈列表 */
+	private static List<Bindings> bindingList = new ArrayList<Bindings>();
+	
 	public ActionException(){
         super();
     }
@@ -44,6 +49,39 @@ public class ActionException extends RuntimeException{
     
     public ActionException(Throwable cause){
         super(cause);        
+    }
+    
+    public ActionException(String message, ActionContext actionContext){
+        super(message);
+        
+        initBindings(actionContext);
+    }
+
+    public ActionException(String message, Throwable cause, ActionContext actionContext){
+        super(message, cause);        
+        
+        initBindings(actionContext);
+    }
+    
+    public ActionException(Throwable cause, ActionContext actionContext){
+        super(cause);        
+        
+        initBindings(actionContext);
+    }
+    
+    protected void initBindings(ActionContext actionContext){
+    	for(int i=actionContext.getScopesSize() - 1; i>=0; i--){
+    		Bindings bindings = actionContext.getScope(i);
+    		bindingList.add(bindings);
+    	}
+    }
+    
+    /**
+     * 如果构造ActionExeption时传入了ActionContext，那么可以获取它的所有Bindings此时返回的列表不为空，其他则为空。
+     * @return
+     */
+    public List<Bindings> getBindings(){
+    	return bindingList;
     }
     
 	@Override
