@@ -188,7 +188,7 @@ public class Action extends Semaphore{
 		try{
 			init();
 		}catch(Exception e){
-			throw new ActionException("", e);
+			throw new ActionException("init action error, action=" + thing, e);
 		}
 	}
 		
