@@ -653,4 +653,9 @@ public class ActionContext implements Map<String, Object> {
 	public Object getThrowedObject() {
 		return threadThrowedObject.get();
 	}
+
+	@Override
+	public String toString() {
+		return "ActionContext [hashCode=" + this.hashCode() + ",callers=" +  this.getThings() + "]";
+	}
 }

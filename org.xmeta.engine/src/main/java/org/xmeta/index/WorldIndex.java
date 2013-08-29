@@ -18,13 +18,42 @@ public class WorldIndex extends Index{
 	 */
 	List<Index> childs = null;
 	
-	/**
-	 * 事物管理器的缓存索引
-	 */
-	Map<String, ThingManagerIndex> thingManagerIndexs = new HashMap<String, ThingManagerIndex>();
-	
 	/** 是否显示工作组 */
 	public boolean showWorkingSet = true;
+	
+	public List<Index> getThingManagerIndexs(){
+		List<Index> thlist = new ArrayList<Index>();
+		Map<String, String> context = new HashMap<String, String>();
+		getThingManagerIndexs(context, this, thlist);
+		
+		return thlist;
+	}
+
+	/**
+	 * 获取所有事物管理器的索引列表。
+	 * 
+	 * @param context
+	 * @param index
+	 * @param list
+	 */
+	private void getThingManagerIndexs(Map<String, String> context, Index index, List<Index> list){
+		if(Index.TYPE_THINGMANAGER.equals(index.getType())){
+			if(context.get(index.getPath()) == null){
+				list.add(index);
+				context.put(index.getPath(), index.getPath());
+			}
+		}else if(Index.TYPE_WORLD.equals(index.getType())){
+			for(Index child : index.getChilds()){
+				getThingManagerIndexs(context, child, list);
+			}
+		}else if(Index.TYPE_WORKING_SET.equals(index.getType())){
+			for(Index child : index.getChilds()){
+				getThingManagerIndexs(context, child, list);
+			}
+		}else{
+			return;
+		}
+	}
 	
 	public WorldIndex(){
 		refresh();
