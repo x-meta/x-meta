@@ -28,19 +28,19 @@ import java.util.Set;
 import java.util.Stack;
 
 /**
- * 动作上下文是执行动作时的变量空间，起到函数调用时栈的作用，是一个Stack和Map的综合体。
+ * 变量上下文是执行动作时的变量空间，起到函数调用时栈的作用，是一个Stack和Map的综合体。
  * <p/>
  * 
- * 动作上下文通过栈的深度来表示全局变量和局部变量，深度越浅则越靠近全局变量，范围0是全局变量。
+ * 变量上下文通过栈的深度来表示全局变量和局部变量，深度越浅则越靠近全局变量，范围0是全局变量。
  * <p/>
  * 
- * 动作上下文是线程绑定的，除了创建时的变量时公用的，其他变量是线程各自的。
+ * 变量上下文是线程绑定的，除了创建时的变量时公用的，其他变量是线程各自的。
  * <p/>
  * 
- * 如果一个动作上下文的构造参数是另一个动作上下文，那么会先把用于构造的动作上下文的
- * 所有变量绑定压入栈中，因此两个动作上下文将使用相同的全局变量，但使用各自的最新的
- * 局部变量。由于原先的动作上下文的变量绑定被新的动作上下文所引用，因此当原先的动作
- * 上下文把一个变量绑定移除栈的时候，新的动作上下文还保持这个变量绑定的引用，因此需要注意一下内存的问题。<p/>
+ * 如果一个变量上下文的构造参数是另一个变量上下文，那么会先把用于构造的变量上下文的
+ * 所有变量绑定压入栈中，因此两个变量上下文将使用相同的全局变量，但使用各自的最新的
+ * 局部变量。由于原先的变量上下文的变量绑定被新的变量上下文所引用，因此当原先的动作
+ * 上下文把一个变量绑定移除栈的时候，新的变量上下文还保持这个变量绑定的引用，因此需要注意一下内存的问题。<p/>
  * 
  * @author <a href="mailto:zhangyuxiang@tom.com">zyx</a>
  * 
@@ -104,7 +104,7 @@ public class ActionContext implements Map<String, Object> {
 	/** 变量绑定 */
 	// Bindings bindings;
 	/**
-	 * 默认构造函数。
+	 * 默认构造函数，并创建一个所有线程都共用的全局变量栈。
 	 * 
 	 */
 	public ActionContext() {
@@ -112,7 +112,8 @@ public class ActionContext implements Map<String, Object> {
 	}
 
 	/**
-	 * 通过给定的变量绑定创建动作上下文。
+	 * 通过给定的变量绑定创建变量上下文，其中传入的变量上下文的栈全部放入不可push和pop的栈中，
+	 * 并压入一个新的所有线程都共用的全局变量栈，传入的变量上下文比新的全局变量更加全局。
 	 * 
 	 * @param bindings
 	 *            变量绑定
@@ -130,6 +131,11 @@ public class ActionContext implements Map<String, Object> {
 		bindings.put("actionContext", this);
 	}
 
+	/**
+	 * 创建一个变量上下文，使用指定的全局变量Bindings。
+	 * 
+	 * @param bindings
+	 */
 	public ActionContext(Bindings bindings) {
 		createThread  = Thread.currentThread();
 		
@@ -191,7 +197,7 @@ public class ActionContext implements Map<String, Object> {
 	}
 
 	/**
-	 * 返回是否禁止了全局动作上下文。
+	 * 返回是否禁止了全局变量上下文。
 	 * 
 	 * @return
 	 */
@@ -545,7 +551,7 @@ public class ActionContext implements Map<String, Object> {
 	}
 
 	/**
-	 * 设置动作上下文中一个变量的值，设置值的方法是从栈的顶端的Bindings向栈底端的Bindings找，如果Bindings包含
+	 * 设置变量上下文中一个变量的值，设置值的方法是从栈的顶端的Bindings向栈底端的Bindings找，如果Bindings包含
 	 * 相应的键那么调用Bindings的put方法，如果所有的Bingings都不包含给定的键值，没有那么设置到顶端的Bindings中。
 	 * 
 	 * 要确保设置全局变量的本地变量，可以通过getScope取得相应的Bindings，然后在赋值。
