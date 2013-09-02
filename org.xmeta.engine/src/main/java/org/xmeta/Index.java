@@ -58,32 +58,60 @@ public abstract class Index {
 	}
 	
 	/**
-	 * 根据路径返回索引列表，由于事物名可以和子目录名一致，所以最多可以返回两个索引。
+	 * 通过Index生成一个ID，使用这个ID可以通过getIndexById方法获取。
 	 * 
-	 * @param path
+	 * @param index
 	 * @return
 	 */
-	public static List<Index> getIndex(String path){
-		List<Index> indexs = new ArrayList<Index>();
-		Index parent = Index.getInstance();
+	public static String getIndexId(Index index){
+		Index parent = index.getParent();
+		String id = index.getType() + "|" + index.getName();
 		while(parent != null){
-			Index tmpParent = null;
-			for(Index child : parent.getChilds()){
-				if(child.getPath().equals(path)){
-					indexs.add(child);
-				}else if(path.startsWith(child.getPath())){
-					tmpParent = child;
-				}else if(child.getType().equals(Index.TYPE_PROJECTS)){
-					tmpParent = child;
-				}
-			}
-			
-			parent = tmpParent;
+			id = parent.getType() + "|" + parent.getName() + "." + id;
+			parent = parent.getParent();
 		}
 		
-		return indexs;
+		return id;
 	}
 	
+	/**
+	 * 通过标识获取索引。
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public static Index getIndexById(String id){
+		Index parent = Index.getInstance();
+		if(id == null || "".equals(index)){
+			return parent;
+		}
+		
+		String path = parent.getType() + "|" + parent.getName();
+		while(parent  != null){
+			if(id.equals(path)){
+				return parent;
+			}
+			
+			boolean have = false;
+			for(Index child : parent.getChilds()){
+				String childPath = path + "." + child.getType() + "|" + child.getName();
+				if(id.equals(childPath)){
+					return child;
+				}else if(id.startsWith(childPath)){
+					path = childPath;
+					parent = child;
+					have = true;
+					break;
+				}
+			}			
+			
+			if(!have){
+				break;
+			}
+		}
+		
+		return null;
+	}
 	
 	/**
 	 * 返回被索引的事物。
@@ -130,7 +158,7 @@ public abstract class Index {
 	public abstract String getName() ;
 	
 	/**
-	 * 取路径。
+	 * 取路径，这个路径是通过World.get(path)可以获取的那个参数路径。
 	 * 
 	 * @return
 	 */
