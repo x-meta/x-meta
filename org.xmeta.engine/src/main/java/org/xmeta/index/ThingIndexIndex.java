@@ -48,7 +48,11 @@ public class ThingIndexIndex extends Index{
 
 	@Override
 	public String getLabel() {
-		return thing.label;
+		if(thing.label == null || "".equals(thing.label)){
+			return thing.name;
+		}else{
+			return thing.label;
+		}
 	}
 
 	@Override
