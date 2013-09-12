@@ -1068,28 +1068,23 @@ public class Thing {
     	return current;
 	}
 	
-	private Thing getActionThing(Thing thing, String name, Map<Thing, Object> context, LinkedThingEntry linkedThingEntry){
-		if(context.get(thing) != null){
+	private Thing getSelfActionThing(String name, Map<Thing, Object> context, LinkedThingEntry linkedThingEntry){
+		if(context.get(this) != null){
 			return null;
 		}else{
-			context.put(thing, thing);
+			context.put(this, this);
 		}
 		
-		linkedThingEntry.addThing(thing);
-		
+		//从自己定义的动作中寻找
 		Thing actionSet = null;
-		for(Thing child : thing.getChilds()){
+		for(Thing child : getChilds()){
 			if(child.isThingByName("actions")){
 				actionSet = child;
 				break;
 			}
-		}
-		
+		}			
 		if(actionSet != null){
 			for(Thing child : actionSet.getChilds()){
-				//if(!child.getMetadata().getName().equals(name) && child.getMetadata().getId().equals(name)){
-				//	System.out.println("idAction=" + child.getMetadata().getPath());
-				//}
 				if(child.getMetadata().getName().equals(name)){// || child.getMetadata().getName().equals(name)){
 					linkedThingEntry.addThing(child);
 					return child;
@@ -1100,26 +1095,70 @@ public class Thing {
 		return null;
 	}
 	
-	private Thing getExtendActionThing(Thing thing, String name, Map<Thing, Object> context, Map<Thing, Object> extendContext, LinkedThingEntry linkedThingEntry){
-		if(extendContext.get(thing) != null){
-			return null;
-		}else{
-			extendContext.put(thing, thing);
+	private Thing getActionThing(String name, Map<Thing, Object> context, Map<Thing, Object> superContext, LinkedThingEntry linkedThingEntry){
+		Thing actionThing = this.getSelfActionThing(name, context, linkedThingEntry);
+		if(actionThing == null){
+			actionThing = this.getSuperActionThing(name, context, superContext, linkedThingEntry);
 		}
 		
-		Thing actionThing = getActionThing(thing, name, context, linkedThingEntry);
-		if(actionThing != null){
-			return actionThing;
-		}else{
-			for(Thing extend : thing.getExtends()){
-				actionThing = getExtendActionThing(extend, name, context, extendContext, linkedThingEntry);
-				if(actionThing != null){
-					return actionThing;
+		return actionThing;
+	}
+	
+	private Thing getSuperActionThing(String name, Map<Thing, Object> context, Map<Thing, Object> superContext, LinkedThingEntry linkedThingEntry){
+		Thing actionThing = null;
+		if(superContext.get(this) != null){
+			return null;
+		}
+		superContext.put(this, this);
+		
+		linkedThingEntry.addThing(this);
+		try{
+			//从描述者自己上寻找	 		
+			if(actionThing == null){
+				for(Thing descriptor : getDescriptors()){
+					actionThing = descriptor.getSelfActionThing(name, context, linkedThingEntry);
+					if(actionThing != null){
+						break;
+					}
 				}
+			}
+			
+			//从继承者自己上寻找
+			if(actionThing == null){
+				for(Thing extend : getExtends()){
+					actionThing = extend.getSelfActionThing(name, context, linkedThingEntry);
+					if(actionThing != null){
+						break;
+					}
+				}
+			}
+			
+			//从描述者的父上寻找
+			if(actionThing == null){
+				for(Thing descriptor : getDescriptors()){
+					actionThing = descriptor.getSuperActionThing(name, context, superContext, linkedThingEntry);
+					if(actionThing != null){
+						break;
+					}
+				}
+			}
+			
+			//从继承者父上寻找
+			if(actionThing == null){
+				for(Thing extend : getExtends()){
+					actionThing = extend.getSuperActionThing(name, context, superContext, linkedThingEntry);
+					if(actionThing != null){
+						break;
+					}
+				}
+			}
+		}finally{
+			if(actionThing == null){
+				linkedThingEntry.removeLast();
 			}
 		}
 		
-		return null;
+		return actionThing;
 	}
 	
 	/**
@@ -1148,56 +1187,20 @@ public class Thing {
 		}
 		
 		linkedThingEntry = new LinkedThingEntry();
+		
+		Map<Thing, Object> context = new HashMap<Thing ,Object>();
+		Map<Thing, Object> superContext = new HashMap<Thing ,Object>();
 		if(name.startsWith("super.")){
-			actionThing = getActionThing(name.substring(6, name.length()), true, linkedThingEntry);
+			actionThing = this.getSuperActionThing(name.substring(6, name.length()), context, superContext, linkedThingEntry);
 		}else{
-			actionThing = getActionThing(name, false, linkedThingEntry);
+			actionThing = this.getActionThing(name, context, superContext, linkedThingEntry);
 		}
+		
 		if(actionThing != null){
 			actionCaches.put(name, linkedThingEntry);
 		}
 		
 		return actionThing;
-	}
-		
-	private Thing getActionThing(String name, boolean isSuperAction, LinkedThingEntry linkedThingEntry){
-		Map<Thing, Object> context = new HashMap<Thing, Object>();
-		Map<Thing, Object> extendContext = new HashMap<Thing, Object>();
-		
-		//找事物自身定义的动作
-		Thing actionThing = null;
-		if(!isSuperAction){
-			actionThing = getActionThing(this, name, context, linkedThingEntry);
-			if(actionThing != null){
-				linkedThingEntry.addThing(actionThing);
-				return actionThing;
-			}
-		}
-		
-		//从描述者中取
-		for(Thing thing : getDescriptors()){
-			actionThing = getActionThing(thing, name, context, linkedThingEntry);
-			if(actionThing != null){
-				return actionThing;
-			}
-			
-			for(Thing extend : thing.getExtends()){
-				actionThing = getExtendActionThing(extend, name, context, extendContext, linkedThingEntry);
-				if(actionThing != null){
-					return actionThing;
-				}
-			}
-		}
-		
-		//从继承者取
-		for(Thing extend : getExtends()){
-			actionThing = getExtendActionThing(extend, name, context, extendContext, linkedThingEntry);
-			if(actionThing != null){
-				return actionThing;
-			}
-		}
-		
-		return null;
 	}
 		
 	private void addToSourceByName(List<Thing> srcs, Thing forAdd){
