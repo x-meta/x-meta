@@ -167,7 +167,7 @@ public class Thing {
 	 * @param descriptorPath 事物的描述者
 	 * @param isTransient 是否是瞬态的
 	 */
-	public Thing(String name, String label, String descriptorPath, boolean isTransient){
+	public Thing(String name, String label, String descriptorPath, boolean isTransient){		
 		this.put(Thing.NAME, name);
 		this.put(Thing.LABEL, label);
 		this.put(Thing.DESCRIPTORS, descriptorPath);
@@ -183,10 +183,10 @@ public class Thing {
 			metadata.setPath("_transient.p" + id);
 			metadata.setCategory(manager.getCategory("_transient"));			
 			
-			isTransient = true;
+			this.isTransient = true;
 			this.save();
 		}else{
-			isTransient = false;
+			this.isTransient = false;
 		}
 	}
 	
