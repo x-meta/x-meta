@@ -472,7 +472,7 @@ public class UtilString {
 			if(actionContext != null){
 				try {
 					obj = (String) Ognl.getValue(v, actionContext);
-				} catch (OgnlException e) {
+				} catch (Exception e) {
 					obj = (String) actionContext.get(v);
 				}				
 			}
