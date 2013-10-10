@@ -30,12 +30,10 @@ import java.net.URLClassLoader;
  *
  */
 public class ActionClassLoader extends URLClassLoader {
-	static String path = World.getInstance().getPath() + "/actionClasses/";
-
 	public ActionClassLoader(ClassLoader parent) {		
 		super(new URL[] {}, parent);
 		
-		File classPath = new File(path);
+		File classPath = new File(World.getInstance().getPath() + "/actionClasses/");
 		try {
 			if(!classPath.exists()){
 				classPath.mkdirs();

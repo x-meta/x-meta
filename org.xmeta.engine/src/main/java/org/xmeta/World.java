@@ -682,6 +682,7 @@ public class World {
 		if(worldPath == null){
 			worldPath = ".";
 		}
+		ThingCache.clear();
 		
 		File f = new File(worldPath);
 		this.worldPath = f.getAbsolutePath();

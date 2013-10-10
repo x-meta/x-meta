@@ -55,4 +55,8 @@ public class ThingCache {
 	public static void remove(String path){
 		cache.remove(path);
 	}
+	
+	public static void clear(){
+		cache.clear();
+	}
 }

@@ -38,7 +38,11 @@ public class CategoryCache {
 				i--;
 			}
 			
-			Thing thing = category.getThingManager().getThing(thingName);
+			if(category == null){
+				return null;
+			}
+			ThingManager thingManager = category.getThingManager();			
+			Thing thing = thingManager.getThing(thingName);
 			if(thing != null){
 				return thing;
 			}
