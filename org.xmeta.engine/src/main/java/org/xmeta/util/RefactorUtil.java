@@ -1,6 +1,7 @@
 package org.xmeta.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +81,7 @@ public class RefactorUtil {
 				count = 2;
 				//计算world中所有事物的总量
 				Index index = Index.getInstance();
-				count += getThingCount(index);
+				count += getThingCount(index, new HashMap<String, String>());
 				
 				if(listener != null){
 					listener.onStart(count);
@@ -125,7 +126,7 @@ public class RefactorUtil {
 				
 				//计算world中所有事物的总量
 				Index index = Index.getInstance();
-				count += getThingCount(index);
+				count += getThingCount(index, new HashMap<String, String>());
 				
 				if(listener != null){
 					listener.onStart(count);
@@ -180,13 +181,21 @@ public class RefactorUtil {
 	 * 
 	 * @return
 	 */
-	private static int getThingCount(Index index){
+	private static int getThingCount(Index index, Map<String, String> context){
 		int count = 0;
 		if(index.getType().equals(Index.TYPE_THING)){
 			return 1;
 		}else{
+			if(index.getType().equals(Index.TYPE_THINGMANAGER)){
+				if(context.get(index.getName()) != null){
+					return 0;
+				}else{
+					context.put(index.getName(), index.getName());
+				}
+			}
+			
 			for(Index child : index.getChilds()){
-				count += getThingCount(child);
+				count += getThingCount(child, context);
 			}
 		}
 		
