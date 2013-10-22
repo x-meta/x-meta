@@ -2583,4 +2583,8 @@ public class Thing {
 	public Object getData(String key){
 		return datas.get(key);
 	}
+
+	public void setTransient(boolean isTransient) {
+		this.isTransient = isTransient;
+	}
 }
