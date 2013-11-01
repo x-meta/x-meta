@@ -2438,6 +2438,11 @@ public class Thing {
 		
 		ThingManager manager = World.getInstance().getThingManager(thingManager);		
 		if(manager != null){
+			if(!"_transient".equals(thingManager) && (thing.isTransient() || this.isTransient())){
+				//如果不是瞬态的事物管理器，也修改为非瞬态的状态
+				this.setTransient(false);
+			}
+			
 			Category cat = manager.getCategory(category);
 			if(cat == null){
 				manager.createCategory(category);				
@@ -2582,6 +2587,19 @@ public class Thing {
 	}
 
 	public void setTransient(boolean isTransient) {
-		this.isTransient = isTransient;
+		setTransient(isTransient, new HashMap<Thing, Thing>());
 	}
+	
+	private void setTransient(boolean isTransient, Map<Thing, Thing> context){
+		if(context.get(this) != null){
+			return;
+		}
+		
+		context.put(this, this);
+		this.isTransient = isTransient;
+		
+		for(Thing child : childs){
+			child.setTransient(isTransient, context);
+		}
+	} 
 }
