@@ -8,5 +8,7 @@
 	<classpathentry kind="lib" path="lib/ognl.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.5.2.jar"/>
+	<classpathentry kind="lib" path="lib/jedis-2.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-pool.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

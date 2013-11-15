@@ -38,6 +38,20 @@ public class CategoryCache {
 		categorys.add(rf);		
 	}
 	
+	public Category getCategory(){
+		for(int i=0; i<categorys.size(); i++){
+			WeakReference<Category> rf = categorys.get(i);
+			Category category = rf.get();
+			if(category == null){
+				categorys.remove(i);
+				i--;
+			}else{
+				return category;
+			}
+		}
+		
+		return null;
+	}
 	/**
 	 * 获取事物。
 	 * 

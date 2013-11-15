@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -288,6 +289,11 @@ public class World {
 						}
 					}else{
 						//查找是否是目录
+						categoryCache = categoryCaches.get(path.getPath());
+						if(categoryCache != null){
+							return categoryCache.getCategory();
+						}
+						
 						Category category = null;
 						for(int i=0; i<thingManagers.size(); i++){
 							ThingManager thingManager = thingManagers.get(i);
@@ -295,6 +301,12 @@ public class World {
 							if(category != null){
 								path.setType(Path.TYPE_CATEGORY);
 
+								categoryCache = categoryCaches.get(path.getPath());
+								if(categoryCache == null){
+									categoryCache = new CategoryCache();
+									categoryCache.addCategory(category);
+									categoryCaches.put(path.getPath(), categoryCache);
+								}
 								return category;
 							}
 						}
@@ -313,6 +325,7 @@ public class World {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private void printVerbose(String thingPath){
 		if(verboseThingCache == null){
 			verboseThingCache = new HashMap<String, String>();
@@ -486,7 +499,7 @@ public class World {
 	 * @param actionContext
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes" })
 	public Class getActionClass(String actionPath, ActionContext actionContext){
 		return getActionClass(getThing(actionPath), actionContext);
 	}
@@ -981,13 +994,16 @@ public class World {
 		UtilFile.delete(new File(worldPath + "/projects/" + thingManager.getName()));
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ThingManager initThingManager(File rootPath){
+		String thingManagerClass = null;
 		String name = rootPath.getName();
 		String link = null;
+		Properties properties = new Properties();
 		if(rootPath.isDirectory()){
 			File configFile = new File(rootPath, "config.properties");
 			if(configFile.exists()){
-				Properties properties = new Properties();
+				
 				FileInputStream fin = null; 
 				try{
 					fin = new FileInputStream(configFile);
@@ -997,6 +1013,7 @@ public class World {
 					if(link != null && link.trim().equals("")){
 						link = null;
 					}
+					thingManagerClass = properties.getProperty("class");
 				}catch(Exception e){
 					throw new XMetaException("init thing manager error, path=" + rootPath, e);
 				}finally{
@@ -1045,7 +1062,32 @@ public class World {
 		}
 		
 		if(!isLink){
-			ThingManager thingManager = new FileThingManager(name, rootPath);
+			ThingManager thingManager = null;
+			if(thingManagerClass != null){
+				try {
+					Class cls = Class.forName(thingManagerClass);
+					Constructor constructor = cls.getConstructor(new Class[]{String.class, File.class});
+					if(constructor != null){
+						thingManager = (ThingManager) constructor.newInstance(new Object[]{name, rootPath});
+					}else{
+						thingManager = (ThingManager) cls.newInstance();
+					}
+				} catch (Exception e) {
+					log.warn("can not load thingManager", e);
+				}
+				if(thingManager == null){
+					return null;
+				}
+			}else{
+				thingManager = new FileThingManager(name, rootPath);
+			}
+			
+			try{
+				thingManager.init(properties);
+			}catch(Exception e){				
+				log.warn("init thingManager error", e);
+				return null;
+			}
 			addThingManager(thingManager);
 			
 			//添加类库
