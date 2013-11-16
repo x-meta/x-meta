@@ -106,6 +106,8 @@ public class World {
 	private List<ThingCoder> thingCoders = new ArrayList<ThingCoder>();
 	/** 目录缓存 */
 	private Map<String, CategoryCache> categoryCaches = new HashMap<String, CategoryCache>();
+	/** 初始化发送生错的事物管理器会放在这里，避免重复初始化  */
+	private List<String> failureThingManangers = new ArrayList<String>();
 
 	/**
 	 * 运行时所有的事物基本都通过World获取，为提交性能增加路径缓存。
@@ -172,7 +174,35 @@ public class World {
 		
 		return initThingManager(managerRootFile);
 	}
+		
+	/**
+	 * 获取加载和初始化失败的事物管理器名称的列表。
+	 * 
+	 * @return
+	 */
+	public List<String> getFailureThingManangers() {
+		return failureThingManangers;
+	}
 	
+	/**
+	 * 返回指定的事物管理器是否是加载或初始化失败。
+	 * 
+	 * @param thingManager
+	 * @return
+	 */
+	public boolean isFailureThingManager(String thingManager){
+		return failureThingManangers.contains(thingManager);
+	}
+	
+	/**
+	 * 从加载或初始化失败的事物管理器列表中移除指定的事物管理器。
+	 * 
+	 * @param thingManager
+	 */
+	public void removeFailureThingManager(String thingManager){
+		failureThingManangers.remove(thingManager);
+	}
+
 	/**
 	 * 添加全局上下文。
 	 * 
@@ -999,6 +1029,12 @@ public class World {
 		String thingManagerClass = null;
 		String name = rootPath.getName();
 		String link = null;
+		
+		//如果是加载失败的不重复加载
+		if(isFailureThingManager(name)){
+			return null;
+		}
+		
 		Properties properties = new Properties();
 		if(rootPath.isDirectory()){
 			File configFile = new File(rootPath, "config.properties");
@@ -1015,6 +1051,7 @@ public class World {
 					}
 					thingManagerClass = properties.getProperty("class");
 				}catch(Exception e){
+					this.failureThingManangers.add(name);
 					throw new XMetaException("init thing manager error, path=" + rootPath, e);
 				}finally{
 					if(fin != null){
@@ -1076,6 +1113,7 @@ public class World {
 					log.warn("can not load thingManager", e);
 				}
 				if(thingManager == null){
+					this.failureThingManangers.add(name);
 					return null;
 				}
 			}else{
@@ -1086,6 +1124,7 @@ public class World {
 				thingManager.init(properties);
 			}catch(Exception e){				
 				log.warn("init thingManager error", e);
+				this.failureThingManangers.add(name);
 				return null;
 			}
 			addThingManager(thingManager);

@@ -134,7 +134,10 @@ public class RegisThingManager extends AbstractThingManager{
 		int port = Integer.parseInt(properties.getProperty("port"));
 		String password = properties.getProperty("password");
 		
+		//创建并测试Jedis连接池
 		jedisPool = new JedisPool(new JedisPoolConfig(), host, port, 5000, password);
+		Jedis jedis = jedisPool.getResource();
+		jedisPool.returnResource(jedis);
 		
 		rootCategory = new RedisCategory(null, this, null);
 	}
