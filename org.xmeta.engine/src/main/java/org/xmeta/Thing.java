@@ -2585,6 +2585,35 @@ public class Thing {
 	public Object getData(String key){
 		return datas.get(key);
 	}
+	
+	/**
+	 * 设置缓存数据，如果事物在后面修改了，那么缓存失效。
+	 * 
+	 * @param key
+	 * @param data
+	 */
+	public void setCachedData(String key, Object data){
+		String timeKey = "__" + key + "__Modified__";
+		datas.put(key, data);
+		datas.put(timeKey, getMetadata().getLastModified());
+	}
+	
+	/**
+	 * 获取缓存的数据。
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public Object getCachedData(String key){
+		String timeKey = "__" + key + "__Modified__";
+		Object data = datas.get(key);
+		Long lastTime = (Long) datas.get(timeKey);
+		if(lastTime == null || lastTime != getMetadata().getLastModified()){
+			return null;
+		}else{
+			return data;
+		}
+	}
 
 	public void setTransient(boolean isTransient) {
 		setTransient(isTransient, new HashMap<Thing, Thing>());
