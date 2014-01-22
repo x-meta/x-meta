@@ -2571,7 +2571,7 @@ public class Thing {
 	public String toString(){
 		return "Thing{name=" + getMetadata().getName() +
 			",label=" + getMetadata().getLabel() + 
-			",path=" + getMetadata().getPath() + "}";
+			",path=" + getMetadata().getPath() + ",descriptios=" + getString("descriptors") + "}";
 	}
 	
 	public void setData(String key, Object data){
