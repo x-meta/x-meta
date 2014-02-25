@@ -35,8 +35,6 @@ public class WorkingSetIndex extends Index{
 	public WorkingSetIndex(Index parent, Thing thing){
 		this.parent = parent;
 		thingPath = thing.getMetadata().getPath();
-		
-		refresh();
 	}
 	
 	@Override
@@ -55,7 +53,7 @@ public class WorkingSetIndex extends Index{
 
 	@Override
 	public List<Index> getChilds() {
-		if(childs == null){
+		if(!indexed){
 			refresh();
 		}
 		
@@ -89,6 +87,8 @@ public class WorkingSetIndex extends Index{
 
 	@Override
 	public boolean refresh() {
+		indexed = true;
+		
 		Thing thing = getThing();
 		if(thing == null){
 			return false;

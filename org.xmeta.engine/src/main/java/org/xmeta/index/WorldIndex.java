@@ -86,7 +86,7 @@ public class WorldIndex extends Index{
 
 	@Override
 	public List<Index> getChilds() {
-		if(childs == null){
+		if(!indexed){
 			refresh();
 		}
 		
@@ -120,6 +120,8 @@ public class WorldIndex extends Index{
 
 	@Override
 	public boolean refresh() {
+		indexed = true;
+		
 		if(childs == null){
 			childs = new ArrayList<Index>();
 		}

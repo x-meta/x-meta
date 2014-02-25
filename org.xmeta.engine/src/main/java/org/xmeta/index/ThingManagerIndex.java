@@ -31,8 +31,6 @@ public class ThingManagerIndex extends Index{
 	public ThingManagerIndex(Index parent, ThingManager thingManager){
 		this.parent = parent;
 		this.thingManager = thingManager;
-		
-		refresh();
 	}
 	
 	@Override
@@ -47,8 +45,8 @@ public class ThingManagerIndex extends Index{
 
 	@Override
 	public List<Index> getChilds() {
-		if(childs ==  null){
-			childs = new ArrayList<Index>();
+		if(!indexed){
+			refresh();
 		}
 		return childs;
 	}
@@ -80,6 +78,8 @@ public class ThingManagerIndex extends Index{
 
 	@Override
 	public boolean refresh() {
+		indexed = true;
+		
 		if(World.getInstance().getThingManager(thingManager.getName()) == null){
 			return false;
 		}

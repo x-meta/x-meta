@@ -34,7 +34,7 @@ public class ThingIndexIndex extends Index{
 		this.parent = parent;
 		this.thing = thing;
 		
-		refresh();
+		//refresh();
 	}
 	
 	@Override
@@ -49,7 +49,7 @@ public class ThingIndexIndex extends Index{
 
 	@Override
 	public List<Index> getChilds() {
-		if(childs ==  null){
+		if(!indexed){
 			refresh();
 		}
 		
@@ -87,6 +87,8 @@ public class ThingIndexIndex extends Index{
 
 	@Override
 	public boolean refresh() {
+		indexed = true;
+		
 		if(World.getInstance().getThing(thing.path) == null){
 			return false;
 		}

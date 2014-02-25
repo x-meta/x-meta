@@ -26,13 +26,13 @@ import org.xmeta.World;
 public class CategoryIndex extends Index{
 	List<Index> childs = null;
 	Index parent = null;
-	Category category = null;
+	Category category = null;	
 	
 	public CategoryIndex(Index parent, Category category){
 		this.parent = parent;
 		this.category = category;
 		
-		refresh();
+		//refresh();
 	}
 	
 	@Override
@@ -47,7 +47,7 @@ public class CategoryIndex extends Index{
 
 	@Override
 	public List<Index> getChilds() {
-		if(childs ==  null){
+		if(!indexed){
 			refresh();
 		}
 		
@@ -81,6 +81,8 @@ public class CategoryIndex extends Index{
 
 	@Override
 	public boolean refresh() {
+		indexed = true;
+		
 		//先判断Category是否还有效
 		ThingManager thingManager = World.getInstance().getThingManager(category.getThingManager().getName());
 		if(thingManager == null){

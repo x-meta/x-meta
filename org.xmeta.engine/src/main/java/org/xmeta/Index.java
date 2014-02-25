@@ -45,6 +45,9 @@ public abstract class Index {
 	public static final String TYPE_THING = "thing";
 	public static final String TYPE_WORKING_SET = "workingSet";
 
+	/** 是否已创建索引 */
+	protected boolean indexed = false;
+	
 	/**
 	 * 取实例。
 	 * 
