@@ -60,7 +60,7 @@ public class ThingMetadata {
 	boolean removed = false;
 	
 	/** 编码类型 */
-	String coderType;
+	String coderType = "xer.txt";
 	
 	/**
 	 * 构造函数
