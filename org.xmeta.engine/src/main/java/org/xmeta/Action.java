@@ -887,6 +887,8 @@ public class Action extends Semaphore{
 			
 			//替换-为_
 			cns[i] = cns[i].replaceAll("(-)", "_");
+			//替换空格
+			cns[i] = cns[i].replace(' ', '_');
 			if(cName.length() == 0){
 				cName = cns[i];
 			}else{
