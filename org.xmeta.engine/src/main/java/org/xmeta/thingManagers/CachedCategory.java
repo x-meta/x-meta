@@ -49,14 +49,26 @@ public abstract class CachedCategory implements Category{
 	/** 事物管理器 */
 	protected ThingManager thingManager;
 	
+	/** 是否已经刷新过 */
+	protected boolean refreshed = false;
+	
 	public CachedCategory(ThingManager thingManager, Category parent, String name){
 		this.thingManager = thingManager;
 		this.parent = parent;
 		this.name = name;
 	}
 	
+	private void checkRefresh(){
+		if(!refreshed){
+			refresh(false);
+			refreshed = true;
+		}
+	}
+	
 	@Override
 	public Category getCategory(String name) {
+		checkRefresh();
+		
 		for(Category child : childCategorys){
 			if(child.getSimpleName().equals(name)){
 				return child;
@@ -68,6 +80,8 @@ public abstract class CachedCategory implements Category{
 
 	@Override
 	public List<Category> getCategorys() {
+		checkRefresh();
+		
 		return childCategorys;
 	}
 
@@ -96,6 +110,8 @@ public abstract class CachedCategory implements Category{
 
 	@Override
 	public Thing getThing(String thingName) {	
+		checkRefresh();
+		
 		if(name != null && !name.equals("")){
 			//改为从world获取事物
 			return World.getInstance().getThing(name + "." + thingName);
@@ -108,11 +124,15 @@ public abstract class CachedCategory implements Category{
 	
 	@Override
 	public List<ThingIndex> getThingIndexs() {
+		checkRefresh();
+		
 		return thingIndexs;
 	}
 
 	@Override
 	public List<ThingIndex> getThingIndexs(String descriptor) {
+		checkRefresh();
+		
 		if(descriptor == null || "".equals(descriptor)){
 			return thingIndexs;
 		}
@@ -139,6 +159,8 @@ public abstract class CachedCategory implements Category{
 
 	@Override
 	public List<Thing> getThings() {
+		checkRefresh();
+		
 		List<Thing> things = new ArrayList<Thing>();
 		for(ThingIndex index : thingIndexs){
 			//通过World获取事物，zhangyuxiang 2013-03-15
@@ -153,7 +175,10 @@ public abstract class CachedCategory implements Category{
 
 	@Override
 	public List<Thing> getThings(String descriptor) {
+		checkRefresh();
+		
 		List<Thing> things = new ArrayList<Thing>();
+		
 		for(ThingIndex index : thingIndexs){
 			if(index.descriptors != null){
 				for(String desc : index.descriptors.split("[,]")){
@@ -180,6 +205,8 @@ public abstract class CachedCategory implements Category{
 
 	@Override
 	public Iterator<Thing> iterator(final String descriptorPath, final boolean includeChildCategory) {
+		checkRefresh();
+		
 		final Category category = this;
 		return new Iterator<Thing>(){
 			Thing current;

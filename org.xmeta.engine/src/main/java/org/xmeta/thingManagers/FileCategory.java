@@ -48,7 +48,7 @@ public class FileCategory extends CachedCategory{
 	public FileCategory(String name, ThingManager thingManager, Category parent){		
 		super(thingManager, parent, name);
 		
-		refresh();
+		//refresh();
 	}
 	
 	/*
