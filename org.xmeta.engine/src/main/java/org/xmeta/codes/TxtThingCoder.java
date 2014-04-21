@@ -59,6 +59,7 @@ public class TxtThingCoder implements ThingCoder{
 		
 		try{
 			Thing thing = new Thing();
+			thing.getMetadata().setPath(thingIndex.getName());
 			thing.beginModify();
 			TxtCoder.decode(thing, in, false, 0);	
 			thing.endModify(false);

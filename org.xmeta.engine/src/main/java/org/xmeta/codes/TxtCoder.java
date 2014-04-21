@@ -104,7 +104,9 @@ public class TxtCoder {
 		}
 		
 		//路径
-		out.println(TYPE_NODE + meta.getPath());
+		String rootPath = thing.getRoot().getMetadata().getPath();
+		String path = meta.getPath();
+		out.println(TYPE_NODE + path.substring(rootPath.length(), path.length()));
 		//最后修改时间
 		//out.println(meta.getLastModified());
 		//标识
@@ -405,7 +407,9 @@ public class TxtCoder {
 			Map<String, Object> attributes = current.getAttributes();
 			//第一个是路径
 			path = path.substring(1, path.length());
-			thing.getMetadata().setPath(path);
+			if(path != null && !"".equals(path)){
+				thing.getMetadata().setPath(path);
+			}
 			thing.getMetadata().setLastModified(lastModified);
 			
 			//最后修改日期
@@ -567,6 +571,11 @@ public class TxtCoder {
 	
 	private static Thing getPathParent(Thing current, String path){
 		String currentPath = current.getMetadata().getPath();
+		if(path == null || "".equals(path)){
+			path = current.getRoot().getMetadata().getPath();
+		}else if(path.startsWith("/@")){
+			path = current.getRoot().getMetadata().getPath() + path; 
+		}
 		if(path.startsWith(currentPath + "/")){
 			String subpath = path.substring(currentPath.length(), path.length());
 			//父应该是直接的父，所以最后的/一定是第一个字母
