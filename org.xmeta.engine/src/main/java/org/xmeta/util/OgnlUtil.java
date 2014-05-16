@@ -65,6 +65,22 @@ public class OgnlUtil {
 		return Ognl.getValue(pathCache.expression, root);
 	}
 	
+	public static Object getCachedExpression(Thing thing, String attributeName) throws OgnlException{
+		String key = CACHE + attributeName;
+		PathCache pathCache = (PathCache) thing.getData(key);
+		if(pathCache == null || pathCache.lastModified != thing.getMetadata().getLastModified()){
+			if(pathCache == null){
+				pathCache = new PathCache();
+				thing.setData(key, pathCache);
+			}
+			
+			pathCache.lastModified = thing.getMetadata().getLastModified();
+			pathCache.expression = Ognl.parseExpression(thing.getStringBlankAsNull(attributeName));
+		}
+		
+		return pathCache.expression;
+	}
+	
 	public static void setValue(Thing thing, String pathAttributeName, String pathAttributeValue, Object value, Object root) throws OgnlException{
 		if(pathAttributeValue == null || "".equals(pathAttributeValue)){
 			return;
