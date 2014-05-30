@@ -88,7 +88,51 @@ public class XmlCoder {
 		try{			
 			writer.writeStartDocument("utf-8", "1.0");
 			writer.writeCharacters("\n");
-			encode(thing, null, writer, "");
+			encode(thing, null, writer, "", false);
+			writer.writeEndDocument();
+		}finally{
+			writer.close();
+		}
+	}
+	
+	/**
+	 * 把事物编码成XML字符串。
+	 * 
+	 * @param thing
+	 * @return
+	 */
+	public static String encodeToString(Thing thing,  boolean includeDefaultValue){
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		try{
+			encode(thing, bout, includeDefaultValue);
+			return new String(bout.toByteArray());
+		}catch(Exception e){
+			throw new ThingCoderException(e);
+		}finally{
+			try {
+				bout.close();
+			} catch (IOException e) {
+				throw new ThingCoderException(e);
+			}
+		}
+	}
+	
+	/**
+	 * 把指定的事物以XML编码到输出流中。
+	 * 
+	 * @param thing
+	 * @param out
+	 * @throws XMLStreamException
+	 * @throws IOException 
+	 */
+	public static void encode(Thing thing, OutputStream out,  boolean includeDefaultValue) throws XMLStreamException, IOException{
+		//element.a
+		XMLOutputFactory factory = XMLOutputFactory.newInstance();
+		XMLStreamWriter writer = factory.createXMLStreamWriter(out, "utf-8");
+		try{			
+			writer.writeStartDocument("utf-8", "1.0");
+			writer.writeCharacters("\n");
+			encode(thing, null, writer, "", includeDefaultValue);
 			writer.writeEndDocument();
 		}finally{
 			writer.close();
@@ -108,7 +152,7 @@ public class XmlCoder {
 	 * @throws XMLStreamException
 	 * @throws IOException
 	 */
-	private static void encode(Thing thing, Thing parentDescriptors, XMLStreamWriter writer, String ident) throws XMLStreamException, IOException{
+	private static void encode(Thing thing, Thing parentDescriptors, XMLStreamWriter writer, String ident, boolean includeDefaultValue) throws XMLStreamException, IOException{
 		writer.writeCharacters("\n" + ident);
 		
 		//属性缓存，避免写入重复的属性
@@ -124,7 +168,7 @@ public class XmlCoder {
 		}
 		attrContext.put("name", name);
 		String id = thing.getMetadata().getId(); //写入meta中的id属性 
-		if(id != null && !id.equals(name)){ //如果id和name不同，写入
+		if(includeDefaultValue== false && id != null && !id.equals(name)){ //如果id和name不同，写入
 			writer.writeAttribute("_xmeta_id_", id);
 		}
 		
@@ -160,6 +204,9 @@ public class XmlCoder {
 			attrContext.put(attrname, attrname);
 			
 			String defaultValue = attribute.getString("default");
+			if(includeDefaultValue){
+				defaultValue = null;
+			}
 			Object value = thing.getAttribute(attrname);
 			if(value == null || "".equals(value)){
 				//if(defaultValue != null && !"".equals(defaultValue.trim()) && !"false".equals(defaultValue.trim())){
@@ -167,54 +214,59 @@ public class XmlCoder {
 				//}
 				continue;
 			}
-									
+			
 			boolean isCdata = false;
 			String type = attribute.getString("type");
 			String strValue = null;
-			if ("int".equals(type)) {
-				strValue = String.valueOf(value);
-			} else if ("long".equals(type)) {
-				strValue = String.valueOf(value);
-			} else if ("double".equals(type)) {
-				strValue = String.valueOf(value);
-			} else if ("float".equals(type)) {
-				strValue = String.valueOf(value);
-			} else if ("bigDecimal".equals(type)) {
-				strValue = String.valueOf(value);
-			} else if ("bigInteger".equals(type)) {
-				strValue = String.valueOf(value);
-			} else if ("boolean".equals(type)) {
-				strValue = String.valueOf(value);
-			} else if ("byte".equals(type)) {
-				strValue = String.valueOf(value);
-			} else if ("bytes".equals(type)) {
-				byte[] bytes = thing.getBytes(attrname);
-				strValue = UtilData.bytesToHexString(bytes);
-			} else if ("char".equals(type)) {
-				strValue = String.valueOf(value);
-			} else if ("short".equals(type)) {
-				strValue = String.valueOf(value);
-			} else if ("date".equals(type)) {
-				Date date = thing.getDate(attrname);
-				strValue = dateFormater.format(date);					
-			} else if ("object".equals(type)) {
-				if (value instanceof Serializable) {
-									ByteArrayOutputStream bout = new ByteArrayOutputStream();
-					ObjectOutputStream oout = new ObjectOutputStream(bout);
-					oout.writeObject(value);
-					oout.flush();
-					byte[] bs = bout.toByteArray();
-					strValue = UtilData.bytesToHexString(bs);
-				}
-			} else {
-				//默认都当作字符串来保存
-				String str = thing.getString(attrname);
-				if(str.indexOf("\n") != -1){
-					cDataAttributes.add(attribute);
-					isCdata = true;
-				}else{
+			if("__PCDATA__".equals(attrname) || "__CDATA__".equals(attrname)){
+				cDataAttributes.add(attribute);
+				isCdata = true;
+			}else{
+				if ("int".equals(type)) {
 					strValue = String.valueOf(value);
-				}				
+				} else if ("long".equals(type)) {
+					strValue = String.valueOf(value);
+				} else if ("double".equals(type)) {
+					strValue = String.valueOf(value);
+				} else if ("float".equals(type)) {
+					strValue = String.valueOf(value);
+				} else if ("bigDecimal".equals(type)) {
+					strValue = String.valueOf(value);
+				} else if ("bigInteger".equals(type)) {
+					strValue = String.valueOf(value);
+				} else if ("boolean".equals(type)) {
+					strValue = String.valueOf(value);
+				} else if ("byte".equals(type)) {
+					strValue = String.valueOf(value);
+				} else if ("bytes".equals(type)) {
+					byte[] bytes = thing.getBytes(attrname);
+					strValue = UtilData.bytesToHexString(bytes);
+				} else if ("char".equals(type)) {
+					strValue = String.valueOf(value);
+				} else if ("short".equals(type)) {
+					strValue = String.valueOf(value);
+				} else if ("date".equals(type)) {
+					Date date = thing.getDate(attrname);
+					strValue = dateFormater.format(date);					
+				} else if ("object".equals(type)) {
+					if (value instanceof Serializable) {
+										ByteArrayOutputStream bout = new ByteArrayOutputStream();
+						ObjectOutputStream oout = new ObjectOutputStream(bout);
+						oout.writeObject(value);
+						oout.flush();
+						byte[] bs = bout.toByteArray();
+						strValue = UtilData.bytesToHexString(bs);
+					}
+				} else {
+					//默认都当作字符串来保存
+					String str = thing.getString(attrname);
+					if(str.indexOf("\n") != -1){
+						cDataAttributes.add(attribute);
+						isCdata = true;
+					}else{
+						strValue = String.valueOf(value);
+					}				
+				}
 			}
 			
 			if(!isCdata){//cdata另外保存				
@@ -242,7 +294,7 @@ public class XmlCoder {
 		
 		//子节点
 		for(Thing child : thing.getChilds()){
-			encode(child, descriptor, writer, ident + "    ");
+			encode(child, descriptor, writer, ident + "    ", includeDefaultValue);
 		}
 		
 		//节点结束
