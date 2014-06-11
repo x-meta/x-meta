@@ -118,6 +118,8 @@ public class World {
 
 	private String OS;
 	private String PROCESSOR_ARCHITECTURE;
+	/**  web文件根路径 */
+	private String webFileRoot = null;
 	/**
 	 * 私有构造方法，目前系统中只允许存在一个世界。
 	 * 
@@ -1202,5 +1204,13 @@ public class World {
 		}
 		
 		return null;
+	}
+
+	public String getWebFileRoot() {
+		return webFileRoot;
+	}
+
+	public void setWebFileRoot(String webFileRoot) {
+		this.webFileRoot = webFileRoot;
 	}
 }
