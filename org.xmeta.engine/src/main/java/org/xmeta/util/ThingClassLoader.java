@@ -19,7 +19,10 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.xmeta.World;
@@ -72,6 +75,66 @@ public class ThingClassLoader extends URLClassLoader {
 	public String getClassPath() {
 		Map<String, String> context = new HashMap<String, String>();
 		return getClassPathFormClassLoader(this, "", context);
+	}
+	
+	/**
+	 * 返回所有以目录为主的类库路径。
+	 * 
+	 * @return
+	 */
+	public List<String> getAlClassPathDirs(){
+		Map<String, String> dirContext = new HashMap<String, String>();
+		for(String path : getClassPath().split("[" + File.pathSeparator + "]")){
+			if(path.trim().equals("")){
+				continue;
+			}
+			
+			File file = new File(path);
+			if(file.exists() && file.isDirectory()){
+				dirContext.put(file.getPath(), file.getPath());				
+			}
+		}
+		
+		List<String> jars = new ArrayList<String>();
+		for(String path : dirContext.keySet()){
+			jars.add(path);
+		}
+		
+		Collections.sort(jars);
+		return jars;
+	}
+	
+	/**
+	 * 返回所有的Jar名称列表。
+	 * 
+	 * @return
+	 */
+	public List<String> getAllJarsByName(){
+		Map<String, String> jarContext = new HashMap<String, String>();
+		for(String path : getClassPath().split("[" + File.pathSeparator + "]")){
+			if(path.toLowerCase().endsWith(".jar")){
+				int index = -1;
+				if(path.indexOf("/") != -1){
+					index = path.lastIndexOf("/");
+				}else{
+					index = path.lastIndexOf("\\");
+				}
+				
+				if(index != -1){
+					path = path.substring(index + 1, path.length());
+				}
+				
+				jarContext.put(path, path);
+			}
+		}
+		
+		List<String> jars = new ArrayList<String>();
+		for(String path : jarContext.keySet()){
+			jars.add(path);
+		}
+		
+		Collections.sort(jars);
+		return jars;
 	}
 	
 	public static String getClassPathFormClassLoader(URLClassLoader loader, String classPath, Map<String, String> context){		
