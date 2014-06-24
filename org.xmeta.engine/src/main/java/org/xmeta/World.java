@@ -1046,11 +1046,20 @@ public class World {
 				try{
 					fin = new FileInputStream(configFile);
 					properties.load(fin);
-					//name = properties.getProperty("name");
+					
+					//项目名称
+					String pname = properties.getProperty("projectName");
+					if(pname != null && !"".equals(pname.trim())){
+						name = pname.trim();
+					}
+					
+					//link是指链接到其他目录
 					link = properties.getProperty("link");
 					if(link != null && link.trim().equals("")){
 						link = null;
 					}
+					
+					//事物管理器的类
 					thingManagerClass = properties.getProperty("class");
 				}catch(Exception e){
 					this.failureThingManangers.add(name);
