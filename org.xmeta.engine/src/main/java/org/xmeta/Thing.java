@@ -80,7 +80,7 @@ public class Thing {
 	public static final String DESCRIPTION = "description";
 	
 	/** 事物的属性集合。 */
-	protected Map<String, Object> attributes = new HashMap<String, Object>();
+	protected Map<String, Object> attributes = new HashMap<String, Object>(32);
 	
 	/** 父事物，包含此事物的父事物。 */
 	protected Thing parent = null;
