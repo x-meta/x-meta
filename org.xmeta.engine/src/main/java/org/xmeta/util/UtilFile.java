@@ -19,9 +19,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xmeta.ActionContext;
 import org.xmeta.World;
 
 /**
@@ -31,6 +37,8 @@ import org.xmeta.World;
  *
  */
 public class UtilFile {
+	private static Logger logger = LoggerFactory.getLogger(UtilFile.class);
+	
 	/**
 	 * 递归删除一个文件或目录。
 	 * 
@@ -166,5 +174,73 @@ public class UtilFile {
 			path = path.replace('\\', '/');
 		}
 		return path;
+	}
+	
+	/**
+	 * 从路径获取文件或输入流。
+	 * 
+	 * @param path
+	 * @param actionContext
+	 * @return
+	 */
+	public static Object getFileOrInputStream(String path, ActionContext actionContext){
+		String filePath = path;
+		try{
+	    	//如果是http的数据
+	    	URL url = new URL(path);
+	    	if(url.getProtocol() != null && url.getProtocol().startsWith("http")){
+	    		URLConnection con = url.openConnection();
+	    		try{
+		    		con.connect();
+	    			return con.getInputStream();
+	    		}catch(Exception ee){
+	    			logger.warn("Create image from http error", ee);
+	    		}
+	    	}
+	    }catch(Exception e){		    			    	
+	    }
+	    
+		World world = World.getInstance();
+	
+	    //直接从文件系统取
+	    File file = new File(filePath);
+	    
+	    //从world根目录
+	    if(!file.exists() || !file.isFile()){
+	        filePath = world.getPath() + "/" + path;
+	        file = new File(filePath);
+	    }
+	    
+	    //从world/webroot下取
+	    if(!file.exists() || !file.isFile()){
+	    	String webRoot = world.getWebFileRoot();
+	    	if(webRoot == null){
+	    		webRoot = world.getPath() + "/webroot";
+	    	}
+	        filePath = webRoot + "/" + path;
+	        file = new File(filePath);
+	    }
+	    
+	    //从系统资源的变量上下文取
+	    if(!file.exists() || !file.isFile()){
+	    	try {
+	    		if(!path.startsWith("/") || !path.startsWith("\\")){
+	    			filePath = "/" + path;
+	    		}else{
+	    			filePath = path;
+	    		}
+	    		
+				InputStream rin = world.getResourceAsStream(filePath);
+				if(rin != null){
+					return rin;
+				}
+			} catch (IOException e) {					
+			}
+	    	
+	       	Object obj = actionContext.get(path);
+	       	return obj;
+	    }else{
+	    	return file;
+	    }
 	}
 }
