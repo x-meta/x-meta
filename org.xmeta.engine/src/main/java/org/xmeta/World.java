@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmeta.cache.ThingCache;
 import org.xmeta.cache.ThingEntry;
+import org.xmeta.codes.JsonThingCoder;
 import org.xmeta.codes.TxtThingCoder;
 import org.xmeta.codes.XerThingCoder;
 import org.xmeta.codes.XmlThingCoder;
@@ -129,7 +130,8 @@ public class World {
 		thingCoders.clear();
 		thingCoders.add(new TxtThingCoder());
 		thingCoders.add(new XerThingCoder());
-		thingCoders.add(new XmlThingCoder());		
+		thingCoders.add(new XmlThingCoder());	
+		thingCoders.add(new JsonThingCoder());
 		
 		try{
 			ThingOgnlAccessor.init();

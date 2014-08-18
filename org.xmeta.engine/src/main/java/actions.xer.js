@@ -1,0 +1,5 @@
+{
+	"MetaThing":{
+		"name":"actions"
+	}
+}
