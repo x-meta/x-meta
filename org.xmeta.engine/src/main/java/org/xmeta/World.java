@@ -631,6 +631,25 @@ public class World {
 			return null;
 		}
 	}
+	
+	/**
+	 * 通过事物的路径获取指定的事物，如果存在那么使用给定的descriptor创建事物，并保存到指定的thingManager下。
+	 * 
+	 * @param path 事物的路径
+	 * @param thingManager 事物管理器
+	 * @param descriptor 描述者
+	 * @return
+	 */
+	public Thing getThing(String path, String thingManager, String descriptor){
+		Thing thing = getThing(path);
+		if(thing == null){
+			thing = new Thing(descriptor);
+			thing.initDefaultValue();
+			thing.saveAs(thingManager, path);
+		}
+		
+		return thing;
+	}
 
 	/**
 	 * 获取事物管理器列表。
@@ -691,7 +710,7 @@ public class World {
 	private void initOsProperites(){
 		try{
 			OS = System.getenv("OS").toLowerCase();			
-			PROCESSOR_ARCHITECTURE = System.getenv("PROCESSOR_ARCHITECTURE").toLowerCase();
+			PROCESSOR_ARCHITECTURE = "bit" + System.getProperty("sun.arch.data.model"); //System.getenv("PROCESSOR_ARCHITECTURE").toLowerCase();
 			File file = new File(worldPath + "/xworker.properties");
 			if(file.exists()){
 				Properties p = new Properties();

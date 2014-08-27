@@ -31,7 +31,11 @@ import org.xmeta.World;
  * 
  */
 public class ThingRunner {
-	public static void main(String args[]) {
+	public static void main(String args[]){
+		run(args);
+	}
+	
+	public static void run(String args[]) {
 		try {
 			//运行参数
 			String worldPath = null;
