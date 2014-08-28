@@ -709,8 +709,13 @@ public class World {
 	
 	private void initOsProperites(){
 		try{
-			OS = System.getenv("OS").toLowerCase();			
+			try{
+				OS = System.getenv("OS").toLowerCase();
+			}catch(Exception e){
+				OS = System.getProperty("os.name").toLowerCase();
+			}
 			PROCESSOR_ARCHITECTURE = "bit" + System.getProperty("sun.arch.data.model"); //System.getenv("PROCESSOR_ARCHITECTURE").toLowerCase();
+			System.out.println("OS=" + OS + ", sun.arch.data.model=" + PROCESSOR_ARCHITECTURE);
 			File file = new File(worldPath + "/xworker.properties");
 			if(file.exists()){
 				Properties p = new Properties();
@@ -730,7 +735,7 @@ public class World {
 				}
 			}			
 		}catch(Exception e){
-			
+			log.error("init os info error", e);
 		}
 	}
 	
