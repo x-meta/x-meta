@@ -36,13 +36,18 @@ public class ThingClassLoader extends URLClassLoader {
 	 */
 	public ThingClassLoader(ClassLoader parent) {
 		super(new URL[] {}, parent);
-
-		if(parent instanceof URLClassLoader){
-			
-		}
-		File libFile = new File(World.getInstance().getPath() + "/lib/");
+		
+		World world = World.getInstance();
+		String worldPath = world.getPath();
+		File libFile = new File(worldPath + "/lib/");
 		addJarOrZip(libFile);
 		
+		addJarOrZip(new File(worldPath + "/lib_" + world.getOS()));
+		addJarOrZip(new File(worldPath + "/lib_" + world.getOS() + "_" + world.getJVMBit()));
+		
+		//System.out.println(new File(worldPath + "/lib_" + world.getOS()).getAbsolutePath());
+		//System.out.println(new File(worldPath + "/lib_" + world.getOS() + "_" + world.getJVMBit()).getAbsolutePath());
+		//System.out.println(this.getClassPath());
 //		initClassPath();
 	}
 

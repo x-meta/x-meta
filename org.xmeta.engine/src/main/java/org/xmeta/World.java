@@ -714,8 +714,7 @@ public class World {
 			}catch(Exception e){
 				OS = System.getProperty("os.name").toLowerCase();
 			}
-			PROCESSOR_ARCHITECTURE = "bit" + System.getProperty("sun.arch.data.model"); //System.getenv("PROCESSOR_ARCHITECTURE").toLowerCase();
-			System.out.println("OS=" + OS + ", sun.arch.data.model=" + PROCESSOR_ARCHITECTURE);
+			PROCESSOR_ARCHITECTURE = "bit" + System.getProperty("sun.arch.data.model"); //System.getenv("PROCESSOR_ARCHITECTURE").toLowerCase();			
 			File file = new File(worldPath + "/xworker.properties");
 			if(file.exists()){
 				Properties p = new Properties();
@@ -734,6 +733,7 @@ public class World {
 					PROCESSOR_ARCHITECTURE = value;
 				}
 			}			
+			log.info("OS=" + OS + ", sun.arch.data.model=" + PROCESSOR_ARCHITECTURE);
 		}catch(Exception e){
 			log.error("init os info error", e);
 		}
@@ -1052,6 +1052,14 @@ public class World {
 		UtilFile.delete(new File(worldPath + "/projects/" + thingManager.getName()));
 	}
 
+	public String getOS(){
+		return OS;
+	}
+	
+	public String getJVMBit(){
+		return PROCESSOR_ARCHITECTURE;
+	}
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ThingManager initThingManager(File rootPath){
 		String thingManagerClass = null;
