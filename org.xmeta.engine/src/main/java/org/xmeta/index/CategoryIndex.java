@@ -80,7 +80,7 @@ public class CategoryIndex extends Index{
 	}
 
 	@Override
-	public boolean refresh() {
+	public synchronized boolean refresh() {
 		indexed = true;
 		
 		//先判断Category是否还有效
