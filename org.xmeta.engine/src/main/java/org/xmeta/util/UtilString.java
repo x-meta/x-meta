@@ -446,8 +446,24 @@ public class UtilString {
 			}else{
 				return thingPath;
 			}
+		}else if(value.startsWith("ognl:")){
+			String exp = value.substring(4, value.length());
+			Object obj = null;
+			try {
+				obj = (String) Ognl.getValue(exp, actionContext);
+			} catch (Exception e) {
+				obj = null;
+			}				
+			
+			if(obj != null){
+				return String.valueOf(obj);
+			}else{
+				return null;
+			}
 		}
 		
+		return value;
+		/*
 		String v = value;
 		boolean constant = false;
 		if(v.startsWith("\"")){
@@ -461,6 +477,8 @@ public class UtilString {
 			//去最后一个"
 			v = v.substring(0, v.length() - 1);
 		}
+		
+		return v;
 		
 		if(constant){
 			return v;
@@ -480,6 +498,7 @@ public class UtilString {
 				return value;
 			}
 		}
+		*/
 	}
 
 	public static String toUnicode(String theString, boolean escapeSpace) {
