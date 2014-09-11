@@ -462,8 +462,6 @@ public class UtilString {
 			}
 		}
 		
-		return value;
-		/*
 		String v = value;
 		boolean constant = false;
 		if(v.startsWith("\"")){
@@ -479,7 +477,7 @@ public class UtilString {
 		}
 		
 		return v;
-		
+		/*
 		if(constant){
 			return v;
 		}else{

@@ -97,7 +97,7 @@ public abstract class Index {
 				String childPath = path + "." + child.getType() + "|" + child.getName();
 				if(id.equals(childPath)){
 					return child;
-				}else if(id.startsWith(childPath)){
+				}else if(id.startsWith(childPath + ".")){
 					path = childPath;
 					parent = child;
 					have = true;
