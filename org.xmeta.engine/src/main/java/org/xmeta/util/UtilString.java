@@ -405,6 +405,7 @@ public class UtilString {
 	 */
 	public static String getString(String value, ActionContext actionContext){
 		if(value == null) return "";
+		value = value.trim();
 		
 		if(value.startsWith("res:")){
 			Session session = SessionManager.getSession(null);
@@ -447,7 +448,7 @@ public class UtilString {
 				return thingPath;
 			}
 		}else if(value.startsWith("ognl:")){
-			String exp = value.substring(4, value.length());
+			String exp = value.substring(5, value.length());
 			Object obj = null;
 			try {
 				obj = (String) Ognl.getValue(exp, actionContext);
@@ -460,13 +461,16 @@ public class UtilString {
 			}else{
 				return null;
 			}
+		}else if(value.startsWith("xworker:")){
+			String path = value.substring(8, value.length());
+			return World.getInstance().getPath() + "/" + path;
 		}
 		
 		String v = value;
-		boolean constant = false;
+		//boolean constant = false;
 		if(v.startsWith("\"")){
 			//按常量处理
-			constant = true;
+			//constant = true;
 			//去第一个"
 			v = v.substring(1, v.length());
 		}
