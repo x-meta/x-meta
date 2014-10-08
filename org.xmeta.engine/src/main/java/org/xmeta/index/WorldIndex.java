@@ -181,7 +181,7 @@ public class WorldIndex extends Index{
 					return -1;
 				}
 				
-				if(Index.TYPE_WORKING_SET.equals(o2.getType()) && Index.TYPE_THINGMANAGER.equals(o1.getType())){
+				if(Index.TYPE_THINGMANAGER.equals(o1.getType()) && Index.TYPE_WORKING_SET.equals(o2.getType())){
 					return 1;
 				}
 				
@@ -189,7 +189,7 @@ public class WorldIndex extends Index{
 					return -1;
 				}
 				
-				if(Index.TYPE_THING.equals(o2.getType()) && Index.TYPE_CATEGORY.equals(o1.getType())){
+				if(Index.TYPE_CATEGORY.equals(o2.getType()) && Index.TYPE_THING.equals(o1.getType())){
 					return 1;
 				}
 				

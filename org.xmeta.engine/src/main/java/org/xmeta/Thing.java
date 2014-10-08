@@ -1931,6 +1931,9 @@ public class Thing {
 		ThingEntry[] tmp  = new ThingEntry[tempList.size()];
 		tmp = tempList.toArray(tmp);
 		descriptorsCaches = tmp;
+		
+		//也重新清除动作缓存
+		actionCaches.clear();
 	}
 	
 	/**

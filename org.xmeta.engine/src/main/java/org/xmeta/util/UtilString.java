@@ -405,6 +405,7 @@ public class UtilString {
 	 */
 	public static String getString(String value, ActionContext actionContext){
 		if(value == null) return "";
+		value = value.trim();
 		
 		if(value.startsWith("res:")){
 			Session session = SessionManager.getSession(null);
@@ -446,13 +447,30 @@ public class UtilString {
 			}else{
 				return thingPath;
 			}
+		}else if(value.startsWith("ognl:")){
+			String exp = value.substring(5, value.length());
+			Object obj = null;
+			try {
+				obj = (String) Ognl.getValue(exp, actionContext);
+			} catch (Exception e) {
+				obj = null;
+			}				
+			
+			if(obj != null){
+				return String.valueOf(obj);
+			}else{
+				return null;
+			}
+		}else if(value.startsWith("xworker:")){
+			String path = value.substring(8, value.length());
+			return World.getInstance().getPath() + "/" + path;
 		}
 		
 		String v = value;
-		boolean constant = false;
+		//boolean constant = false;
 		if(v.startsWith("\"")){
 			//按常量处理
-			constant = true;
+			//constant = true;
 			//去第一个"
 			v = v.substring(1, v.length());
 		}
@@ -462,6 +480,8 @@ public class UtilString {
 			v = v.substring(0, v.length() - 1);
 		}
 		
+		return v;
+		/*
 		if(constant){
 			return v;
 		}else{
@@ -480,6 +500,7 @@ public class UtilString {
 				return value;
 			}
 		}
+		*/
 	}
 
 	public static String toUnicode(String theString, boolean escapeSpace) {

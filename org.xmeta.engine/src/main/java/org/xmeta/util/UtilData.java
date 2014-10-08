@@ -29,7 +29,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import ognl.Ognl;
+import ognl.OgnlException;
+
+import org.xmeta.ActionContext;
 import org.xmeta.Thing;
+import org.xmeta.World;
 
 /**
  * 数据工具类。
@@ -646,6 +651,34 @@ public class UtilData {
 		}
 		
 		return targetValue;
+	}
+	
+	/**
+	 * 通过事物的属性获取数据。
+	 * 
+	 * @param thing
+	 * @param attributeName
+	 * @param actionContext
+	 * @return
+	 * @throws OgnlException
+	 */
+	public Object getData(Thing thing, String attributeName, ActionContext actionContext) throws OgnlException{
+		Object value = thing.get(attributeName);
+		if(value != null && value instanceof String){
+			String str = (String) value;
+			if(str.startsWith("var:")){
+				return actionContext.get(str.subSequence(4, str.length()));
+			}else if(str.startsWith("ognl:")){
+				return Ognl.getValue(str.subSequence(5, str.length()), actionContext);
+			}else if(str.startsWith("thing:")){
+				String thingPath = str.substring(6, str.length());
+				return World.getInstance().getThing(thingPath);
+			}else{
+				return str;
+			}
+		}
+		
+		return value;
 	}
 	 
     /** A table of hex digits */
