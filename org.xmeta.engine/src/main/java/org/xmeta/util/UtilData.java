@@ -662,7 +662,7 @@ public class UtilData {
 	 * @return
 	 * @throws OgnlException
 	 */
-	public Object getData(Thing thing, String attributeName, ActionContext actionContext) throws OgnlException{
+	public static Object getData(Thing thing, String attributeName, ActionContext actionContext) throws OgnlException{
 		Object value = thing.get(attributeName);
 		if(value != null && value instanceof String){
 			String str = (String) value;
@@ -679,6 +679,10 @@ public class UtilData {
 		}
 		
 		return value;
+	}
+	
+	public static String getString(Thing thing, String attributeName, ActionContext actionContext) {
+		return UtilString.getString(thing, attributeName, actionContext);
 	}
 	 
     /** A table of hex digits */
