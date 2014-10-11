@@ -33,7 +33,11 @@ public class UtilMap {
 		return params;
 	}
 	
-	public static Map<String, Object> toMap(Object[] objectArray){
+	//public static Map<String, Object> toMap(Object[] objectArray){
+	//	return toParams(objectArray);
+	//}
+	
+	public static Map<String, Object> toMap(Object ... objectArray){
 		return toParams(objectArray);
 	}
 }
