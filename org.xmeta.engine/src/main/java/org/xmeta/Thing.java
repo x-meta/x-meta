@@ -2277,6 +2277,17 @@ public class Thing {
 	}
 	
 	/**
+	 * 放入Map的全部值，但不触发descriptor和extends的改变事件，同时也会更新日期。
+	 * 
+	 * @param values
+	 */
+	public void putAll(Map<String, Object> values){
+		attributes.putAll(values);
+		
+		updateLastModified();
+	}
+	
+	/**
 	 * 设置属性。
 	 * 
 	 * @param name

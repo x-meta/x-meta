@@ -681,6 +681,27 @@ public class UtilData {
 		return value;
 	}
 	
+	public static boolean isTrue(Object condition){
+		boolean ok = false;
+		if(condition != null){
+			if(condition instanceof Boolean){
+				ok = (Boolean) condition;
+			}else if(condition instanceof String){
+				String str = ((String) condition).toLowerCase().trim();
+				ok = "true".equals(str) | "1".equals(str);
+			}else if(condition instanceof Number){
+				Number n = (Number) condition;
+				ok = n.intValue() == 1;
+			}else{
+				ok = true;
+			}
+		}else{
+			ok = false;
+		}
+		
+		return ok;
+	}
+	
 	public static String getString(Thing thing, String attributeName, ActionContext actionContext) {
 		return UtilString.getString(thing, attributeName, actionContext);
 	}
