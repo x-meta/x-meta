@@ -190,6 +190,21 @@ public class Action extends Semaphore{
 	}
 		
 	/**
+	 * 检查动作是否已经变更。
+	 */
+	public void checkChanged(){
+		if(lastModified != thingEntry.getThing().getMetadata().getLastModified()){
+			try{
+				init();
+			}catch(Exception e){
+				throw new ActionException("", e);
+			}
+			
+			changed = true;
+		}
+	}
+	
+	/**
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 * @throws SecurityException
