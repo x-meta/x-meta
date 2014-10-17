@@ -70,7 +70,7 @@ public class UtilJava {
 		//不能直接使用cls.getDeclaredMethod，因为int,boolean等会编程Integer,Boolean类，使用这个方法取不到方法
         //Method method = cls.getDeclaredMethod(methodName, parameterTypes);
 		
-		Method method = null;
+		List<Method> methods = new ArrayList<Method>();
         for(Method m : cls.getDeclaredMethods()){    
             if(!m.getName().equals(methodName)){
                 continue;
@@ -117,11 +117,56 @@ public class UtilJava {
             }
             
             if(ok){
-                method = m;
-                break;
+                methods.add(m);
+                //break;
             }
         }
         
-        return method;
-	}
+        if(methods.size() == 0){
+        	return null;
+        }else if(methods.size() == 1){
+        	return methods.get(0);
+        }else{
+        	//多个method符合条件，选择最适合的哪一个
+        	int[][] lvs = new int[methods.size()][params.size() + 1];
+        	for(int k=0; k<methods.size(); k++){
+        		Method m = methods.get(k);
+        		Class<?>[] ptypes = m.getParameterTypes();
+        		for(int i=0; i<params.size(); i++){
+	        		if(params.get(i) != null){
+	        			Object param = params.get(i);
+	        			Class<?> parentCls = param.getClass();
+	        			while(parentCls != null){
+	        				lvs[k][i] ++;
+	        				if(parentCls ==ptypes[i] ){
+	        					break;
+	        				}
+	        				parentCls = parentCls.getSuperclass();
+	        			}	        				        			
+	        		}
+        		}
+        	}
+        	for(int i=0; i<lvs.length; i++){
+        		int maxLv = 0;
+        		for(int n=0; n<lvs[i].length - 1; n++){
+        			if(maxLv < lvs[i][n]){
+        				maxLv = lvs[i][n];
+        			}
+        		}
+        		lvs[i][lvs[i].length-1] = maxLv;
+        	}
+        	
+        	//找出层数最少的那个
+        	int index = 0;
+        	int minLv = 10000;
+        	for(int i=0; i<lvs.length; i++){
+        		if(lvs[i][lvs[i].length -1] < minLv){
+        			index = i;
+        			minLv = lvs[i][lvs[i].length - 1];
+        		}
+        	}
+        	
+        	return methods.get(index);
+        }
+	}	
 }
