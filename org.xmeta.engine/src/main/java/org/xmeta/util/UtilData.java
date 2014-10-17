@@ -667,9 +667,9 @@ public class UtilData {
 		if(value != null && value instanceof String){
 			String str = (String) value;
 			if(str.startsWith("var:")){
-				return actionContext.get(str.subSequence(4, str.length()));
+				return actionContext.get(str.substring(4, str.length()));
 			}else if(str.startsWith("ognl:")){
-				return Ognl.getValue(str.subSequence(5, str.length()), actionContext);
+				return Ognl.getValue(str.substring(5, str.length()), actionContext);
 			}else if(str.startsWith("thing:")){
 				String thingPath = str.substring(6, str.length());
 				return World.getInstance().getThing(thingPath);
