@@ -410,7 +410,7 @@ public class UtilData {
     		}
     		SimpleDateFormat sf = new SimpleDateFormat(pattern);    		
     		try {
-				return sf.parse((String) v);
+				return sf.parse((String) v.toString().replace("T"," "));
 			} catch (ParseException e) {
 			}
     	}
