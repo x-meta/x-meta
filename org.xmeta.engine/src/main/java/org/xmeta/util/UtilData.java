@@ -333,7 +333,15 @@ public class UtilData {
     	}else if(v instanceof Number){
     		return ((Number) v).byteValue();
     	}else if(v instanceof String){
-    		return Byte.parseByte((String) v);
+    		try{
+    			return Byte.parseByte((String) v);
+    		}catch(Exception e){
+    			if("true".equals(v) || "TRUE".equals(v)){
+    				return 1;
+    			}else{
+    				return 0;
+    			}
+    		}
     	}else if(v instanceof Boolean){
     		return (byte) (((Boolean) v) ? 1 : 0);
     	}else if(v instanceof BigInteger){

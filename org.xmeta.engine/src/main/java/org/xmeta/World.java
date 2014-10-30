@@ -154,28 +154,31 @@ public class World {
 	 */
 	public ThingManager createThingManager(String name, String link){
 		File managerRootFile = new File(this.getPath() + "/projects/" + name);
+		
+		return createThingManager(name, managerRootFile, link);
+	}
+	
+	public ThingManager createThingManager(String name, File managerRootFile, String link){
 		if(managerRootFile.exists()){
 			throw new XMetaException("ThingManager already exists, name=" + name);
 		}
 		managerRootFile.mkdirs();
-		if(link != null){
-			FileOutputStream fout = null;
-			try{
-				fout = new FileOutputStream(new File(managerRootFile, "config.properties"));
-				fout.write(("link=" + link).getBytes());
-			}catch(Exception e){
-				throw new XMetaException("create config.properties error, thingManager=" + name, e);
-			}finally{
-				if(fout != null){
-					try {
-						fout.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}					
-				}
+		FileOutputStream fout = null;
+		try{
+			fout = new FileOutputStream(new File(managerRootFile, "config.properties"));
+			fout.write(("link=" + link).getBytes());
+		}catch(Exception e){
+			throw new XMetaException("create config.properties error, thingManager=" + name, e);
+		}finally{
+			if(fout != null){
+				try {
+					fout.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}					
 			}
 		}
-		
+	
 		return initThingManager(managerRootFile);
 	}
 		
