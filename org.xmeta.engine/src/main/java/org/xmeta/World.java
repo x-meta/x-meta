@@ -774,15 +774,15 @@ public class World {
 		thingManagers.add(transientThingManager);
 		//thingManagers.add(classThingManager);
 		
-		// 初始化子系统，此方法应该属于IDE的方法
-		Thing config = getThing("xworker.lang.config.Project");
-		if(config != null){
-			try{
-				config.doAction("init");
-			}catch(Exception e){
-				log.warn("init prjects error", e);
-			}
-		}
+		// 初始化子系统，此方法应该属于IDE的方法，于2014-10-30日由张玉祥取消
+		//Thing config = getThing("xworker.lang.config.Project");
+		//if(config != null){
+		//	try{
+		//		config.doAction("init");
+		//	}catch(Exception e){
+		//		log.warn("init prjects error", e);
+		//	}
+		//}
 		
 		//设置状态为已初始化，避免其他地方重复初始化
 		inited = true;
