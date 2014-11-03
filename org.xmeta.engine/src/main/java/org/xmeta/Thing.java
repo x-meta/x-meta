@@ -33,15 +33,16 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 import org.xmeta.cache.LinkedThingEntry;
 import org.xmeta.cache.ThingCache;
 import org.xmeta.cache.ThingEntry;
+import org.xmeta.codes.JsonThingCoder;
 import org.xmeta.codes.XerThingCoder;
 import org.xmeta.codes.XmlCoder;
 import org.xmeta.thingManagers.TransientThingManager;
 import org.xmeta.util.UtilData;
 import org.xmeta.util.UtilString;
+import org.xml.sax.SAXException;
 
 /**
  * 事物指客观的一切物体和现象。<p/>
@@ -576,9 +577,14 @@ public class Thing {
 		cognize(data);
 	}
 	
+	public void parseXML(String xml) throws ParserConfigurationException, SAXException, IOException{
+		cognize(xml);
+	}
+	
 	public void paste(Thing data){
 		cognize(data);
 	}
+	
 	
 	/**
 	 * 克隆一个新事物，新的事物是瞬态的。
