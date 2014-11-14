@@ -117,7 +117,7 @@ public class Thing {
 	protected Action action = null;
 	
 	/** 附加于事物的用户数据 */
-	protected Map<String, Object> datas = new HashMap<String, Object>();
+	protected Map<String, Object> datas = null;//new HashMap<String, Object>();
 	
 	/** 
 	 * 默认构造函数，构造一个空的瞬态事物。 
@@ -711,7 +711,7 @@ public class Thing {
 		}else{
 			if(includeSelf){
 				Bindings bindings = context.push(null);
-				bindings.caller = this;
+				bindings.setCaller(this, name);
 				bindings.put("self", this);
 				
 				try{
@@ -773,7 +773,7 @@ public class Thing {
 		}else{
 			if(includeSelf){
 				Bindings bindings = context.push(null);
-				bindings.caller = this;
+				bindings.setCaller(this, name);
 				bindings.put("self", this);
 				
 				try{
@@ -2598,11 +2598,21 @@ public class Thing {
 		if(key == null){
 			return;
 		}
+	
+		synchronized(this){
+			if(datas == null){
+				datas = new HashMap<String, Object>();
+			}	
+		}
 		
 		datas.put(key, data);
 	}
 	
 	public Object getData(String key){
+		if(datas == null){
+			return null;
+		}
+		
 		return datas.get(key);
 	}
 	

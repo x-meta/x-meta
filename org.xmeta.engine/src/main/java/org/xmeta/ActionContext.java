@@ -169,7 +169,7 @@ public class ActionContext implements Map<String, Object> {
 				return baseStacks;
 			}else{
 				stack = new Stack<Bindings>();
-				for(int i=0; i<baseStacks.size(); i++){
+				for(int i=0; i<dummyScopeCount + 1; i++){
 					stack.push(baseStacks.get(i));
 				}
 				threadStacks.set(stack);
@@ -293,6 +293,43 @@ public class ActionContext implements Map<String, Object> {
 	}
 	
 	/**
+	 * 打印堆栈。
+	 * 
+	 */
+	public void printStackTrace(){
+		Stack<Bindings> bindingsStack = getBindingStack();
+		String content = "ActionContext stacktrace, thread=" + Thread.currentThread().getName() + ":";
+		for (int i = bindingsStack.size() - 1; i >= 0; i--) {
+			content = content + "\n    ";
+			Bindings bindings = bindingsStack.get(i);
+			if(bindings.getCaller() != null){
+				Object caller = bindings.getCaller();
+				if(caller instanceof Thing){
+					content = content + "caller: " + ((Thing) caller).getMetadata().getPath();
+				}else if(caller instanceof Action){
+					content = content + "caller: action: " + ((Action) caller).getThing().getMetadata().getPath();
+				}else{
+					content = content + "caller: " + caller.getClass();
+				}
+			}else{
+				content = content + "caller: null";
+			}
+			
+			String method = bindings.getCallerMethod();
+			content = content + ", callerMethod: " + method;
+			
+			if(bindings.contexts != null){
+				content = content + ", contexts: ";
+				for(Thing key : bindings.contexts.keySet()){
+					content = content + key.getMetadata().getPath() + ",";
+				}
+			}
+		}
+		
+		System.out.println(content);
+	}
+	
+	/**
 	 * 返回指定范围的变量绑定。
 	 * 
 	 * @param index
@@ -331,14 +368,14 @@ public class ActionContext implements Map<String, Object> {
 					i--;
 	
 				Bindings bindings = bindingsStack.get(i);
-				if (bindings.caller instanceof Action) {
-					Action action = (Action) bindings.caller;
+				if (bindings.getCaller() instanceof Action) {
+					Action action = (Action) bindings.getCaller();
 					if (actionThingPath.equals(action.getThing().getMetadata().getPath()) ||
 							actionThingPath.equals(action.getThing().getMetadata().getName())) {
 						return bindings;
 					}
-				}else if(bindings.caller instanceof Thing){
-					Thing thing = (Thing) bindings.caller;
+				}else if(bindings.getCaller() instanceof Thing){
+					Thing thing = (Thing) bindings.getCaller();
 					if(thing != null && actionThingPath.equals(thing.getMetadata().getPath()) ||
 							actionThingPath.equals(thing.getMetadata().getName())){
 						return bindings;
@@ -470,8 +507,8 @@ public class ActionContext implements Map<String, Object> {
 
 			Bindings bindings = bindingsStack.get(i);
 			Thing currentThing = null;
-			if (bindings.caller instanceof Action) {
-				currentThing = ((Action) bindings.caller).getThing();
+			if (bindings.getCaller() instanceof Action) {
+				currentThing = ((Action) bindings.getCaller()).getThing();
 			}
 
 			if (currentThing != null
@@ -493,8 +530,8 @@ public class ActionContext implements Map<String, Object> {
 		List<Action> actions = new ArrayList<Action>();
 
 		for (Bindings bindings : getBindingStack()) {
-			if (bindings.caller instanceof Action) {
-				actions.add((Action) bindings.caller);
+			if (bindings.getCaller() instanceof Action) {
+				actions.add((Action) bindings.getCaller());
 			}
 		}
 
@@ -510,8 +547,8 @@ public class ActionContext implements Map<String, Object> {
 		List<Thing> things = new ArrayList<Thing>();
 
 		for (Bindings bindings : getBindingStack()) {
-			if (bindings.caller instanceof Thing) {
-				things.add((Thing) bindings.caller);
+			if (bindings.getCaller() instanceof Thing) {
+				things.add((Thing) bindings.getCaller());
 			}
 		}
 
@@ -579,8 +616,8 @@ public class ActionContext implements Map<String, Object> {
 		for (int i = bindingsStack.size() - 1; i >= dummyScopeCount; i--) {
 			Bindings bindings = bindingsStack.get(i);
 			Thing currentThing = null;
-			if (bindings.caller instanceof Action) {
-				currentThing = ((Action) bindings.caller).getThing();
+			if (bindings.getCaller() instanceof Action) {
+				currentThing = ((Action) bindings.getCaller()).getThing();
 			}
 
 			if (currentThing != null

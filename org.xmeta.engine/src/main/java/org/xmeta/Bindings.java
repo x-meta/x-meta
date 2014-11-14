@@ -28,7 +28,12 @@ public class Bindings extends HashMap<String, Object>{
 	private static final long serialVersionUID = 1L;
 	
 	/** 调用动作的对象，一般是actionContext压入栈时的对象 */
-	public Object caller = null;
+	private Object caller = null;
+	
+	/**
+	 * 调用者执行的方法名称。
+	 */
+	private String callerMethod = null;
 	
 	/** 事物动作上下文的动作上下文 */
 	public Map<Thing, ActionContext> contexts = new HashMap<Thing, ActionContext>();
@@ -58,11 +63,16 @@ public class Bindings extends HashMap<String, Object>{
 		return caller;
 	}
 
-	public void setCaller(Object caller) {
+	public void setCaller(Object caller, String method) {
 		this.caller = caller;
+		this.callerMethod = method;
 	}	
 	
 	public Map<Thing, ActionContext> getContexts(){
 		return contexts;
+	}
+	
+	public String getCallerMethod(){
+		return callerMethod;
 	}
 }

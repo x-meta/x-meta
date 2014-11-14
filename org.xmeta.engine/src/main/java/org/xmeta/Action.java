@@ -603,7 +603,7 @@ public class Action extends Semaphore{
 		}
 		
 		//初始化脚本内的上下文
-		bindings.caller = this;
+		bindings.setCaller(this, null);
 		bindings.world = world;	
 		
 		try{
@@ -790,7 +790,7 @@ public class Action extends Semaphore{
 				acContext.peek().put("exception", exception);
 			}
 			
-			if(contextObj == null || acContext == null || acContext.getScope(0).caller != contextObj){
+			if(contextObj == null || acContext == null || acContext.getScope(0).getCaller() != contextObj){
 				//如果上下文对象不存在或者上下文为初始化，那么不执行此上下文的其他方法
 				continue;
 			}
@@ -836,7 +836,7 @@ public class Action extends Semaphore{
 		Bindings bindings = actionContext.peek();
 		ActionContext acContext = new ActionContext();
 		acContext.peek().put("acContext", actionContext);
-		acContext.getScope(0).caller = context;
+		acContext.getScope(0).setCaller(context, "init");
 		
 		//查看是否继承，如果继承那么使用上级的脚本
 		Object inheritObj = null;
