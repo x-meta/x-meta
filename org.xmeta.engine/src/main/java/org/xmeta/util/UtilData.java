@@ -535,6 +535,12 @@ public class UtilData {
 	    	}else{
 	    		return false;
 	    	}
+    	}else if(v instanceof Number){
+    		if(((Number) v).doubleValue() == 0){
+    			return false;
+    		}else{
+    			return true;
+    		}
     	}else if(v != null){
     		return true;
     	}else{
