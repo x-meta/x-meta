@@ -57,8 +57,11 @@ public class ThingRunner {
 			Properties p = new Properties();
 			String xerFileName = "xer.ini";
 			File xerFile = new File(xerFileName);
+			if(!xerFile.exists()){
+				xerFile = new File(worldPath + "/xer.ini");
+			}
 			if(xerFile.exists()){
-				FileInputStream fin = new FileInputStream(xerFileName);
+				FileInputStream fin = new FileInputStream(xerFile);
 				p.load(fin);
 				fin.close();
 			}else{
