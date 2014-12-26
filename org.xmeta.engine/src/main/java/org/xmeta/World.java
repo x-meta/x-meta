@@ -1077,6 +1077,9 @@ public class World {
 		Properties properties = new Properties();
 		if(rootPath.isDirectory()){
 			File configFile = new File(rootPath, "config.properties");
+			if(!configFile.exists()){
+				configFile = new File(rootPath, "xworker.properties");
+			}
 			if(configFile.exists()){
 				
 				FileInputStream fin = null; 

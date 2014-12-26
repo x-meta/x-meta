@@ -86,8 +86,27 @@ public class ThingRunner {
 			}
 
 			System.out.println("world path : " + worldPath);
-			System.out.println("thing path : " + thingPath);
-			System.out.println("action name : " + actionName);
+			if("new".equals(thingPath)){				
+				if(actionName == null || "".equals(actionName) || args.length < 3){
+					System.out.println("Pleart input project name");
+					return;
+				}else{
+					System.out.println("create new project: " + actionName);
+					
+					World world = World.getInstance();
+					world.init(worldPath);
+					
+					Thing thing = world.getThing("xworker.tools.CreateProjectMini");
+					
+					ActionContext actionContext = new ActionContext();
+					actionContext.put("args", args);
+					thing.doAction("run", actionContext);
+					return;
+				}
+			}else{
+				System.out.println("thing path : " + thingPath);
+				System.out.println("action name : " + actionName);
+			}
 			
 			World world = World.getInstance();
 			world.init(worldPath);
@@ -96,6 +115,12 @@ public class ThingRunner {
 				if(arg.toLowerCase().equals("-verbose")){
 					world.setVerbose(true);
 				}				
+			}
+			
+			//如果当前目录是XWorker项目，那么加入
+			File xworkerProperties = new File("xworker.properties");
+			if(xworkerProperties.exists()){
+				world.initThingManager(new File("."));
 			}
 			
 			Thing thing = world.getThing(thingPath);

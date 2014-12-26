@@ -17,6 +17,7 @@ package org.xmeta.util;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -464,6 +465,9 @@ public class UtilString {
 		}else if(value.startsWith("xworker:")){
 			String path = value.substring(8, value.length());
 			return World.getInstance().getPath() + "/" + path;
+		}else if(value.startsWith("var:")){
+			String path = value.substring(4, value.length());
+			return (String) actionContext.get(path);
 		}
 		
 		String v = value;
@@ -609,4 +613,15 @@ public class UtilString {
     private static final char[] hexDigit = {
 	'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'
     };
+    
+	public static String getSizeInfo(double size) {
+		DecimalFormat sf = new DecimalFormat("#.##");
+		if (size < 1024) {
+			return String.valueOf(size) + "B";
+		} else if (size < 1024 * 1024) {
+			return sf.format(size / 1024) + "KB";
+		} else {
+			return sf.format(size / 1024 / 1024) + "MB";
+		}
+	}
 }
