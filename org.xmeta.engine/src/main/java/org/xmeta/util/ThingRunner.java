@@ -123,7 +123,14 @@ public class ThingRunner {
 			//如果当前目录是XWorker项目，那么加入
 			File xworkerProperties = new File("xworker.properties");
 			if(xworkerProperties.exists()){
-				world.initThingManager(new File("."));
+				//当前目录下的projectName必须存在
+				Properties prop = new Properties();
+				FileInputStream fin = new FileInputStream(xworkerProperties);
+				prop.load(fin);
+				if(prop.get("projectName") != null){
+					world.initThingManager(new File("."));
+				}
+				fin.close();
 			}
 			
 			Thing thing = world.getThing(thingPath);
