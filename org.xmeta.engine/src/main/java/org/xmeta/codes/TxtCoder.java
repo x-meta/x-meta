@@ -325,6 +325,8 @@ public class TxtCoder {
 			
 			TxtCoder.encode(child, out, context);
 		}
+		
+		out.flush();
 	}
 
 
