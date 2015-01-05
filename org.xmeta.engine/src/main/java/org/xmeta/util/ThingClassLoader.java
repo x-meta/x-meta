@@ -15,7 +15,11 @@
 ******************************************************************************/
 package org.xmeta.util;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -25,9 +29,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xmeta.Thing;
 import org.xmeta.World;
 
 public class ThingClassLoader extends URLClassLoader {
+	private static Logger logger = LoggerFactory.getLogger(ThingClassLoader.class);
+	
+	/** 未初始化的类库，在类库中以.lib为后缀名的类库配置文件 */
+	List<Lib> libs = new ArrayList<Lib>();
 	
 	/**
 	 * 构建一个世界级的类装载器。
@@ -49,6 +60,70 @@ public class ThingClassLoader extends URLClassLoader {
 		//System.out.println(new File(worldPath + "/lib_" + world.getOS() + "_" + world.getJVMBit()).getAbsolutePath());
 		//System.out.println(this.getClassPath());
 //		initClassPath();
+	}
+	
+	/**
+	 * 初始化化lib文件中的类库，在world初始化的最后初始化。
+	 */
+	public void initLibs(){
+		Thing config = World.getInstance().getThing("_local.xworker.config.GlobalConfig");
+
+		while(libs.size() > 0){
+			Lib lib = libs.remove(0);
+			String filePath = lib.path;
+			while(true){
+				int index1 = filePath.indexOf("'");
+				if(index1 != -1){
+					int index2 = filePath.indexOf("'", index1 + 1);
+					if(index2 != -1){
+						String replaceFor = filePath.substring(index1 + 1, index2);
+						
+						String replacement = config != null ? config.getString(replaceFor) : "";
+						if(replacement == null){
+							replacement = "";
+						}
+						
+						filePath = replaceAll(filePath, replaceFor, replacement);
+					}else{
+						break;
+					}
+				}else{
+					break;
+				}				
+			}
+			
+			File file = new File(filePath);
+			if("lib".equals(lib.type)){
+				addJarOrZip(file);
+			}else{
+				if(file.exists()){
+					try {
+						this.addURL(file.toURI().toURL());
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+		
+	private String replaceAll(String str, String replaceFor, String replacement){
+		String fstr = str;
+		while(true){
+			int index1 = fstr.indexOf("'" + replaceFor);
+			if(index1 != -1){
+				int index2 = fstr.indexOf(replaceFor + "'");
+				if(index2 != -1){
+					fstr = fstr.substring(0, index1) + replacement + fstr.substring(index2 + replaceFor.length() + 1, fstr.length());
+				}else{
+					break;
+				}
+			}else{
+				break;
+			}
+		}
+		
+		return fstr;
 	}
 
 	/**
@@ -72,7 +147,44 @@ public class ThingClassLoader extends URLClassLoader {
 					} catch (MalformedURLException e) {
 						e.printStackTrace();
 					}
+				}else if(fileName.endsWith(".lib")){
+					initLib(file);
 				}
+			}
+		}
+	}
+	
+	private void initLib(File file){
+		FileInputStream fin = null;
+		try{
+			fin = new FileInputStream(file);
+			BufferedReader br = new BufferedReader(new InputStreamReader(fin));
+			String line = null;
+			while((line = br.readLine()) != null){
+				line = line.trim();
+				String[] ls = line.split("[=]");
+				if(ls.length == 2){
+					ls[0].trim();
+					ls[1].trim();
+					if(!"".equals(ls[0])){
+						if(!("lib".equals(ls[0]) || "path".equals(ls[0]))){
+							logger.info("unkown lib type, only 'lib' or 'path' suppored, line=" + line + ",libFile=" + file.getAbsolutePath());
+						}else{
+							libs.add(new Lib(ls[0], ls[1]));
+						}
+					}
+				}
+			}
+			br.close();
+		}catch(Exception e){
+			logger.error("init lib error", e);
+		}finally{
+			try {
+				if(fin != null){
+					fin.close();
+				}
+			} catch (IOException e1) {
+				e1.printStackTrace();
 			}
 		}
 	}
@@ -161,5 +273,15 @@ public class ThingClassLoader extends URLClassLoader {
 	
 	public String getCompileClassPath() {
 		return getClassPath();
+	}
+	
+	static class Lib{
+		String type;
+		String path;
+		
+		public Lib(String type, String path){
+			this.type = type;
+			this.path = path;
+		}
 	}
 }

@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmeta.cache.ThingEntry;
 import org.xmeta.thingManagers.ClassThingManager;
+import org.xmeta.thingManagers.FileThingManager;
 import org.xmeta.util.JavaCompiler15;
 import org.xmeta.util.JavaCompiler16;
 import org.xmeta.util.Semaphore;
@@ -355,45 +356,74 @@ public class Action extends Semaphore{
 					}
 					
 					if(recompile){
-						File codeFile = new File(fileName + ".java");
-						if(!codeFile.exists()){
-							codeFile.getParentFile().mkdirs();
-						}
-						
-						FileOutputStream fout = new FileOutputStream(codeFile);
-						try{
-							//文件头增加一个事物路径的标识
-							fout.write(("/*path:" + thing.getMetadata().getPath() + "*/\n").getBytes());
-							fout.write(("package " + packageName + ";\n\n").getBytes());
-							fout.write(code.getBytes());								
-						}finally{
-							fout.close();
-						}
-						
-						File classDir = new File(world.getPath() + "/actionClasses");
-						if(!classDir.exists()){
-							classDir.mkdirs();
-						}
+						if(thing.getBoolean("useInnerJava")){
+							ThingManager thingManager = thing.getMetadata().getThingManager();
+							if(thingManager instanceof FileThingManager){
+								FileThingManager fileThingManager = (FileThingManager) thingManager;
+								String sourcePath = fileThingManager.getFilePath();
+								File codeFile = new File(sourcePath, outerClassName.replace('.', '/') + ".java");
+								boolean use16 = true;
+								boolean compiled = false;
+								try{							
+									Class.forName("javax.tools.JavaCompiler");
+								}catch(Exception e){
+									use16 = false;
+								}
+								
+								if(use16){
+									compiled = JavaCompiler16.compile(compleClassPath, sourcePath, codeFile);
+								}							
+								if(!compiled){
+									JavaCompiler15.compile(compleClassPath, sourcePath, codeFile.getAbsolutePath());								
+								}	
+							}else{
+								throw new ActionException("useInnerJava is only fit for FileThingManager, actionThing=" + thing.getMetadata().getPath());
+							}
+						}else{
+							File codeFile = new File(fileName + ".java");
+							if(!codeFile.exists()){
+								codeFile.getParentFile().mkdirs();
+							}
 							
-						boolean use16 = true;
-						boolean compiled = false;
-						try{							
-							Class.forName("javax.tools.JavaCompiler");
-						}catch(Exception e){
-							use16 = false;
+							FileOutputStream fout = new FileOutputStream(codeFile);
+							try{
+								//文件头增加一个事物路径的标识
+								fout.write(("/*path:" + thing.getMetadata().getPath() + "*/\n").getBytes());
+								fout.write(("package " + packageName + ";\n\n").getBytes());
+								fout.write(code.getBytes());								
+							}finally{
+								fout.close();
+							}
+							
+							File classDir = new File(world.getPath() + "/actionClasses");
+							if(!classDir.exists()){
+								classDir.mkdirs();
+							}
+								
+							boolean use16 = true;
+							boolean compiled = false;
+							try{							
+								Class.forName("javax.tools.JavaCompiler");
+							}catch(Exception e){
+								use16 = false;
+							}
+							
+							if(use16){
+								compiled = JavaCompiler16.compile(compleClassPath, null, codeFile);
+							}							
+							if(!compiled){
+								JavaCompiler15.compile(compleClassPath, null, fileName);								
+							}	
 						}
-						
-						if(use16){
-							compiled = JavaCompiler16.compile(compleClassPath, codeFile);
-						}							
-						if(!compiled){
-							JavaCompiler15.compile(compleClassPath, fileName);								
-						}	
 						
 						updateCompileTime();
 					}
 					
-					actionClass = classLoader.loadClass(className);
+					if(thing.getBoolean("useInnerJava")){
+						actionClass = classLoader.loadClass(outerClassName); 	
+					}else{
+						actionClass = classLoader.loadClass(className);
+					}
 				}
 				java.lang.Compiler.compileClass(actionClass);
 				try{	

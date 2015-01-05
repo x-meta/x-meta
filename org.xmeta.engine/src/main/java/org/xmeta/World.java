@@ -787,6 +787,9 @@ public class World {
 		//	}
 		//}
 		
+		//初始化通过.lib文件自定义的类库
+		getClassLoader().initLibs();
+		
 		//设置状态为已初始化，避免其他地方重复初始化
 		inited = true;
 	}
