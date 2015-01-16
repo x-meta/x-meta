@@ -16,13 +16,13 @@
 package org.xmeta.cache;
 
 import java.lang.ref.SoftReference;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.xmeta.Thing;
 
 public class ThingCache {
-	private static Map<String, SoftReference<Thing>> cache = new HashMap<String, SoftReference<Thing>>(600);
+	private static Map<String, SoftReference<Thing>> cache = new ConcurrentHashMap<String, SoftReference<Thing>>(600);
 		
 	/**
 	 * 获取缓存。

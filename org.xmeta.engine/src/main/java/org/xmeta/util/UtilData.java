@@ -560,6 +560,23 @@ public class UtilData {
     	return defaultValue;
     }
 	
+	/** 
+	 * 按照字节、千字节和兆返回大小的值。
+	 * 
+	 * @param size
+	 * @return
+	 */
+	public static String getSizeInfo(double size) {
+		DecimalFormat sf = new DecimalFormat("#.##");
+		if (size < 1024) {
+			return String.valueOf(size) + "B";
+		} else if (size < 1024 * 1024) {
+			return sf.format(size / 1024) + "KB";
+		} else {
+			return sf.format(size / 1024 / 1024) + "MB";
+		}
+	}
+	
 	/**
 	 * 将"00 01 02"形式的字符串转成byte[]
 	 * 
