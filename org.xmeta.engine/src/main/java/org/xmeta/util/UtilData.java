@@ -705,6 +705,10 @@ public class UtilData {
 				String thingPath = str.substring(6, str.length());
 				return World.getInstance().getThing(thingPath);
 			}else{
+				if("".equals(str)){
+					return null;
+				}
+				
 				return str;
 			}
 		}
