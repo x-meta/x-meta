@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ognl.Ognl;
-import ognl.OgnlException;
 
 import org.xmeta.ActionContext;
 import org.xmeta.Thing;
