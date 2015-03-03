@@ -249,4 +249,8 @@ public class FileThingManager extends AbstractThingManager{
 	@Override
 	public void init(Properties properties) {
 	}
+	
+	public String toString(){
+		return "FileThingManger[name:" + getName() + ", rootFile: " + rootFile.getAbsolutePath() + "]";
+	}
 }

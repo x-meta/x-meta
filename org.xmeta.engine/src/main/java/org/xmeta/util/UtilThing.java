@@ -75,4 +75,40 @@ public class UtilThing {
 	public static boolean isDescriptorEquals1(String descriptorFor, String descriptor){
 		return isDescriptorEquals(World.getInstance().getThing(descriptorFor), descriptor);
 	}
+	
+	/**
+	 * 获取事物，如果不存在就创建一个。
+	 * 
+	 * @param path
+	 * @param thingManager
+	 * @param descriptorForCreate
+	 * @return
+	 */
+	public static Thing getThingIfNotExistsCreate(String path, String thingManager, String descriptorForCreate){
+		Thing thing = World.getInstance().getThing(path);
+		if(thing == null){
+			thing = new Thing(descriptorForCreate);
+			thing.saveAs(thingManager, path);
+		}
+		
+		return thing;
+	}
+	
+	/**
+	 * 获取事物，如果不存在就用已有的事物创建一个。
+	 * 
+	 * @param path
+	 * @param thingManager
+	 * @param forReplace
+	 * @return
+	 */
+	public static Thing getThingIfNotExistsCreate(String path, String thingManager, Thing forReplace){
+		Thing thing = World.getInstance().getThing(path);
+		if(thing == null){
+			thing = forReplace.detach();
+			thing.saveAs(thingManager, path);
+		}
+		
+		return thing;
+	}
 }
