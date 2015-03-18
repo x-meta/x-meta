@@ -36,8 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.xmeta.cache.LinkedThingEntry;
 import org.xmeta.cache.ThingCache;
 import org.xmeta.cache.ThingEntry;
-import org.xmeta.codes.JsonThingCoder;
-import org.xmeta.codes.XerThingCoder;
+import org.xmeta.codes.TxtThingCoder;
 import org.xmeta.codes.XmlCoder;
 import org.xmeta.thingManagers.TransientThingManager;
 import org.xmeta.util.UtilData;
@@ -2472,7 +2471,7 @@ public class Thing {
 			thing.getMetadata().setReserve(thingName);
 			//thing.getMetadata().setReserve(root.getMetadata().getReserve());
 			thing.getMetadata().initPath();
-			thing.getMetadata().setCoderType(XerThingCoder.TYPE);
+			thing.getMetadata().setCoderType(TxtThingCoder.TYPE);
 			thing.initChildPath();
 			
 			

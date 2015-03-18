@@ -700,7 +700,7 @@ public class UtilData {
 			if(str.startsWith("var:")){
 				return actionContext.get(str.substring(4, str.length()));
 			}else if(str.startsWith("ognl:")){
-				return Ognl.getValue(str.substring(5, str.length()), actionContext);
+				return OgnlUtil.getValue(thing, str, actionContext);
 			}else if(str.startsWith("thing:")){
 				String thingPath = str.substring(6, str.length());
 				return World.getInstance().getThing(thingPath);
@@ -714,6 +714,24 @@ public class UtilData {
 		}
 		
 		return value;
+	}
+	
+	public static Object getData( String value, ActionContext actionContext) throws OgnlException{		
+		String str = (String) value;
+		if(str.startsWith("var:")){
+			return actionContext.get(str.substring(4, str.length()));
+		}else if(str.startsWith("ognl:")){
+			return Ognl.getValue(str.substring(5, str.length()), actionContext);
+		}else if(str.startsWith("thing:")){
+			String thingPath = str.substring(6, str.length());
+			return World.getInstance().getThing(thingPath);
+		}else{
+			if("".equals(str)){
+				return null;
+			}
+			
+			return str;
+		}
 	}
 	
 	public static boolean isTrue(Object condition){

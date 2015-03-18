@@ -88,28 +88,40 @@ public class UtilAction {
 		if(action == null){
 			return actionContext.getScope();
 		}else{		
-	    	Bindings binding = null;
-	        String varScope = action.getString("varScope");
-	        if(varScope == null || "".equals(varScope)){
-	        	binding = actionContext.getScope();
-	        }else  if("Global".equals(varScope)){
-	            binding = actionContext.getScope(0);    
-	        }else if("Local".equals(varScope)){
-	            binding = actionContext.getScope();
-	        }else{    
-	            try{
-	                int scopeIndex = Integer.parseInt(varScope);
-	                if(scopeIndex >= 0){
-	                    binding = actionContext.getScope(scopeIndex);
-	                }else{
-	                	binding = actionContext.getScope(actionContext.getScopesSize() + scopeIndex);
-	                }
-	            }catch(Exception e){
-	                binding = actionContext.getScope(varScope);
-	            }
-	        }
-	        
-	        return binding;
+			String varScope = action.getString("varScope");
+			return getVarScope(varScope, actionContext);
 		}
     }
+	
+	/**
+	 * 通过VarScope的字符串返回相应的Scope，如Gloabl, Local等。
+	 * 
+	 * @param varScope
+	 * @param actionContext
+	 * @return
+	 */
+	public static Bindings getVarScope(String varScope, ActionContext actionContext){
+		Bindings binding = null;
+        
+        if(varScope == null || "".equals(varScope)){
+        	binding = actionContext.getScope();
+        }else  if("Global".equals(varScope)){
+            binding = actionContext.getScope(0);    
+        }else if("Local".equals(varScope)){
+            binding = actionContext.getScope();
+        }else{    
+            try{
+                int scopeIndex = Integer.parseInt(varScope);
+                if(scopeIndex >= 0){
+                    binding = actionContext.getScope(scopeIndex);
+                }else{
+                	binding = actionContext.getScope(actionContext.getScopesSize() + scopeIndex);
+                }
+            }catch(Exception e){
+                binding = actionContext.getScope(varScope);
+            }
+        }
+        
+        return binding;
+	}
 }

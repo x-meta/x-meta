@@ -32,7 +32,11 @@ public class OgnlUtil {
 	 * @throws OgnlException
 	 */
 	public static Object getValue(Thing thing, String pathAttributeName, Object root) throws OgnlException{
-		return getValue(thing, pathAttributeName, thing.getString(pathAttributeName), root);
+		PathCache pathCache = getPathCache(thing, pathAttributeName);
+		if(pathCache == null){
+			return null;
+		}
+		return Ognl.getValue(pathCache.expression, root);
 	}
 	
 	/**
@@ -46,37 +50,41 @@ public class OgnlUtil {
 	 * @throws OgnlException
 	 */
 	public static Object getValue(Thing thing, String pathAttributeName, String pathAttributeValue, Object root) throws OgnlException{
-		if(pathAttributeValue == null || "".equals(pathAttributeValue)){
+		PathCache pathCache = getPathCache(thing, pathAttributeName);
+		if(pathCache == null){
 			return null;
-		}
-		
-		String key = CACHE + pathAttributeName;
-		PathCache pathCache = (PathCache) thing.getData(key);
-		if(pathCache == null || pathCache.lastModified != thing.getMetadata().getLastModified()){
-			if(pathCache == null){
-				pathCache = new PathCache();
-				thing.setData(key, pathCache);
-			}
-			
-			pathCache.lastModified = thing.getMetadata().getLastModified();
-			pathCache.expression = Ognl.parseExpression(pathAttributeValue);
 		}
 		
 		return Ognl.getValue(pathCache.expression, root);
 	}
 	
-	public static Object getCachedExpression(Thing thing, String attributeName) throws OgnlException{
+	public static PathCache getPathCache(Thing thing, String attributeName) throws OgnlException{
 		String key = CACHE + attributeName;
 		PathCache pathCache = (PathCache) thing.getData(key);
 		if(pathCache == null || pathCache.lastModified != thing.getMetadata().getLastModified()){
+			String path = thing.getStringBlankAsNull(attributeName);
+			if(path == null){
+				return null;
+			}
+			
 			if(pathCache == null){
-				pathCache = new PathCache();
-				thing.setData(key, pathCache);
+				pathCache = new PathCache();				
 			}
 			
 			pathCache.lastModified = thing.getMetadata().getLastModified();
-			pathCache.expression = Ognl.parseExpression(thing.getStringBlankAsNull(attributeName));
+						
+			if(path.startsWith("ognl:")){
+				path = path.substring(5, path.length());
+			}
+			pathCache.expression = Ognl.parseExpression(path);			
+			thing.setData(key, pathCache);
 		}
+		
+		return pathCache;
+	}
+	
+	public static Object getCachedExpression(Thing thing, String attributeName) throws OgnlException{
+		PathCache pathCache = getPathCache(thing, attributeName);
 		
 		return pathCache.expression;
 	}
