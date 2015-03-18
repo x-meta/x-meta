@@ -700,7 +700,7 @@ public class UtilData {
 			if(str.startsWith("var:")){
 				return actionContext.get(str.substring(4, str.length()));
 			}else if(str.startsWith("ognl:")){
-				return OgnlUtil.getValue(thing, str, actionContext);
+				return OgnlUtil.getValue(thing, attributeName, actionContext);
 			}else if(str.startsWith("thing:")){
 				String thingPath = str.substring(6, str.length());
 				return World.getInstance().getThing(thingPath);
