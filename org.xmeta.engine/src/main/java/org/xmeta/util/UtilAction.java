@@ -124,4 +124,15 @@ public class UtilAction {
         
         return binding;
 	}
+	
+	/**
+	 * 返回是否是打印调试日志。
+	 * 
+	 * @param actionThing
+	 * @param actionContext
+	 * @return
+	 */
+	public static boolean getDebugLog(Thing actionThing, ActionContext actionContext){
+		return actionThing.getBoolean("debugLog");
+	}
 }

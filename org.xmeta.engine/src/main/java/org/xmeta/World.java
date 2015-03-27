@@ -790,6 +790,15 @@ public class World {
 		//初始化通过.lib文件自定义的类库
 		getClassLoader().initLibs();
 		
+        //重新设置元事物如果存在, 2015-03-18加入，因为一些事物已经使用这个xworker.lang.MetaThing
+        Thing metaThing = getThing("xworker.lang.MetaThing").detach();
+        if(metaThing != null){
+	        //保留元事物的路径
+	        metaThing.getMetadata().setPath("xworker.lang.MetaThing");
+	        metaThing.initChildPath();
+	        this.metaThing = metaThing;
+        }
+        
 		//设置状态为已初始化，避免其他地方重复初始化
 		inited = true;
 	}

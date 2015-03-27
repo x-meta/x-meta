@@ -148,6 +148,7 @@ public class ThingClassLoader extends URLClassLoader {
 						e.printStackTrace();
 					}
 				}else if(fileName.endsWith(".lib")){
+					logger.info("init lib from file: " + file.getAbsolutePath());
 					initLib(file);
 				}
 			}

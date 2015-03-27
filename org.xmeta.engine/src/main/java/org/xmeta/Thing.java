@@ -31,6 +31,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import ognl.OgnlException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmeta.cache.LinkedThingEntry;
@@ -1486,12 +1488,20 @@ public class Thing {
 		return UtilData.getBigDecimal(getAttribute(name), defaultValue);
 	}
 	
+	public BigDecimal getBigDecimal(String name, BigDecimal defaultValue, ActionContext actionContext) throws OgnlException{
+		return UtilData.getBigDecimal(UtilData.getData(this, name, actionContext), defaultValue);
+	}
+	
 	public BigInteger getBigInteger(String name){
 		return getBigInteger(name, null);
 	}
 	
 	public BigInteger getBigInteger(String name, BigInteger defaultValue){
 		return UtilData.getBigInteger(getAttribute(name), defaultValue);
+	}
+	
+	public BigInteger getBigInteger(String name, BigInteger defaultValue, ActionContext actionContext) throws OgnlException{
+		return UtilData.getBigInteger(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
 	public boolean getBoolean(String name){
@@ -1502,12 +1512,20 @@ public class Thing {
 		return UtilData.getBoolean(getAttribute(name), defaultValue);
 	}
 	
+	public boolean getBoolean(String name, boolean defaultValue, ActionContext actionContext) throws OgnlException{
+		return UtilData.getBoolean(UtilData.getData(this, name, actionContext), defaultValue);
+	}
+	
 	public byte getByte(String name){
 		return getByte(name, (byte) 0);
 	}
 	
 	public byte getByte(String name, byte defaultValue){
 		return UtilData.getByte(getAttribute(name), defaultValue);
+	}
+	
+	public byte getByte(String name, byte defaultValue, ActionContext actionContext) throws OgnlException{
+		return UtilData.getByte(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
 	public byte[] getBytes(String name){
@@ -1518,12 +1536,20 @@ public class Thing {
 		return UtilData.getBytes(getAttribute(name), defaultValue);
 	}
 	
+	public byte[] getBytes(String name, byte[] defaultValue, ActionContext actionContext) throws OgnlException{
+		return UtilData.getBytes(UtilData.getData(this, name, actionContext), defaultValue);
+	}
+	
 	public char getChar(String name){
 		return getChar(name, (char) 0);
 	}
 	
 	public char getChar(String name, char defaultValue){
 		return UtilData.getChar(getAttribute(name), defaultValue);
+	}
+	
+	public char getChar(String name, char defaultValue, ActionContext actionContext) throws OgnlException{
+		return UtilData.getChar(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
 	/**
@@ -1570,6 +1596,10 @@ public class Thing {
 	
 	public Date getDate(String name, Date defaultValue){
 		return UtilData.getDate(getAttribute(name), defaultValue);
+	}
+	
+	public Date getDate(String name, Date defaultValue, ActionContext actionContext) throws OgnlException{
+		return UtilData.getDate(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
 	public Thing getClassThing(){
@@ -1686,6 +1716,10 @@ public class Thing {
 		return UtilData.getDouble(getAttribute(name), defaultValue);
 	}
 	
+	public double getDouble(String name, double defaultValue, ActionContext actionContext) throws OgnlException{
+		return UtilData.getDouble(UtilData.getData(this, name, actionContext), defaultValue);
+	}
+	
 	/**
 	 * 返回本事物的继承事物列表。
 	 * 
@@ -1722,6 +1756,10 @@ public class Thing {
 		return UtilData.getFloat(getAttribute(name), defaultValue);
 	}
 	
+	public float getFloat(String name, float defaultValue, ActionContext actionContext) throws OgnlException{
+		return UtilData.getFloat(UtilData.getData(this, name, actionContext), defaultValue);
+	}
+	
 	public int getInt(String name){
 		return getInt(name, 0);
 	}
@@ -1735,6 +1773,10 @@ public class Thing {
 		//	return bi.intValue();
 		//}
 		return value;
+	}
+	
+	public int getInt(String name, int defaultValue, ActionContext actionContext) throws OgnlException{
+		return UtilData.getInt(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
 	/**
@@ -1758,6 +1800,10 @@ public class Thing {
 	
 	public long getLong(String name, long defaultValue){
 		return UtilData.getLong(getAttribute(name), defaultValue);
+	}
+	
+	public long getLong(String name, long defaultValue, ActionContext actionContext) throws OgnlException{
+		return UtilData.getLong(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
 	/**
@@ -1831,6 +1877,10 @@ public class Thing {
 	
 	public short getShort(String name, short defaultValue){
 		return UtilData.getShort(getAttribute(name), defaultValue);
+	}
+	
+	public short getShort(String name, short defaultValue, ActionContext actionContext) throws OgnlException{
+		return UtilData.getShort(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
 	public String getString(String name){
