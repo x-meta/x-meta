@@ -41,6 +41,7 @@ import org.xmeta.cache.ThingEntry;
 import org.xmeta.codes.TxtThingCoder;
 import org.xmeta.codes.XmlCoder;
 import org.xmeta.thingManagers.TransientThingManager;
+import org.xmeta.util.OgnlUtil;
 import org.xmeta.util.UtilData;
 import org.xmeta.util.UtilString;
 import org.xml.sax.SAXException;
@@ -1780,18 +1781,33 @@ public class Thing {
 	}
 	
 	/**
-	 * 从事物中取指定的属性的字符串的值作为变量名，然后从ActionContext中取变量。
+	 * 从事物中取指定的属性的字符串的值作为变量名，然后从ActionContext中取变量，支持var:或ognl:，默认相当于 var:。
 	 * @param name
 	 * @param actionContext
 	 * @return
+	 * @throws OgnlException 
 	 */
-	public Object getObject(String name, ActionContext actionContext){
-		String value = getString(name);
-		if(value != null && !"".equals(value)){
-			return actionContext.get(value);
+	public Object getObject(String name, ActionContext actionContext) throws OgnlException{		
+		Object value = this.get(name);
+		if(value != null && value instanceof String){
+			String str = (String) value;
+			if(str.startsWith("var:")){
+				return actionContext.get(str.substring(4, str.length()));
+			}else if(str.startsWith("ognl:")){
+				return OgnlUtil.getValue(this, name, actionContext);
+			}else if(str.startsWith("thing:")){
+				String thingPath = str.substring(6, str.length());
+				return World.getInstance().getThing(thingPath);
+			}else{
+				if("".equals(str)){
+					return null;
+				}
+				
+				return actionContext.get(str);
+			}
 		}
 		
-		return null;
+		return value;
 	}
 	
 	public long getLong(String name){
@@ -1911,7 +1927,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 通过属性值从上下文中取字符串。
+	 * 通过属性值从上下文中取字符串，通过UtilString获取字符串，如果返回null或空，那么返回defaultValue。
 	 * 
 	 * @param name
 	 * @param defaultValue
@@ -1920,7 +1936,7 @@ public class Thing {
 	 */
 	public String getString(String name, String defaultValue, ActionContext actionContext){
 		String value = UtilString.getString(this, name, actionContext);
-		if(value == null){
+		if(value == null || "".equals(value)){
 			return defaultValue;
 		}else{
 			return value;
@@ -2663,6 +2679,14 @@ public class Thing {
 		}
 		
 		return datas.get(key);
+	}
+	
+	/**
+	 * 返回保存Data数据的Map，有可能返回null，如果没有初始化（放过数据）。
+	 * @return
+	 */
+	public Map<String, Object> getDatas(){
+		return datas;
 	}
 	
 	/**

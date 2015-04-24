@@ -62,6 +62,8 @@ public class RegisThingManager extends AbstractThingManager{
 		Jedis jedis = jedisPool.getResource();
 		try{
 			jedis.set("category|" + categoryName, categoryName);
+			
+			this.refreshParentCategory(categoryName);
 		}finally{
 			jedisPool.returnResource(jedis);
 		}
@@ -102,6 +104,7 @@ public class RegisThingManager extends AbstractThingManager{
 			}			
 			jedis.del(keys);
 			
+			this.refreshParentCategory(categoryName);
 		}finally{
 			jedisPool.returnResource(jedis);
 		}

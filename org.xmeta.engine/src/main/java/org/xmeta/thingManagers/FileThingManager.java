@@ -162,6 +162,7 @@ public class FileThingManager extends AbstractThingManager{
 			File dir = new File(thingRootFile, categoryName.replace('.', '/'));
 			if(!dir.exists()){
 				if(dir.mkdirs()){
+					this.refreshParentCategory(categoryName);
 					//refresh();
 					return true;
 				}else{
@@ -169,7 +170,8 @@ public class FileThingManager extends AbstractThingManager{
 				}
 			}else{
 				//目录已经存在
-				return false;
+				this.refreshParentCategory(categoryName);
+				return true;
 			}
 		}			
 	}

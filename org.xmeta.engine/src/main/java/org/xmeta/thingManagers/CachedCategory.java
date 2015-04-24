@@ -77,7 +77,7 @@ public abstract class CachedCategory implements Category{
 		
 		return null;
 	}
-
+	
 	@Override
 	public List<Category> getCategorys() {
 		checkRefresh();

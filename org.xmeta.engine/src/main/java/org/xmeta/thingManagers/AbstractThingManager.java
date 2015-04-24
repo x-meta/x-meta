@@ -77,7 +77,7 @@ public abstract class AbstractThingManager implements ThingManager{
 		for(String pkName : categoryName.split("[.]")){
 			Category childPkg = pkg.getCategory(pkName);
 			if(childPkg == null){
-				pkg.refresh();
+				//pkg.refresh();
 				pkg = pkg.getCategory(pkName);
 			}else{
 				pkg = childPkg;
@@ -90,6 +90,33 @@ public abstract class AbstractThingManager implements ThingManager{
 		return pkg;
 	}
 
+	/**
+	 * 刷新父目录，在创建或删除目录时使用。
+	 * 
+	 * @param categoryName
+	 */
+	public void refreshParentCategory(String categoryName){
+		if(categoryName == null || "".equals(categoryName)){
+			rootCategory.refresh();
+		}
+		
+		int index = categoryName.lastIndexOf(".");
+		if(index != -1){
+			String name = categoryName.substring(0, index);
+			Category category = this.getCategory(name);
+			if(category != null){
+				category.refresh();
+			}else{
+				refreshParentCategory(name);
+				
+				category = this.getCategory(name);
+				if(category != null){
+					category.refresh();
+				}
+			}
+		}		
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.xmeta.ThingFactory#getCategorys()
