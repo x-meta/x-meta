@@ -199,14 +199,16 @@ public class UtilData {
 			
 			DateFormat sf = null;
 			if(pattern == null || VALUE_BLANK.equals(pattern)){
-				if(TYPE_DATE.equals(type)){
+				if(value.length() == 10){
+					sf = new SimpleDateFormat("yyyy-MM-dd");
+				}else if(TYPE_DATE.equals(type)){
 					sf = SimpleDateFormat.getDateInstance();
 				}else if(TYPE_TIME.equals(type)){
 					sf = SimpleDateFormat.getTimeInstance();
 				}else{
 					sf = SimpleDateFormat.getDateTimeInstance();
 				}
-			}else{
+			}else{				
 				sf = new SimpleDateFormat(pattern);
 			}
 			
@@ -682,6 +684,24 @@ public class UtilData {
 		}
 		
 		return targetValue;
+	}
+	
+	/**
+	 * 返回通过属性定义的对象。
+	 * 
+	 * @param thing
+	 * @param attributeName
+	 * @param actionContext
+	 * @return
+	 * @throws OgnlException
+	 */
+	public static Object getObject(Thing thing, String attributeName, ActionContext actionContext) throws OgnlException{
+		Object obj = UtilData.getData(thing, attributeName, actionContext);
+		if(obj instanceof String){
+			obj = actionContext.get((String) obj);
+		}
+		
+		return obj;
 	}
 	
 	/**

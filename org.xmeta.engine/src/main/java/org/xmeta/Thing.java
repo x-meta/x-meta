@@ -1987,6 +1987,8 @@ public class Thing {
 			return;
 		}
 		
+		thingNames.clear();
+		
 		List<ThingEntry> tempList = new ArrayList<ThingEntry>();
 		String descriptorsNamesStr = (String) attributes.get(Thing.DESCRIPTORS);
 		if(descriptorsNamesStr != null){
