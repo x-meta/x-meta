@@ -687,7 +687,7 @@ public class UtilData {
 	}
 	
 	/**
-	 * 返回通过属性定义的对象。
+	 * 返回通过属性定义的对象，首先使用UtilData获取，如果没有从actionContext中获取。
 	 * 
 	 * @param thing
 	 * @param attributeName
