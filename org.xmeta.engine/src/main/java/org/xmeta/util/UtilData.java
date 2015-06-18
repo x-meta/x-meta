@@ -705,6 +705,26 @@ public class UtilData {
 	}
 	
 	/**
+	 * 返回指定类型的对象。
+	 * 
+	 * @param thing
+	 * @param attributeName
+	 * @param t
+	 * @param actionContext
+	 * @return
+	 * @throws OgnlException
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T getObjectByType(Thing thing, String attributeName, Class<T> t, ActionContext actionContext) throws OgnlException{
+		Object obj = getObject(thing, attributeName, actionContext);
+		if(t.isInstance(obj)){
+			return (T) obj;
+		}else{
+			return null;
+		}
+	}
+	
+	/**
 	 * 通过事物的属性获取数据。
 	 * 
 	 * @param thing
