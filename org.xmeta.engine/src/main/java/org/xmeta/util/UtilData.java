@@ -32,6 +32,7 @@ import java.util.List;
 import ognl.Ognl;
 import ognl.OgnlException;
 
+import org.xmeta.Action;
 import org.xmeta.ActionContext;
 import org.xmeta.Thing;
 import org.xmeta.World;
@@ -744,6 +745,14 @@ public class UtilData {
 			}else if(str.startsWith("thing:")){
 				String thingPath = str.substring(6, str.length());
 				return World.getInstance().getThing(thingPath);
+			}else if(str.startsWith("action:")){
+				String thingPath = str.substring(7, str.length());
+				Action action =  World.getInstance().getAction(thingPath);
+				if(action != null){
+					return action.run(actionContext);
+				}else{
+					return null;
+				}
 			}else{
 				if("".equals(str)){
 					return null;
