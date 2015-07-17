@@ -712,7 +712,7 @@ public class Thing {
 			return null;
 		}else{
 			if(includeSelf){
-				Bindings bindings = context.push(null);
+				Bindings bindings = context.pushPoolBindings();
 				bindings.setCaller(this, name);
 				bindings.put("self", this);
 				
@@ -774,7 +774,7 @@ public class Thing {
 			return null;
 		}else{
 			if(includeSelf){
-				Bindings bindings = context.push(null);
+				Bindings bindings = context.pushPoolBindings();
 				bindings.setCaller(this, name);
 				bindings.put("self", this);
 				

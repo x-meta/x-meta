@@ -481,7 +481,7 @@ public class Action extends Semaphore{
 				actionContext = new ActionContext();
 			}
 			try{
-				actionContext.push().put("actionThing", thing);
+				actionContext.pushPoolBindings().put("actionThing", thing);
 				return (Class) thing.doAction("getActionClass", actionContext);
 			}finally{
 				actionContext.pop();

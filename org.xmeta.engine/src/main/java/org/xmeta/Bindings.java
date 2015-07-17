@@ -29,12 +29,11 @@ public class Bindings extends HashMap<String, Object>{
 	
 	/** 调用动作的对象，一般是actionContext压入栈时的对象 */
 	private Object caller = null;
-	
 	/**
 	 * 调用者执行的方法名称。
 	 */
 	private String callerMethod = null;
-	
+
 	/** 事物动作上下文的动作上下文 */
 	public Map<Thing, ActionContext> contexts = new HashMap<Thing, ActionContext>();
 		
