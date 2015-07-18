@@ -47,7 +47,7 @@ import org.xmeta.util.UtilString;
 import org.xml.sax.SAXException;
 
 /**
- * 事物指客观的一切物体和现象。<p/>
+ * 在X-Meta引擎里用事物表示任何东西。<p/>
  * 
  * 事物有状态和行为，可以通过set和get、getxx方法来设置和获取事物的状态，可以通过doAction(String actionName)
  * 或doAction(String actionName, ActionContext actionContext)方法来执行事物。<p/>
