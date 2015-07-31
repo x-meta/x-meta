@@ -15,10 +15,16 @@
 ******************************************************************************/
 package org.xmeta;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
 
 public class XMetaException extends RuntimeException{
 	private static final long serialVersionUID = 1L;
 
+	/** ActionContext中的StackTrace，如果存在 */
+	String stackTrace = null;
+	
 	public XMetaException(){
         super();
     }
@@ -35,4 +41,57 @@ public class XMetaException extends RuntimeException{
         super(cause);        
     }
     
+    public XMetaException(ActionContext actionContext){
+        super();
+        
+        initActionContextStackTrace(actionContext);
+    }
+
+    public XMetaException(String message, ActionContext actionContext){
+        super(message);
+        
+        initActionContextStackTrace(actionContext);
+    }
+
+    public XMetaException(String message, Throwable cause, ActionContext actionContext){
+        super(message, cause);        
+        
+        initActionContextStackTrace(actionContext);
+    }
+    
+    public XMetaException(Throwable cause, ActionContext actionContext){
+        super(cause);        
+        
+        initActionContextStackTrace(actionContext);
+    }
+    
+    private void initActionContextStackTrace(ActionContext actionContext){
+    	stackTrace = actionContext.getStackTrace();
+    }
+
+	@Override
+	public void printStackTrace() {
+		super.printStackTrace();
+		if(stackTrace != null){
+			System.out.println(stackTrace);
+		}
+		
+	}
+
+	@Override
+	public void printStackTrace(PrintStream s) {
+		super.printStackTrace(s);
+		if(stackTrace != null){
+			s.println(stackTrace);
+		}
+
+	}
+
+	@Override
+	public void printStackTrace(PrintWriter s) {	
+		super.printStackTrace(s);
+		if(stackTrace != null){
+			s.println(stackTrace);
+		}
+	}
 }

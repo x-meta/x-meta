@@ -35,7 +35,7 @@ public class Bindings extends HashMap<String, Object>{
 	private String callerMethod = null;
 
 	/** 事物动作上下文的动作上下文 */
-	public Map<Thing, ActionContext> contexts = new HashMap<Thing, ActionContext>();
+	private Map<Thing, ActionContext> contexts = null;//new HashMap<Thing, ActionContext>();
 		
 	public World world = World.getInstance();
 	
@@ -68,6 +68,9 @@ public class Bindings extends HashMap<String, Object>{
 	}	
 	
 	public Map<Thing, ActionContext> getContexts(){
+		if(contexts == null){
+			contexts = new HashMap<Thing, ActionContext>();
+		}
 		return contexts;
 	}
 	

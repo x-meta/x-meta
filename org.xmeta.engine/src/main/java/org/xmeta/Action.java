@@ -815,7 +815,7 @@ public class Action extends Semaphore{
 		//按照从后往前的顺序执行
 		for(int i=contexts.size() - 1; i>=0; i--){
 			Thing contextObj = contexts.get(i);
-			ActionContext acContext = bindings.contexts.get(contextObj);
+			ActionContext acContext = bindings.getContexts().get(contextObj);
 			if(acContext != null){
 				acContext.peek().put("exception", exception);
 			}
@@ -877,11 +877,11 @@ public class Action extends Semaphore{
 		
 		if(inheritObj != null && inheritObj instanceof ActionContext){
 			//如果继承了，那么什么事都不作
-			bindings.contexts.put(context, (ActionContext) inheritObj);
+			bindings.getContexts().put(context, (ActionContext) inheritObj);
 		}else{
 			//使用新的上下文
 			context.doAction("init", acContext);
-			bindings.contexts.put(context, acContext);
+			bindings.getContexts().put(context, acContext);
 		}		
 	}
 	

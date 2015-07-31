@@ -302,10 +302,11 @@ public class ActionContext implements Map<String, Object>{
 	}
 	
 	/**
-	 * 打印堆栈。
+	 * 获取当前堆栈信息。
 	 * 
+	 * @return
 	 */
-	public void printStackTrace(){
+	public String getStackTrace(){
 		Stack<Bindings> bindingsStack = getBindingStack();
 		String content = "ActionContext stacktrace, thread=" + Thread.currentThread().getName() + ":";
 		for (int i = bindingsStack.size() - 1; i >= 0; i--) {
@@ -314,11 +315,11 @@ public class ActionContext implements Map<String, Object>{
 			if(bindings.getCaller() != null){
 				Object caller = bindings.getCaller();
 				if(caller instanceof Thing){
-					content = content + "caller: " + ((Thing) caller).getMetadata().getPath();
+					content = content + "caller: thing: " + ((Thing) caller).getMetadata().getPath();
 				}else if(caller instanceof Action){
 					content = content + "caller: action: " + ((Action) caller).getThing().getMetadata().getPath();
 				}else{
-					content = content + "caller: " + caller.getClass();
+					content = content + "caller: object: " + caller.getClass();
 				}
 			}else{
 				content = content + "caller: null";
@@ -327,15 +328,22 @@ public class ActionContext implements Map<String, Object>{
 			String method = bindings.getCallerMethod();
 			content = content + ", callerMethod: " + method;
 			
-			if(bindings.contexts != null){
+			if(bindings.getContexts() != null){
 				content = content + ", contexts: ";
-				for(Thing key : bindings.contexts.keySet()){
+				for(Thing key : bindings.getContexts().keySet()){
 					content = content + key.getMetadata().getPath() + ",";
 				}
 			}
 		}
-		
-		System.out.println(content);
+		return content;
+	}
+	
+	/**
+	 * 打印堆栈信息到控制台。
+	 * 
+	 */
+	public void printStackTrace(){			
+		System.out.println(getStackTrace());
 	}
 	
 	/**

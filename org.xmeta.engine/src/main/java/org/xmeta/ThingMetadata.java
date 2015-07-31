@@ -61,6 +61,8 @@ public class ThingMetadata {
 	
 	/** 编码类型 */
 	String coderType = "xer.txt";
+	/** 用户分组，一般是UI管理界面的用户自定义分组  */
+	String userGroup = null;
 	
 	/**
 	 * 构造函数
@@ -188,6 +190,20 @@ public class ThingMetadata {
 		return getLabel(locale);
 	}
 	
+	public String getGroup(){
+		if(userGroup != null && !"".equals(userGroup)){
+			return userGroup;
+		}
+		
+		Session session = SessionManager.getSession(null);
+		Locale locale = session.getLocale();
+		return getLocaleString("group", locale);
+	}
+	
+	public void setUserGroup(String userGroup){
+		this.userGroup = userGroup;
+	}
+	
 	/**
 	 * 根据指定的地区获取相应的标签。
 	 * 
@@ -195,6 +211,22 @@ public class ThingMetadata {
 	 * @return
 	 */
 	public String getLabel(Locale locale){
+		String label = getLocaleString(Thing.LABEL, locale);
+		if(label == null){
+			return getName();
+		}else{
+			return label;
+		}
+	}
+	
+	/**
+	 * 返回本地化的事物对应属性的字符串值。
+	 * 
+	 * @param name
+	 * @param locale
+	 * @return
+	 */
+	public String getLocaleString(String name, Locale locale){
 		if(locale == null){
 			Session session = SessionManager.getSession(null);
 			locale = session.getLocale();
@@ -203,15 +235,15 @@ public class ThingMetadata {
 		String country = locale.getCountry();
 		String language = locale.getLanguage();
 		
-		String label = thing.getString(country + "_" + language + "_" + Thing.LABEL);
+		String label = thing.getString(country + "_" + language + "_" + name);
 		if(label == null || "".equals(label)){
-			label = thing.getString(language + "_" + Thing.LABEL);
+			label = thing.getString(language + "_" + name);
 		}
 		if(label == null || "".equals(label)){
-			label = thing.getString(Thing.LABEL);
+			label = thing.getString(name);
 		}
 		if(label == null || "".equals(label)){
-			return getName();
+			return null;
 		}else{
 			return label;
 		}
