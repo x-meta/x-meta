@@ -42,6 +42,7 @@ import org.xmeta.codes.TxtThingCoder;
 import org.xmeta.codes.XmlCoder;
 import org.xmeta.thingManagers.TransientThingManager;
 import org.xmeta.util.OgnlUtil;
+import org.xmeta.util.ThingUtil;
 import org.xmeta.util.UtilData;
 import org.xmeta.util.UtilString;
 import org.xml.sax.SAXException;
@@ -2512,6 +2513,7 @@ public class Thing {
 	 */
 	public void saveAs(String thingManager, String path){
 		Thing thing = this.getRoot();
+		String oldPath = thing.getMetadata().getPath();
 		int dotIndex = path.lastIndexOf(".");
 		String thingName = null;
 		String category = null;
@@ -2542,7 +2544,8 @@ public class Thing {
 			thing.getMetadata().setCoderType(TxtThingCoder.TYPE);
 			thing.initChildPath();
 			
-			
+			//替换属性路径
+			ThingUtil.replaceThing(thing, oldPath, path);
 			manager.save(thing);
 		}else{
 			throw new XMetaException("Thing manager not exists, name=" + thingManager);
