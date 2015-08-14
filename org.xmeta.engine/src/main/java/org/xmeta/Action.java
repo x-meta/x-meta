@@ -26,6 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,11 @@ public class Action extends Semaphore{
 	
 	private static World world = World.getInstance();
 	
+	/** 记录异常的列表 */
+	private static List<ThrowableRecord> throwables = new ArrayList<ThrowableRecord>();
+	/** 记录异常的数量 */
+	private static int throwableRecordCount = 0;
+	
 	/** 记录类编译时间的文件类集合 */
 	private static Map<String, SoftReference<ClassCompileTimeFile>> classTimeFiles = new HashMap<String, SoftReference<ClassCompileTimeFile>>();
 	
@@ -76,7 +82,7 @@ public class Action extends Semaphore{
 		"throw", "throws", "transient", "true", "try",
 		"void", "volatile", "while", "#"	
 	};
-	
+		
 	//------------公共动作的属性 -----------------
 	/** 定义动作的事物 */
 	public ThingEntry thingEntry;
@@ -461,7 +467,7 @@ public class Action extends Semaphore{
 	 * @param actionContext
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"rawtypes" })
 	public Class getActionClass(ActionContext actionContext){
 		Thing thing = thingEntry.getThing();
 		if(lastModified != thing.getMetadata().getLastModified()){
@@ -755,6 +761,13 @@ public class Action extends Semaphore{
 			}
 		}catch(Throwable e){			
 			Throwable exception = doContextMethod(allContexts, context, "exception", e);
+			
+			if(throwableRecordCount > 0){
+				throwables.add(new ThrowableRecord(exception, context));
+				while(throwables.size() > throwableRecordCount ){
+					throwables.remove(0);
+				}
+			}
 			if(exception == null){
 				return "success";
 			}else{
@@ -1047,6 +1060,7 @@ public class Action extends Semaphore{
 							classTimes.put(strs[0], Long.parseLong(strs[1]));
 						}
 					}
+					br.close();
 				}catch(Exception e){
 					log.error("init class compile time file error, " + timeFileName, e);
 				}finally{
@@ -1221,6 +1235,38 @@ public class Action extends Semaphore{
 			}				
 			
 			return result;
+		}
+	}
+
+	public static int getThrowableRecordCount() {
+		return throwableRecordCount;
+	}
+
+	public static void setThrowableRecordCount(int throwableRecordCount) {
+		Action.throwableRecordCount = throwableRecordCount;
+	}
+
+	public static List<ThrowableRecord> getThrowables() {
+		return throwables;
+	}
+	
+	/**
+	 * 异常记录。
+	 * 
+	 * @author Administrator
+	 *
+	 */
+	public static class ThrowableRecord{
+		public Throwable throwable;
+		public String actionStackTrace;
+		public Date date;
+		public String threadName;
+		
+		public ThrowableRecord(Throwable throwable, ActionContext actionContext){
+			this.throwable = throwable;
+			this.actionStackTrace = actionContext.getStackTrace();
+			this.date = new Date();
+			this.threadName = Thread.currentThread().getName();
 		}
 	}
 }

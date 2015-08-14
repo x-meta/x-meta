@@ -36,5 +36,17 @@ public interface ActionListener {
 	 * @param namoTime
 	 * @param successed
 	 */
-	public void actionExecuted(Action action, Object caller, ActionContext acitonContext,  Map<String, Object> parameters, long namoTime, boolean successed);
+	public void actionExecuted(Action action, Object caller, ActionContext actionContext,  Map<String, Object> parameters, long namoTime, boolean successed);
+	
+	/**
+	 * 增加了事物动作的监听。
+	 * 
+	 * @param thing
+	 * @param method
+	 * @param acitonContext
+	 * @param parameters
+	 * @param namoTime
+	 * @param successed
+	 */
+	public void actionExecuted(Thing thing, String method, ActionContext actionContext,  Map<String, Object> parameters, long namoTime, boolean successed);
 }

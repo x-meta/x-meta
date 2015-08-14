@@ -712,6 +712,16 @@ public class Thing {
 			log.info("thing's action is not found : " + getMetadata().getPath() + " : " + name);
 			return null;
 		}else{
+			World world = World.getInstance();
+			if(world.isHaveActionListener()){
+				ActionListener listener = world.getActionListener();
+				try{
+					listener.actionExecuted(this, name, context, parameters, System.currentTimeMillis(), true);
+				}catch(Throwable t){
+					log.error("ActionRecorder error", t);
+				}
+			}
+			
 			if(includeSelf){
 				Bindings bindings = context.pushPoolBindings();
 				bindings.setCaller(this, name);
