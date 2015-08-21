@@ -114,8 +114,8 @@ public class World {
 	 * 运行时所有的事物基本都通过World获取，为提交性能增加路径缓存。
 	 * 
 	 * 路径缓存1和路径缓存2，未避免系统长期使用而导致路径缓存无限增长，每隔一段时间情况pathCache2，然后pathCach1和pahCach2互换 */
-	private Map<String, Path> pathCache1 = new HashMap<String, Path>(5000);
-	private Map<String, Path> pathCache2 = new HashMap<String, Path>(5000);
+	private Map<String, Path> pathCache1 = new ConcurrentHashMap<String, Path>(5000);
+	private Map<String, Path> pathCache2 = new ConcurrentHashMap<String, Path>(5000);
 
 	private String OS;
 	private String PROCESSOR_ARCHITECTURE;
