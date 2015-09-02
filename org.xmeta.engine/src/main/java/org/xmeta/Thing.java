@@ -61,6 +61,7 @@ import org.xml.sax.SAXException;
 public class Thing {
 	/** 日志 */
 	private static Logger log = LoggerFactory.getLogger(Thing.class);
+	private static Map<String, String> nameCache = new HashMap<String, String>(4096);
 	
 	/** 事物的名字 */
 	public static final String THING = "thing";
@@ -2341,7 +2342,14 @@ public class Thing {
 			return null;
 		}
 		
-		attributes.put(name.toString(), value);
+		//使用名字缓存，试图减少一些内存占用
+		String key = name.toString();
+		String k = nameCache.get(key);
+		if(k == null){
+			k = key;
+			nameCache.put(k, k);
+		}
+		attributes.put(k, value);
 		
 		if(name.equals(Thing.DESCRIPTORS)){
 			initDescriptors();
