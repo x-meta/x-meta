@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -42,6 +43,8 @@ import org.xmeta.codes.TxtThingCoder;
 import org.xmeta.codes.XmlCoder;
 import org.xmeta.thingManagers.TransientThingManager;
 import org.xmeta.util.OgnlUtil;
+import org.xmeta.util.ThingCallable;
+import org.xmeta.util.ThingRunnable;
 import org.xmeta.util.ThingUtil;
 import org.xmeta.util.UtilData;
 import org.xmeta.util.UtilString;
@@ -1243,6 +1246,46 @@ public class Thing {
 		return action;
 	}
 	
+	/**
+	 * 把当前事物转化为一个Runnable。
+	 * 
+	 * @param actionContext
+	 * @return
+	 */
+	public Runnable getRunnable(ActionContext actionContext){
+		return new ThingRunnable(this, actionContext, null);
+	}
+	
+	/**
+	 * 把当前事物转化为一个Runnable。
+	 * 
+	 * @param actionContext
+	 * @return
+	 */
+	public Runnable getRunnable(ActionContext actionContext, Map<String, Object> params){
+		return new ThingRunnable(this, actionContext, params);
+	}
+	
+	/**
+	 * 把当前事物转化为一个Callable。
+	 * 
+	 * @param actionContext
+	 * @return
+	 */
+	public Callable<Object> getCallable(ActionContext actionContext){
+		return new ThingCallable(this, actionContext, null);
+	}
+	
+	/**
+	 * 把当前事物转化为一个Callable。
+	 * 
+	 * @param actionContext
+	 * @return
+	 */
+	public Callable<Object> getCallable(ActionContext actionContext, Map<String, Object> params){
+		return new ThingCallable(this, actionContext, params);
+	}
+	
 	public List<Thing> getActionsThings(){
 		return getActionThings();
 	}
@@ -2037,6 +2080,11 @@ public class Thing {
         			String defaultValue = field.getString("default");
         			if(defaultValue != null && !"".equals(defaultValue)){	        			        		
 	        			attributes.put(name, defaultValue);
+	        			
+	        			String type = field.getStringBlankAsNull("type");
+	        			if(type != null){
+	        				UtilData.resetAttributeByType(this, name, type);
+	        			}
 	        		}else if(!this.getAttributes().containsKey(name)){
 	        			attributes.put(name, null);
 	        		}

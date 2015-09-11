@@ -400,6 +400,11 @@ public class UtilData {
     	}else if(v instanceof Date){
     		return (Date) v;
     	}else if(v instanceof String){
+    		Date date = getDateDefault((String) v);
+    		if(date != null){
+    			return date;
+    		}
+    		
     		SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");    		
     		try {
 				return sf.parse((String) v);
@@ -409,6 +414,63 @@ public class UtilData {
     	
     	return defaultValue;
     }
+	
+	public static Date getDateDefault(String defaultValue){
+		  //日期的默认值
+        defaultValue = defaultValue.toLowerCase();
+        String dateStr = defaultValue;
+        String numberStr = "";
+        int index = defaultValue.indexOf("+");
+        if(index != -1){
+            dateStr = defaultValue.substring(0, index).trim();
+            numberStr = defaultValue.substring(index, defaultValue.length()).trim();
+        }else{
+            index = defaultValue.indexOf("-");
+            if(index != -1){
+                dateStr = defaultValue.substring(0, index).trim();
+                numberStr = defaultValue.substring(index, defaultValue.length()).trim();
+            }
+        }
+ 
+        Date date = null;
+        if("now".equals(dateStr) || "sysdate".equals(dateStr)){
+            date = new Date();
+        }else if("tomorrow".equals(dateStr)){
+            date = UtilDate.getTomorrow();
+        }else if("yesterday".equals(dateStr)){
+            date = UtilDate.getYesterday();
+        }else if("weekstart".equals(dateStr)){
+            date = UtilDate.getWeekStart();
+        }else if("weekend".equals(dateStr)){
+            date = UtilDate.getWeekEnd();
+        }else if("monthstart".equals(dateStr)){
+            date = UtilDate.getMonthStart();
+        }else if("monthend".equals(dateStr)){
+            date = UtilDate.getMonthEnd();
+        }else if("yearstart".equals(dateStr)){
+            date = UtilDate.getYearStart();
+        }else if("yearend".equals(dateStr)){
+            date = UtilDate.getYearEnd();
+        }else{
+            date = new Date();
+            try{
+                double d = Double.parseDouble(dateStr);
+                date = UtilDate.getDate(date, d);
+            }catch(Exception e){
+            }
+        }
+        if(numberStr != null && numberStr != ""){
+            try{
+                double d = (Double) Ognl.getValue(numberStr, null);
+                //log.info("d=" + d);
+                date = UtilDate.getDate(date, d);
+            }catch(Exception e){
+                //log.info("error", e);
+            }
+        }
+        
+        return date;
+	}
 	
 	public static Date getDate(Object v, Date defaultValue, String pattern){    	
     	if(v == null || VALUE_BLANK.equals(v)){
@@ -808,6 +870,82 @@ public class UtilData {
 		return UtilString.getString(thing, attributeName, actionContext);
 	}
 	 
+	public static void resetAttributeByType(Thing thing, String name, String type){
+		if ("int".equals(type)) {
+			try {
+				thing.getAttributes().put(name, thing.getInt(name));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if ("long".equals(type)) {
+			try {
+				thing.getAttributes().put(name, thing.getLong(name));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if ("double".equals(type)) {
+			try {
+				thing.getAttributes().put(name, thing.getDouble(name));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if ("float".equals(type)) {
+			try {
+				thing.getAttributes().put(name, thing.getFloat(name));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if ("bigDecimal".equals(type)) {
+			try {
+				thing.getAttributes().put(name, thing.getBigDecimal(name));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if ("bigInteger".equals(type)) {
+			try {
+				thing.getAttributes().put(name, thing.getBigInteger(name));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if ("boolean".equals(type)) {
+			try {
+				thing.getAttributes().put(name, thing.getBoolean(name));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if ("byte".equals(type)) {
+			try {
+				thing.getAttributes().put(name, thing.getByte(name));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if ("bytes".equals(type)) {
+			try {
+				thing.getAttributes().put(name, thing.getBytes(name));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if ("char".equals(type)) {
+			try {
+				thing.getAttributes().put(name, thing.getChar(name));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if ("short".equals(type)) {
+			try {
+				thing.getAttributes().put(name, thing.getShort(name));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if ("date".equals(type) || "datetime".equals(type) || "time".equals(type)) {
+			try {
+				thing.getAttributes().put(name, thing.getDate(name));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
     /** A table of hex digits */
     private static final char[] hexDigit = {
 	'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'

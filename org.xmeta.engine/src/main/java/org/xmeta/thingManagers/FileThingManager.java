@@ -22,8 +22,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Properties;
 
 import org.xmeta.Category;
@@ -183,7 +181,7 @@ public class FileThingManager extends AbstractThingManager{
 
 	@Override
 	public void refresh() {
-		rootCategory.refresh(true);
+		rootCategory.refresh(false);
 	}
 
 	@Override
