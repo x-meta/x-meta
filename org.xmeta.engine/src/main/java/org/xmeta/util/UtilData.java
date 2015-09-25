@@ -34,6 +34,7 @@ import ognl.OgnlException;
 
 import org.xmeta.Action;
 import org.xmeta.ActionContext;
+import org.xmeta.ActionException;
 import org.xmeta.Thing;
 import org.xmeta.World;
 
@@ -558,8 +559,19 @@ public class UtilData {
     		return  ((Number) v).intValue();
     	}else if(v instanceof BigInteger){
     		return ((BigInteger) v).intValue();
-    	}else if(v instanceof String){    		
-    		return Integer.parseInt((String) v);
+    	}else if(v instanceof String){
+    		try{
+    			return Integer.parseInt((String) v);
+    		}catch(Exception e){
+    			String vs = ((String) v).toLowerCase();
+    			if("false".equals(vs)){
+    				return 0;
+    			}else if("true".equals(vs)){
+    				return 1;
+    			}else{
+    				throw new ActionException("Get int error", e);
+    			}
+    		}
     	}else if(v instanceof Boolean){
     		return (int) (((Boolean) v) ? 1 : 0);
     	}else if(v instanceof BigDecimal){
