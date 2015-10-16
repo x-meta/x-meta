@@ -302,6 +302,19 @@ public class ActionContext implements Map<String, Object>{
 	}
 	
 	/**
+	 * 获取当前本地变量.
+	 * 
+	 * @return
+	 */
+	public Bindings getLocalScope(){
+		return getScope();
+	}
+	
+	public Bindings getGlobalScope(){
+		return getScope(0);
+	}
+	
+	/**
 	 * 获取当前堆栈信息。
 	 * 
 	 * @return
