@@ -18,6 +18,7 @@ package org.xmeta.codes;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -39,10 +40,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 import org.xmeta.Thing;
 import org.xmeta.ThingCoderException;
 import org.xmeta.util.UtilData;
+import org.xml.sax.SAXException;
 
 /**
  * XML格式的事物编码，XML格式的事物不保存修改日期等。<p/>
@@ -328,6 +329,27 @@ public class XmlCoder {
         factory.setValidating(false);
         DocumentBuilder builder = factory.newDocumentBuilder();     
         document = builder.parse(bis);
+        
+        Element root = document.getDocumentElement();
+        parse(thing, null, root, System.currentTimeMillis());
+	}
+	
+	/**
+	 * 从输入流中读取事物。
+	 * 
+	 * @param thing
+	 * @param input
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
+	public static void parse(Thing thing, InputStream input) throws SAXException, IOException, ParserConfigurationException{
+		Document document = null;
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+        factory.setValidating(false);
+        DocumentBuilder builder = factory.newDocumentBuilder();     
+        document = builder.parse(input);
         
         Element root = document.getDocumentElement();
         parse(thing, null, root, System.currentTimeMillis());
