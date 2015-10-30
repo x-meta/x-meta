@@ -288,7 +288,7 @@ public class ThingMetadata {
 	}
 	
 	public String[] getPaths(){
-		List<Thing> extendList = thing.getExtends();
+		List<Thing> extendList = thing.getAllExtends();
     	String[] paths = new String[1 + extendList.size()];
     	paths[0] = getPath();
     	for(int i=1; i<=extendList.size(); i++){
