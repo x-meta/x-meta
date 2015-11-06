@@ -310,8 +310,31 @@ public class ActionContext implements Map<String, Object>{
 		return getScope();
 	}
 	
+	/**
+	 * 获取全局变量。
+	 * 
+	 * @return
+	 */
 	public Bindings getGlobalScope(){
 		return getScope(0);
+	}
+	
+	/**
+	 * 获取全局变量的缩写。
+	 * 
+	 * @return
+	 */
+	public Bindings g(){
+		return  getScope(0);
+	}
+	
+	/**
+	 * 获取局部变量的缩写。
+	 * 
+	 * @return
+	 */
+	public Bindings l(){
+		return getScope();
 	}
 	
 	/**
