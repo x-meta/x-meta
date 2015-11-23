@@ -401,15 +401,14 @@ public class UtilData {
     	}else if(v instanceof Date){
     		return (Date) v;
     	}else if(v instanceof String){
-    		Date date = getDateDefault((String) v);
-    		if(date != null){
-    			return date;
-    		}
-    		
     		SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");    		
     		try {
 				return sf.parse((String) v);
 			} catch (ParseException e) {
+				Date date = getDateDefault((String) v);
+	    		if(date != null){
+	    			return date;
+	    		}
 			}
     	}
     	
