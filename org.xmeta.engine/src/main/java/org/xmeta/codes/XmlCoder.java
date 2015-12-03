@@ -52,6 +52,7 @@ import org.xml.sax.SAXException;
  *
  */
 public class XmlCoder {
+	public static final String NODE_NAME = "__node__name__";
 	/**
 	 * 把事物编码成XML字符串。
 	 * 
@@ -397,6 +398,7 @@ public class XmlCoder {
 				continue;
 			}
 			attributes.put(attributeNode.getNodeName(), attributeNode.getNodeValue());
+			attributes.put(NODE_NAME, attributeNode.getNodeValue());
 		}
 		
 		//分析子节点

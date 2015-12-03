@@ -51,6 +51,11 @@ public class JsonThingCoder implements ThingCoder{
 	public void decode(Thing thing, String thingName, Object value, Map<String, String> imports, long lastModifyed, boolean decodeIndex){
 		//解析描述者
 		Map<String, Object> attributes = thing.getAttributes();
+		if(!(value instanceof Map)){
+			thing.put(thingName, value);
+			return;
+		}
+		
 		String descriptors = null;
 		Map<String, Object> values = (Map<String, Object>) value;
 		String descs = (String) values.get("descriptors");
