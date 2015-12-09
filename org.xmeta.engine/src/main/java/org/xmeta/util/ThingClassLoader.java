@@ -40,6 +40,10 @@ public class ThingClassLoader extends URLClassLoader {
 	/** 未初始化的类库，在类库中以.lib为后缀名的类库配置文件 */
 	List<Lib> libs = new ArrayList<Lib>();
 	
+	public ThingClassLoader(URL[] urls){
+		super(urls);
+	}
+	
 	/**
 	 * 构建一个世界级的类装载器。
 	 * 

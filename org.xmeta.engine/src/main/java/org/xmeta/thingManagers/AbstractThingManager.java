@@ -63,11 +63,15 @@ public abstract class AbstractThingManager implements ThingManager{
 		//事物的缓存都在World中完成了，这里已经不需要
 	}
 
+	public Category getCategory(String categoryName) {
+		return getCategory(categoryName, false);
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.xmeta.ThingFactory#getCategory(java.lang.String)
 	 */
-	public Category getCategory(String categoryName) {
+	public Category getCategory(String categoryName, boolean refresh) {
 		if(categoryName == null || "".equals(categoryName)){
 			return rootCategory;
 		}
@@ -77,7 +81,9 @@ public abstract class AbstractThingManager implements ThingManager{
 		for(String pkName : categoryName.split("[.]")){
 			Category childPkg = pkg.getCategory(pkName);
 			if(childPkg == null){
-				//pkg.refresh();
+				if(refresh){
+				    pkg.refresh();
+				}
 				pkg = pkg.getCategory(pkName);
 			}else{
 				pkg = childPkg;

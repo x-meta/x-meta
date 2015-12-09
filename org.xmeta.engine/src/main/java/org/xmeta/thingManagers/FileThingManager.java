@@ -229,7 +229,9 @@ public class FileThingManager extends AbstractThingManager{
 				throw new XMetaException("get resource from fileThingManager error, resource=" + name + ", thingManager=" + rootFile, e);
 			}
 		}
-		return null;
+		
+		return getClassLoader().getResourceAsStream(name);
+		//return null;
 	}
 
 	@Override

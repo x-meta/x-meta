@@ -504,6 +504,12 @@ public class World {
 			if(file.exists()){
 				return new FileInputStream(file);
 			}else{
+				//从webRoot中找
+				file = new File(getPath() + "/webroot/" + path);
+				if(file.exists()){
+					return new FileInputStream(file);
+				}
+				
 				if(path.startsWith("/")){
 					return World.class.getResourceAsStream(path);
 				}else{
@@ -791,8 +797,9 @@ public class World {
 		getClassLoader().initLibs();
 		
         //重新设置元事物如果存在, 2015-03-18加入，因为一些事物已经使用这个xworker.lang.MetaThing
-        Thing metaThing = getThing("xworker.lang.MetaThing").detach();
+        Thing metaThing = getThing("xworker.lang.MetaThing");
         if(metaThing != null){
+        	metaThing = metaThing.detach();
 	        //保留元事物的路径
 	        metaThing.getMetadata().setPath("xworker.lang.MetaThing");
 	        metaThing.initChildPath();
