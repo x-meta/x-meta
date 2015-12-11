@@ -312,7 +312,11 @@ public class Action extends Semaphore{
 		ThingClassLoader pclssLoader = thing.getMetadata().getThingManager().getClassLoader();
 		
 		String compleClassPath = pclssLoader.getCompileClassPath();
-		classLoader = new ActionClassLoader(pclssLoader);
+		if(world.getMode() == World.MODE_WORKING){
+			classLoader = pclssLoader;
+		}else{
+			classLoader = new ActionClassLoader(pclssLoader);
+		}
 		
 		results = new ArrayList<ActionResult>();
 		for(Thing child : thing.getAllChilds("Result")){
@@ -361,7 +365,8 @@ public class Action extends Semaphore{
 						recompile = true;							
 					}
 					
-					if(recompile){
+					//编程模式才会重新编译
+					if(recompile && world.getMode() == World.MODE_PROGRAMING){
 						if(thing.getBoolean("useInnerJava")){
 							ThingManager thingManager = thing.getMetadata().getThingManager();
 							if(thingManager instanceof FileThingManager){

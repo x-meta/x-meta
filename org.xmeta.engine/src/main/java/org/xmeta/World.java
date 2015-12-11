@@ -62,6 +62,10 @@ import org.xmeta.util.UtilFile;
 public class World {
 	/** 日志 */
 	private static Logger log = LoggerFactory.getLogger(World.class);
+	/** 编程模式，默认 */
+	public static byte MODE_PROGRAMING = 0;
+	/** 工作模式，一般JavaAction等发生变更时不重新编译 */
+	public static byte MODE_WORKING = 1;
 
 	/** 世界的唯一单态实例 */
 	private final static World worldInstance = new World();
@@ -69,7 +73,7 @@ public class World {
 	/** 瞬态事物的管理者 */
 	private TransientThingManager transientThingManager = new TransientThingManager();
 	private ClassThingManager classThingManager = new ClassThingManager();
-
+		
 	/** 元事物 */
 	public Thing metaThing = null;// new MetaThing();
 
@@ -99,6 +103,8 @@ public class World {
 	private boolean verbose = false;
 	/** 是否已初始化 */
 	private boolean inited = false;
+	/** 执行模式, MODE_PROGRAMING或MODE_WORKING，当时WORKING时如果Java等动作发生变更时一般不重新编译 */
+	private byte mode = MODE_PROGRAMING;
 	/** 打印verbose的缓存，相同的不需要再次打印 */
 	private Map<String, String> verboseThingCache = null;
 	/** 事物管理器列表 */
@@ -147,6 +153,15 @@ public class World {
 	public static World getInstance() {
 		return worldInstance;
 	}
+	
+	public void setMode(byte mode){
+		this.mode = mode;
+	}
+	
+	public byte getMode(){
+		return this.mode;
+	}
+	
 	/**
 	 * 创建一个ThingManager，必须是全路径<projectName>:<thingManagerName>。
 	 * 
@@ -302,7 +317,7 @@ public class World {
 				}
 				CategoryCache  categoryCache = categoryCaches.get(categoryPath);
 				if(categoryCache != null){
-					thing = categoryCache.getThing(thingName);
+					thing = categoryCache.getThing(path.getPath());
 				}
 				if(thing != null){
 					ThingCache.put(path.getPath(), thing);
@@ -489,16 +504,6 @@ public class World {
 			
 			return getClassLoader().getResourceAsStream(path);
 		}else{
-			//先从ThingManager中找
-			if(path.startsWith("/")){
-				for(ThingManager thingManager : getThingManagers()){
-					InputStream in = thingManager.getResourceAsStream(path);
-					if(in != null){
-						return in;
-					}
-				}
-			}
-			
 			//直接从文件系统中找
 			File file = new File(path);
 			if(file.exists()){
@@ -510,10 +515,22 @@ public class World {
 					return new FileInputStream(file);
 				}
 				
+				//先从ThingManager中找
+				if(!path.startsWith("/")){
+					path = "/" + path;
+					
+				}
+				for(ThingManager thingManager : getThingManagers()){
+					InputStream in = thingManager.getResourceAsStream(path);
+					if(in != null){
+						return in;
+					}
+				}
+				
 				if(path.startsWith("/")){
-					return World.class.getResourceAsStream(path);
+					return getClassLoader().getResourceAsStream(path);
 				}else{
-					return World.class.getResourceAsStream("/" + path);
+					return getClassLoader().getResourceAsStream("/" + path);
 				}
 			}
 		}		
