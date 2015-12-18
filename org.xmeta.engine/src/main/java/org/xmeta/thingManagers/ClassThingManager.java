@@ -15,6 +15,7 @@
 ******************************************************************************/
 package org.xmeta.thingManagers;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
@@ -33,7 +34,7 @@ import org.xmeta.util.ThingClassLoader;
 
 public class ClassThingManager implements ThingManager{
 	Map<String, ClassCategory> categorys = new HashMap<String, ClassCategory>();
-	
+	World world = World.getInstance();
 	
 	@Override
 	public void addThingManagerListener(ThingManagerListener listener) {
@@ -85,8 +86,12 @@ public class ClassThingManager implements ThingManager{
 	}
 
 	@Override
-	public InputStream getResourceAsStream(String name) {
-		return ClassThingManager.class.getResourceAsStream(name);
+	public InputStream getResourceAsStream(String name)  {
+		try {
+			return world.getResourceAsStream(name);
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	@Override

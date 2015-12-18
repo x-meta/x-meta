@@ -140,21 +140,21 @@ public class ThingClassLoader extends URLClassLoader {
 			return;
 		}
 	
-		for (File file : dir.listFiles()) {
-			if (file.isDirectory()) {
+		if(dir.isDirectory()){
+			for (File file : dir.listFiles()) {
 				addJarOrZip(file);
-			} else {
-				String fileName = file.getName().toLowerCase();
-				if (fileName.endsWith(".jar") || fileName.endsWith(".zip")) {
-					try {
-						this.addURL(file.toURI().toURL());
-					} catch (MalformedURLException e) {
-						e.printStackTrace();
-					}
-				}else if(fileName.endsWith(".lib")){
-					logger.info("init lib from file: " + file.getAbsolutePath());
-					initLib(file);
+			}
+		}else{
+			String fileName = dir.getName().toLowerCase();
+			if (fileName.endsWith(".jar") || fileName.endsWith(".zip")) {
+				try {
+					this.addURL(dir.toURI().toURL());
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
 				}
+			}else if(fileName.endsWith(".lib")){
+				logger.info("init lib from file: " + dir.getAbsolutePath());
+				initLib(dir);
 			}
 		}
 	}

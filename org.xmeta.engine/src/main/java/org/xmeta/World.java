@@ -400,7 +400,7 @@ public class World {
 		Thing thing = null;
 		for(ThingCoder coder : this.thingCoders){
 			String resource = "/" + thingPath.replace('.', '/') + "." + coder.getType();
-			URL url = this.getClass().getResource(resource);
+			URL url = this.getClassLoader().getResource(resource);
 			
 			if(url != null){
 				thing = new Thing(null, null, null, false);

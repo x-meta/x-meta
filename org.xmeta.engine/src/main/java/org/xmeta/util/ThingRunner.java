@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import org.xmeta.ActionContext;
 import org.xmeta.Thing;
@@ -33,6 +35,27 @@ import org.xmeta.World;
 public class ThingRunner {
 	public static void main(String args[]){
 		run(args);
+	}
+	
+	public static boolean loadXerFromJar(Properties p , File fileName){
+		try{
+			JarFile jarFile = new JarFile(fileName);
+			try{
+				 JarEntry entry = jarFile.getJarEntry("xer.ini");
+				 if(entry == null){
+					 return false;
+				 }
+				 
+				 InputStream in = jarFile.getInputStream(entry);
+				 p.load(in);
+				 
+				 return true;
+			}finally{
+				jarFile.close();
+			}
+		}catch(Exception e){
+			return false;
+		}
 	}
 	
 	public static void run(String args[]) {
@@ -55,23 +78,32 @@ public class ThingRunner {
 			
 			//读取xer.ini的参数配置
 			Properties p = new Properties();
-			String xerFileName = "xer.ini";
-			File xerFile = new File(xerFileName);
-			if(!xerFile.exists()){
-				xerFile = new File(worldPath + "/xer.ini");
+			File jarFile = null;
+			if("-jar".equals(thingPath)){
+				jarFile = new File(actionName);
 			}
-			if(xerFile.exists()){
-				FileInputStream fin = new FileInputStream(xerFile);
-				p.load(fin);
-				fin.close();
+			if("-jar".equals(thingPath) && jarFile.exists() && loadXerFromJar(p, jarFile)){		
+				thingPath = null;
+				actionName = null;
 			}else{
-				InputStream fin = ThingRunner.class.getResourceAsStream("/xer.ini");
-				if(fin != null){
+				//从文件中读取
+				String xerFileName = "xer.ini";
+				File xerFile = new File(xerFileName);
+				if(!xerFile.exists()){
+					xerFile = new File(worldPath + "/xer.ini");
+				}
+				if(xerFile.exists()){
+					FileInputStream fin = new FileInputStream(xerFile);
 					p.load(fin);
 					fin.close();
-				}				
+				}else{
+					InputStream fin = ThingRunner.class.getResourceAsStream("/xer.ini");
+					if(fin != null){
+						p.load(fin);
+						fin.close();
+					}				
+				}
 			}
-			
 			if(worldPath == null || thingPath == null){								
 				if(worldPath == null && thingPath == null && actionName == null){
 					actionName = p.getProperty("actionName");
@@ -89,9 +121,10 @@ public class ThingRunner {
 			}
 
 			System.out.println("world path : " + worldPath);
+			
 			if("new".equals(thingPath)){				
 				if(actionName == null || "".equals(actionName) || args.length < 3){
-					System.out.println("Pleart input project name");
+					System.out.println("Please input project name, command: xer new <projectName>");
 					return;
 				}else{
 					System.out.println("create new project: " + actionName);
@@ -113,6 +146,9 @@ public class ThingRunner {
 			
 			World world = World.getInstance();
 			world.init(worldPath);
+			if(jarFile != null && jarFile.exists()){
+				world.getClassLoader().addJarOrZip(jarFile);
+			}
 			
 			for(String arg : args){
 				if(arg.toLowerCase().equals("-verbose")){
@@ -133,14 +169,37 @@ public class ThingRunner {
 				fin.close();
 			}
 			
-			Thing thing = world.getThing(thingPath);
-			if (thing == null) {
-				System.out.println("thing not exists : " + thingPath);
-				System.exit(0);
-			} else {
-				ActionContext actionContext = new ActionContext();
-				actionContext.put("args", args);
-				thing.doAction(actionName, actionContext);
+			if("-war".equals(thingPath)){
+				if(actionName == null || "".equals(actionName) || args.length < 3){
+					System.out.println("Please input a war file, command: xer -war <warFile> <port>");
+					return;
+				}else{
+					Thing startJetty = world.getThing("xworker.tools.StartJetty");
+					if(startJetty == null){
+						System.out.println("Thing xworker.tools.StartJetty not exists");
+						return;
+					}
+					
+					ActionContext actionContext = new ActionContext();
+					actionContext.put("warFile", actionName);
+					
+					int port = 9003;
+					if(args.length == 4){
+						port = Integer.parseInt(args[3]);
+					}
+					actionContext.put("port", port);
+					startJetty.doAction("run", actionContext);
+				}
+			}else{
+				Thing thing = world.getThing(thingPath);
+				if (thing == null) {
+					System.out.println("thing not exists : " + thingPath);
+					System.exit(0);
+				} else {
+					ActionContext actionContext = new ActionContext();
+					actionContext.put("args", args);
+					thing.doAction(actionName, actionContext);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
