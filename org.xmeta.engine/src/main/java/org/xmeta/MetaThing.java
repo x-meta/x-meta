@@ -16,16 +16,16 @@
 package org.xmeta;
 
 /**
- * 元事物，元事物是任意事物的结构的结构，元事物也称为元结构（在X-Meta中结构用描述代替）。<p/>
+ * <p>元事物，元事物是任意事物的结构的结构，元事物也称为元结构（在X-Meta中结构用描述代替）。</p>
  * 
- * 元事物用XML的方法表示就是：<br/>
+ * 元事物用XML的方法表示就是：
  * <pre>
  * &lt;thing name="thing"&gt;
  *     &lt;attribute name="name"/&gt;
  *     &lt;attribute name="extends"/&gt;
  *     &lt;thing name="attribute"&gt;
  *         &lt;attribute name="name"/&gt;
- *     &lt;/thing>
+ *     &lt;/thing/&gt;
  *     &lt;thing name="thing" extends="_root"/&gt;
  * &lt;/thing&gt;
  * </pre>

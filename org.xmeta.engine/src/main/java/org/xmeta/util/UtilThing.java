@@ -22,10 +22,10 @@ public class UtilThing {
 	/**
 	 * 通过事物属性获取事物定义的事物，或者通过指定的子事物的第一个子节点获取定义的事物。
 	 * 
-	 * @param thing
-	 * @param attributeName
-	 * @param childThingPath
-	 * @return
+	 * @param thing 事物
+	 * @param attributeName 属性名
+	 * @param childThingPath 子事物路径
+	 * @return 事物
 	 */
 	public static Thing getThingFromAttributeOrChilds(Thing thing, String attributeName, String childThingPath){
 		Thing t = null;
@@ -50,10 +50,10 @@ public class UtilThing {
 	/**
 	 * 通过事物属性获取事物定义的事物，或者通过指定的子事物的第一个子节点获取定义的事物。
 	 * 
-	 * @param thing
-	 * @param attributeName
-	 * @param childThingPath
-	 * @return
+	 * @param thing 事物
+	 * @param attributeName 属性名
+	 * @param childThingPath 子事物路径
+	 * @return 事物
 	 */
 	public static Thing getThingFromAttributeOrChild(Thing thing, String attributeName, String childThingPath){
 		Thing t = null;
@@ -73,9 +73,9 @@ public class UtilThing {
 	/**
 	 * 判断一个事物作为描述者时是否是给定的类型，即判断这个事物的路径以及所有继承事物的路径是否是指定的descritpor。
 	 * 
-	 * @param descriptorThing
-	 * @param descriptor
-	 * @return
+	 * @param descriptorThing 描述者事物
+	 * @param descriptor 描述者
+	 * @return 是否
 	 */
 	public static boolean isDescriptorEquals(Thing descriptorThing, String descriptor){
 		if(descriptorThing == null){
@@ -102,10 +102,10 @@ public class UtilThing {
 	/**
 	 * 获取事物，如果不存在就创建一个。
 	 * 
-	 * @param path
-	 * @param thingManager
-	 * @param descriptorForCreate
-	 * @return
+	 * @param path 路径
+	 * @param thingManager 事物管理器
+	 * @param descriptorForCreate 描述者
+	 * @return 事物
 	 */
 	public static Thing getThingIfNotExistsCreate(String path, String thingManager, String descriptorForCreate){
 		Thing thing = World.getInstance().getThing(path);
@@ -120,10 +120,10 @@ public class UtilThing {
 	/**
 	 * 获取事物，如果不存在就用已有的事物创建一个。
 	 * 
-	 * @param path
-	 * @param thingManager
-	 * @param forReplace
-	 * @return
+	 * @param path 路径
+	 * @param thingManager 事物管理器
+	 * @param forReplace 是否覆盖
+	 * @return 事物
 	 */
 	public static Thing getThingIfNotExistsCreate(String path, String thingManager, Thing forReplace){
 		Thing thing = World.getInstance().getThing(path);

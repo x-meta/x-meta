@@ -31,7 +31,7 @@ public class CategoryCache {
 	/**
 	 * 添加一个目录。
 	 * 
-	 * @param category
+	 * @param category 目录
 	 */
 	public void addCategory(Category category){
 		WeakReference<Category> rf = new WeakReference<Category>(category);
@@ -55,8 +55,8 @@ public class CategoryCache {
 	/**
 	 * 获取事物。
 	 * 
-	 * @param thingName
-	 * @return
+	 * @param thingName 事物名
+	 * @return 事物
 	 */
 	public synchronized Thing getThing(String thingName){
 		for(int i=0; i<categorys.size(); i++){

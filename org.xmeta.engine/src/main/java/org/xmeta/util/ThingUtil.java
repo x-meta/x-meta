@@ -76,8 +76,8 @@ public class ThingUtil {
 	/**
 	 * 如果文件是事物，那么返回事物。
 	 * 
-	 * @param file
-	 * @return
+	 * @param file 文件
+	 * @return 事物
 	 */
 	public static Thing getThing(File file) {
 		File wfile = new File(world.getPath());

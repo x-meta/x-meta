@@ -207,8 +207,8 @@ public class ThingMetadata {
 	/**
 	 * 根据指定的地区获取相应的标签。
 	 * 
-	 * @param locale
-	 * @return
+	 * @param locale 本地
+	 * @return 标签
 	 */
 	public String getLabel(Locale locale){
 		String label = getLocaleString(Thing.LABEL, locale);
@@ -222,9 +222,9 @@ public class ThingMetadata {
 	/**
 	 * 返回本地化的事物对应属性的字符串值。
 	 * 
-	 * @param name
-	 * @param locale
-	 * @return
+	 * @param name 名称
+	 * @param locale 本地
+	 * @return 值
 	 */
 	public String getLocaleString(String name, Locale locale){
 		if(locale == null){
@@ -335,7 +335,7 @@ public class ThingMetadata {
 
 	/**
 	 * 保留变量，通常是留给ThingManager等系统对象所用变量。
-	 * @return
+	 * @return 保留变量
 	 */
 	public String getReserve() {
 		return reserve;

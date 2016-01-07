@@ -25,11 +25,11 @@ public class OgnlUtil {
 	/**
 	 * 通过Ognl表达式取值， 事物的属性是Ognl的表达式。使用这种方式缓存了Ognl表达式。
 	 * 
-	 * @param thing
-	 * @param pathAttributeName
-	 * @param root
-	 * @return
-	 * @throws OgnlException
+	 * @param thing 事物
+	 * @param pathAttributeName 属性
+	 * @param root 根
+	 * @return 值
+	 * @throws OgnlException 异常
 	 */
 	public static Object getValue(Thing thing, String pathAttributeName, Object root) throws OgnlException{
 		PathCache pathCache = getPathCache(thing, pathAttributeName);
@@ -42,12 +42,12 @@ public class OgnlUtil {
 	/**
 	 * 通过Ognl表达式取值， 事物的属性是Ognl的表达式。使用这种方式缓存了Ognl表达式。
 	 * 
-	 * @param thing
-	 * @param pathAttribute
-	 * @param path  是事物的属性值，如果为空返回null
-	 * @param root
-	 * @return
-	 * @throws OgnlException
+	 * @param thing 事物
+	 * @param pathAttributeName 属性
+	 * @param pathAttributeValue  是事物的属性值，如果为空返回null
+	 * @param root 根对象
+	 * @return 值
+	 * @throws OgnlException 异常
 	 */
 	public static Object getValue(Thing thing, String pathAttributeName, String pathAttributeValue, Object root) throws OgnlException{
 		PathCache pathCache = getPathCache(thing, pathAttributeName);

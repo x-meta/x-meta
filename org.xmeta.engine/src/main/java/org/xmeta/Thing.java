@@ -51,12 +51,12 @@ import org.xmeta.util.UtilString;
 import org.xml.sax.SAXException;
 
 /**
- * 在X-Meta引擎里用事物表示任何东西。<p/>
+ * <p>在X-Meta引擎里用事物表示任何东西。</p>
  * 
- * 事物有状态和行为，可以通过set和get、getxx方法来设置和获取事物的状态，可以通过doAction(String actionName)
- * 或doAction(String actionName, ActionContext actionContext)方法来执行事物。<p/>
+ * <p>事物有状态和行为，可以通过set和get、getxx方法来设置和获取事物的状态，可以通过doAction(String actionName)
+ * 或doAction(String actionName, ActionContext actionContext)方法来执行事物。</p>
  * 
- * 事物之间有描述和继承关系，一个事物可以继承它的描述者行为以及继承继承者的属性和行为。
+ * <p>事物之间有描述和继承关系，一个事物可以继承它的描述者行为以及继承继承者的属性和行为。</p>
  * 
  * @author <a href="mailto:zhangyuxiang@tom.com">zyx</a>
  *
@@ -198,7 +198,7 @@ public class Thing {
 	/**
 	 * 添加一个子事物。
 	 * 
-	 * @param childThing 
+	 * @param childThing 子事物
 	 */
 	public synchronized void addChild(Thing childThing){	
 		//添加到子节点的末尾
@@ -296,7 +296,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 在指定位置添加一个描述者。<p/>
+	 * <p>在指定位置添加一个描述者。</p>
 	 * 
 	 * 如果描述者已经存在且位置不同，那么会切换到新的位置，如果index为-1那么添加至结尾。
 	 * 
@@ -366,11 +366,12 @@ public class Thing {
 	}
 	
 	/**
-	 * 在指定位置添加一个继承事物。<p/>
+	 * <p>在指定位置添加一个继承事物。</p>
 	 * 
 	 * 如果继承已经存在且位置不同，那么会切换到新的位置，如果index为-1那么添加至结尾。
 	 * 
 	 * @param extendThing 要继承的事物
+	 * @param index 参数位置
 	 */
 	public void addExtend(int index, Thing extendThing){		
 		if(extendThing != null){
@@ -392,7 +393,7 @@ public class Thing {
 	 * 
 	 * @param child 子事物
 	 * @param index 要移动的位置，如果为-1，那么通过moveStep来上移或下移
-	 * @param moveSetep 小于0表示上移，大于0表示下移，步伐为其绝对值
+	 * @param moveStep 小于0表示上移，大于0表示下移，步伐为其绝对值
 	 */
 	public void changeChildIndex(Thing child, int index, int moveStep){
 		//首先判断是本子事物
@@ -480,9 +481,9 @@ public class Thing {
 	 * 从一个XML数据认知并把认知结果保存到自身。
 	 * 
 	 * @param xmlData 一个XML数据（字符串）
-	 * @throws IOException 
-	 * @throws SAXException 
-	 * @throws ParserConfigurationException 
+	 * @throws IOException IO异常
+	 * @throws SAXException  SAX异常
+	 * @throws ParserConfigurationException 分析异常 
 	 */
 	public void cognize(String xmlData) throws ParserConfigurationException, SAXException, IOException{
 		Thing thing = new Thing();
@@ -491,12 +492,12 @@ public class Thing {
 	}
 	
 	/**
-	 *  认知另一事物并把认知结果作为自己的一部分。<p/>
+	 *  <p>认知另一事物并把认知结果作为自己的一部分。</p>
 	 *  
 	 *  认识另一事物和认识非事物的对象的区别是，认识其他事物是把另一事物的所有内容保存到自身，而认识
 	 *  非事物物时是根据自身的描述者所描述的属性和子事物去从认知对象上取值的。
 	 *  
-	 * @param athing 另一事物
+	 * @param thing 另一事物
 	 */
 	public void cognize(Thing thing){
 		if(thing == null){
@@ -566,8 +567,8 @@ public class Thing {
 	/**
 	 * 如果指定名称的属性为null，那么设置值，否则不。
 	 * 
-	 * @param name
-	 * @param value
+	 * @param name 名称
+	 * @param value 值
 	 */
 	private void putIfNull(String name, Object value){
 		Object v = attributes.get(name);
@@ -624,6 +625,8 @@ public class Thing {
 	/**
 	 * 使用detach()。
 	 * 
+	 * @param detachToTransient 是否detach到瞬态
+	 * @return 事物
 	 * @deprecated
 	 */
 	public Thing detach(boolean detachToTransient){
@@ -644,9 +647,9 @@ public class Thing {
 	/**
 	 * 执行一个动作，把自己作为self变量放入动作上下文中，使用新的动作上下文和传入参数。
 	 * 
-	 * @param name
-	 * @param parameters
-	 * @return
+	 * @param name 动作名
+	 * @param parameters 参数
+	 * @return 执行结果
 	 */
 	public Object doAction(String name, Map<String, Object> parameters){
 		return run(name, new ActionContext(), parameters, false, true);
@@ -656,7 +659,7 @@ public class Thing {
 	 * 执行一个动作，把自己作为self变量放入动作上下文中。
 	 * 
 	 * @param name 动作名称
-	 * @param bindings 变量容器
+	 * @param actionContext 变量容器
 	 * @return 执行后的返回结果
 	 */
 	public Object doAction(String name, ActionContext actionContext){
@@ -667,8 +670,8 @@ public class Thing {
 	 * 执行一个动作，把自己作为self变量放入动作上下文中。
 	 * 
 	 * @param name 动作名称
-	 * @param bindings 变量容器
-	 * @param paraments 参数
+	 * @param actionContext 变量容器
+	 * @param parameters 参数
 	 * @return 执行后的返回结果
 	 */
 	public Object doAction(String name, ActionContext actionContext, Map<String, Object> parameters){
@@ -678,11 +681,11 @@ public class Thing {
 	/**
 	 * 执行一个动作，把自己作为self变量放入动作上下文中。
 	 * 
-	 * @param name
-	 * @param context
-	 * @param parameters
-	 * @param isSubAction
-	 * @return
+	 * @param name 动作名
+	 * @param actionContext  变量上下文
+	 * @param parameters 参数
+	 * @param isSubAction 是否是子动作
+	 * @return 执行结果
 	 */
 	public Object doAction(String name, ActionContext actionContext, Map<String, Object> parameters, boolean isSubAction){
 		return run(name, actionContext, parameters, isSubAction, true);
@@ -691,12 +694,12 @@ public class Thing {
 	/**
 	 * 执行一个动作。
 	 * 
-	 * @param name
-	 * @param context
-	 * @param parameters
-	 * @param isSubAction
-	 * @param includeSelf
-	 * @return
+	 * @param name 动作名
+	 * @param context 变量上下文
+	 * @param parameters 参数
+	 * @param isSubAction 是否是子动作
+	 * @param includeSelf 是否包含自己
+	 * @return 执行结果
 	 */
 	public Object run(String name, ActionContext context, Map<String, Object> parameters, boolean isSubAction, boolean includeSelf){
 		Thing actionThing = getActionThing(name);
@@ -763,12 +766,12 @@ public class Thing {
 	/**
 	 * 按普通参数的方式执行。
 	 * 
-	 * @param name
-	 * @param context
-	 * @param parameters
-	 * @param isSubAction
-	 * @param includeSelf
-	 * @return
+	 * @param name 动作名
+	 * @param context 变量上下文
+	 * @param parameters 参数列表
+	 * @param isSubAction 是否是子动作
+	 * @param includeSelf 是否包含自己
+	 * @return 执行结果
 	 */
 	public Object run(String name, ActionContext context, Object[] parameters, boolean isSubAction, boolean includeSelf){
 		Thing actionThing = getActionThing(name);
@@ -808,11 +811,11 @@ public class Thing {
 	/**
 	 * 执行一个动作，不把自己放入动作上下文中。
 	 * 
-	 * @param name
-	 * @param context
-	 * @param parameters
-	 * @param isSubAction
-	 * @return
+	 * @param name 动作名
+	 * @param context 变量上下文
+	 * @param parameters 参数
+	 * @param isSubAction 是否是子动作
+	 * @return 执行结果
 	 */
 	public Object run(String name, ActionContext context, Map<String, Object> parameters, boolean isSubAction){
 		return run(name, context, parameters, isSubAction, false);
@@ -820,10 +823,10 @@ public class Thing {
 	
 	/**
 	 * 执行一个动作，不把自己放入动作上下文中。
-	 * @param name
-	 * @param context
-	 * @param parameters
-	 * @return
+	 * @param name 动作名
+	 * @param context 变量上下文
+	 * @param parameters 参数
+	 * @return 执行结果
 	 */
 	public Object run(String name, ActionContext context, Map<String, Object> parameters){
 		return run(name, context, parameters, false, false);
@@ -832,9 +835,9 @@ public class Thing {
 	/**
 	 * 执行一个动作，不把自己放入动作上下文中。
 	 * 
-	 * @param name
-	 * @param context
-	 * @return
+	 * @param name 动作名
+	 * @param context 变量上下文
+	 * @return 执行结果
 	 */
 	public Object run(String name, ActionContext context){
 		return run(name, context, (Object[]) null, false, false);
@@ -843,9 +846,9 @@ public class Thing {
 	/**
 	 * 执行一个动作，不把自己放入动作上下文中，使用新的动作上下文和传入的参数。
 	 * 
-	 * @param name
-	 * @param parameters
-	 * @return
+	 * @param name 动作名
+	 * @param parameters 参数
+	 * @return 执行结果
 	 */
 	public Object run(String name, Map<String, Object> parameters){
 		return run(name, null, parameters, false, false);
@@ -854,8 +857,8 @@ public class Thing {
 	/**
 	 * 执行一个动作，不把自己放入动作上下文中。
 	 * 
-	 * @param name
-	 * @return
+	 * @param name 动作名
+	 * @return 执行结果
 	 */
 	public Object run(String name){
 		return run(name, null, (Object[]) null, false, false);
@@ -973,12 +976,12 @@ public class Thing {
 	}
 	
 	/**
-	 * 通过路径获得事物的属性或者子事物，可返回属性值、子事物或者子事物列表。<p/>
+	 * <p>通过路径获得事物的属性或者子事物，可返回属性值、子事物或者子事物列表。</p>
 	 * 
 	 * 路径遵从事物的路径规则。
 	 * 
-	 * @param path
-	 * @return
+	 * @param path 路径
+	 * @return 路径对应的对象，找不到返回null
 	 */
 	public Object get(String path){
 		if(path == null || "".equals(path)){
@@ -1182,7 +1185,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 获得指定动作的事物定义。<p/>
+	 * <p>获得指定动作的事物定义。</p>
 	 * 
 	 * 搜寻事物动作的规则是：
 	 *    如果不是super的动作，那么先搜寻事物本身定义的动作。
@@ -1249,8 +1252,8 @@ public class Thing {
 	/**
 	 * 把当前事物转化为一个Runnable。
 	 * 
-	 * @param actionContext
-	 * @return
+	 * @param actionContext 变量上下文
+	 * @return runnable
 	 */
 	public Runnable getRunnable(ActionContext actionContext){
 		return new ThingRunnable(this, actionContext, null);
@@ -1259,8 +1262,9 @@ public class Thing {
 	/**
 	 * 把当前事物转化为一个Runnable。
 	 * 
-	 * @param actionContext
-	 * @return
+	 * @param actionContext 变量上下文
+	 * @param params 参数
+	 * @return runnable
 	 */
 	public Runnable getRunnable(ActionContext actionContext, Map<String, Object> params){
 		return new ThingRunnable(this, actionContext, params);
@@ -1269,8 +1273,8 @@ public class Thing {
 	/**
 	 * 把当前事物转化为一个Callable。
 	 * 
-	 * @param actionContext
-	 * @return
+	 * @param actionContext 变量上下文
+	 * @return callable
 	 */
 	public Callable<Object> getCallable(ActionContext actionContext){
 		return new ThingCallable(this, actionContext, null);
@@ -1279,8 +1283,9 @@ public class Thing {
 	/**
 	 * 把当前事物转化为一个Callable。
 	 * 
-	 * @param actionContext
-	 * @return
+	 * @param actionContext 变量上下文
+	 * @param params 参数
+	 * @return callable
 	 */
 	public Callable<Object> getCallable(ActionContext actionContext, Map<String, Object> params){
 		return new ThingCallable(this, actionContext, params);
@@ -1379,7 +1384,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 根据描述者的名称来获取所有符合的子事物，包括继承的子事物。<p/>
+	 * <p>根据描述者的名称来获取所有符合的子事物，包括继承的子事物。</p>
 	 * 
 	 * 注：这里是描述者的名，不是描述者的路径。
 	 * 
@@ -1403,7 +1408,8 @@ public class Thing {
 	
 	/**
 	 * 获取子事物的描述者列表，返回本事物的所有描述者所定义的子事物的描述列表。
-	 * @return
+	 * 
+	 * @return 描述者列表
 	 */
 	public List<Thing> getAllChildsDescriptors(){		
 		List<Thing> childsDescriptors = new ArrayList<Thing>();
@@ -1521,7 +1527,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 根获取事物属性描述列表，只返回第一个描述者的属性描述列表。<p/>
+	 * <p>根获取事物属性描述列表，只返回第一个描述者的属性描述列表。</p>
 	 * 
 	 * @return 事物的属性描述列表
 	 */
@@ -1620,7 +1626,7 @@ public class Thing {
 	/**
 	 * 根据描述者的名称来获取所有符合的子事物，不包括继承的子事物。
 	 * 
-	 * @param descriptorName 描述者的名称
+	 * @param thingName 描述者的名称
 	 * 
 	 * @return 描述者的名称为指定名称的子事物
 	 */
@@ -1669,20 +1675,20 @@ public class Thing {
 	/**
 	 * 返回事物的主要的描述者。
 	 * 
-	 * @return
+	 * @return 第一个描述者
 	 */
 	public Thing getDescriptor(){
 		return getDescriptors().get(0);
 	}
 	
 	/**
-	 * 返回本事物定义的的所有描述者的列表。<p/>
+	 * <p>返回本事物定义的的所有描述者的列表。</p>
 	 * 
-	 * 一个事物的描述者列表是在属性descriptors里定义的，如果有多个那么之间用,号隔开。另外元事物是所有的
-	 * 事物的基本描述，一般在描述者列表中元事物被放到了列表的末端<p/>
+	 * <p>一个事物的描述者列表是在属性descriptors里定义的，如果有多个那么之间用,号隔开。另外元事物是所有的
+	 * 事物的基本描述，一般在描述者列表中元事物被放到了列表的末端</p>
 	 * 
-	 * 如果事物的一个描述者继承了其他事物，那么继承的其他事物也是这个事物的描述者，这样的描述者在此方法里
-	 * 不能获得，如想取得事物的所有包含描述者继承的描述者，那么可以是用getAllDescriptors()方法。
+	 * <p>如果事物的一个描述者继承了其他事物，那么继承的其他事物也是这个事物的描述者，这样的描述者在此方法里
+	 * 不能获得，如想取得事物的所有包含描述者继承的描述者，那么可以是用getAllDescriptors()方法。</p>
 	 * 
 	 * @see getAllDescriptors
 	 * @return 本事物的所有描述者的列表
@@ -1717,7 +1723,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 返回本事物所有的描述者列表，包括描述者继承的事物。<p/>
+	 * <p>返回本事物所有的描述者列表，包括描述者继承的事物。</p>
 	 * 
 	 * 与getDescriptors方法不同的是getDescriptors方法只返回自身定义的描述者的列表。
 	 * 
@@ -1837,10 +1843,10 @@ public class Thing {
 	
 	/**
 	 * 从事物中取指定的属性的字符串的值作为变量名，然后从ActionContext中取变量，支持var:或ognl:，默认相当于 var:。
-	 * @param name
-	 * @param actionContext
-	 * @return
-	 * @throws OgnlException 
+	 * @param name 属性名
+	 * @param actionContext 变量上下文 
+	 * @return 值
+	 * @throws OgnlException 异常 
 	 */
 	public Object getObject(String name, ActionContext actionContext) throws OgnlException{		
 		Object value = this.get(name);
@@ -1961,8 +1967,8 @@ public class Thing {
 	/**
 	 * 获取字符串，trim()后的空字符串也返回null。
 	 * 
-	 * @param name
-	 * @return
+	 * @param name 属性名
+	 * @return 结果
 	 */
 	public String getStringBlankAsNull(String name){
 		String attr = getString(name);
@@ -1984,10 +1990,10 @@ public class Thing {
 	/**
 	 * 通过属性值从上下文中取字符串，通过UtilString获取字符串，如果返回null或空，那么返回defaultValue。
 	 * 
-	 * @param name
-	 * @param defaultValue
-	 * @param actionContext
-	 * @return
+	 * @param name 属性名
+	 * @param defaultValue 默认值
+	 * @param actionContext 变量上下文
+	 * @return 值
 	 */
 	public String getString(String name, String defaultValue, ActionContext actionContext){
 		String value = UtilString.getString(this, name, actionContext);
@@ -2167,7 +2173,7 @@ public class Thing {
 	/**
 	 * 初始化子事物的元数据。
 	 * 
-	 * @param child
+	 * @param child 子事物
 	 */
 	protected void initChildMetadata(Thing child){
 		ThingMetadata childMeta = child.getMetadata();
@@ -2384,6 +2390,7 @@ public class Thing {
 	 * 
 	 * @param name 属性名称
 	 * @param value 属性的值
+	 * @return 值
 	 */
 	public Object put(Object name, Object value){
 		if(name == null){
@@ -2419,7 +2426,7 @@ public class Thing {
 	/**
 	 * 放入Map的全部值，但不触发descriptor和extends的改变事件，同时也会更新日期。
 	 * 
-	 * @param values
+	 * @param values 值
 	 */
 	public void putAll(Map<String, Object> values){
 		attributes.putAll(values);
@@ -2430,8 +2437,8 @@ public class Thing {
 	/**
 	 * 设置属性。
 	 * 
-	 * @param name
-	 * @param value
+	 * @param name 属性名
+	 * @param value 值
 	 */
 	public void set(Object name, Object value){
 		put(name, value);
@@ -2448,7 +2455,6 @@ public class Thing {
 	 * 从本事物的描述者列表中移除指定的描述者。
 	 * 
 	 * @param descriptor 描述者
-	 * @return 被移除的描述者，如果没有返回null
 	 */
 	public void removeDescriptor(Thing descriptor){
 		if(descriptor == null){
@@ -2491,6 +2497,7 @@ public class Thing {
 	/**
 	 * 删除调用自身的事物管理者删除自己，设置自身的状态为已删除。
 	 *
+	 *@return 是否成功
 	 */
 	public boolean remove(){
 		if(this.getParent() != null){
@@ -2520,7 +2527,6 @@ public class Thing {
 	 * 从本事物的继承列表中移除指定的继承事物。
 	 * 
 	 * @param extend 继承的事物
-	 * @return 被移除的继承事物，如果没有返回null
 	 */
 	public void removeExtend(Thing extend){
 		if(extend == null){
@@ -2548,6 +2554,7 @@ public class Thing {
 	/**
 	 * 保存自己，通常是调用事物所在的事物管理者来保存。
 	 *
+	 * @return 是否成功
 	 */
 	public synchronized boolean save(){
 		Thing root = this.getRoot();
@@ -2574,8 +2581,8 @@ public class Thing {
 	/**
 	 * 把自己按照指定的路径保存到指定的目录下。
 	 * 
-	 * @param thingManager
-	 * @param path
+	 * @param thingManager 事物管理器
+	 * @param path 事物路径
 	 */
 	public void saveAs(String thingManager, String path){
 		Thing thing = this.getRoot();
@@ -2621,9 +2628,9 @@ public class Thing {
 	/**
 	 * 把自己拷贝一个新的事物到指定的事物管理器的指定目录下。
 	 * 
-	 * @param thingManager
-	 * @param category
-	 * @return
+	 * @param thingManager 事物管理器
+	 * @param category 目录
+	 * @return 事物
 	 */
 	public Thing copyTo(String thingManager, String category){
 		Thing root = this.getRoot();
@@ -2754,7 +2761,7 @@ public class Thing {
 	
 	/**
 	 * 返回保存Data数据的Map，有可能返回null，如果没有初始化（放过数据）。
-	 * @return
+	 * @return 保存的值
 	 */
 	public Map<String, Object> getDatas(){
 		return datas;
@@ -2763,8 +2770,8 @@ public class Thing {
 	/**
 	 * 设置缓存数据，如果事物在后面修改了，那么缓存失效。
 	 * 
-	 * @param key
-	 * @param data
+	 * @param key key
+	 * @param data 数据
 	 */
 	public void setCachedData(String key, Object data){
 		String timeKey = "__" + key + "__Modified__";
@@ -2775,8 +2782,8 @@ public class Thing {
 	/**
 	 * 获取缓存的数据。
 	 * 
-	 * @param key
-	 * @return
+	 * @param key 键
+	 * @return 值
 	 */
 	public Object getCachedData(String key){
 		String timeKey = "__" + key + "__Modified__";

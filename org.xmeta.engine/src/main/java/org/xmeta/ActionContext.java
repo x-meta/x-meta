@@ -25,19 +25,16 @@ import java.util.Set;
 import java.util.Stack;
 
 /**
- * 变量上下文是执行动作时的变量空间，起到函数调用时栈的作用，是一个Stack和Map的综合体。
- * <p/>
+ * <p>变量上下文是执行动作时的变量空间，起到函数调用时栈的作用，是一个Stack和Map的综合体。</p>
+ *  
+ * <p>变量上下文通过栈的深度来表示全局变量和局部变量，深度越浅则越靠近全局变量，范围0是全局变量。</p>
  * 
- * 变量上下文通过栈的深度来表示全局变量和局部变量，深度越浅则越靠近全局变量，范围0是全局变量。
- * <p/>
+ * <p>变量上下文是线程绑定的，除了创建时的变量时公用的，其他变量是线程各自的。</p>
  * 
- * 变量上下文是线程绑定的，除了创建时的变量时公用的，其他变量是线程各自的。
- * <p/>
- * 
- * 如果一个变量上下文的构造参数是另一个变量上下文，那么会先把用于构造的变量上下文的
+ * <p>如果一个变量上下文的构造参数是另一个变量上下文，那么会先把用于构造的变量上下文的
  * 所有变量绑定压入栈中，因此两个变量上下文将使用相同的全局变量，但使用各自的最新的
  * 局部变量。由于原先的变量上下文的变量绑定被新的变量上下文所引用，因此当原先的动作
- * 上下文把一个变量绑定移除栈的时候，新的变量上下文还保持这个变量绑定的引用，因此需要注意一下内存的问题。<p/>
+ * 上下文把一个变量绑定移除栈的时候，新的变量上下文还保持这个变量绑定的引用，因此需要注意一下内存的问题。</p>
  * 
  * @author <a href="mailto:zhangyuxiang@tom.com">zyx</a>
  * 
@@ -117,8 +114,7 @@ public class ActionContext implements Map<String, Object>{
 	 * 通过给定的变量绑定创建变量上下文，其中传入的变量上下文的栈全部放入不可push和pop的栈中，
 	 * 并压入一个新的所有线程都共用的全局变量栈，传入的变量上下文比新的全局变量更加全局。
 	 * 
-	 * @param bindings
-	 *            变量绑定
+	 * @param actionContext 变量上下文
 	 */
 	public ActionContext(ActionContext actionContext) {
 		createThread  = Thread.currentThread();
@@ -136,7 +132,7 @@ public class ActionContext implements Map<String, Object>{
 	/**
 	 * 创建一个变量上下文，使用指定的全局变量Bindings。
 	 * 
-	 * @param bindings
+	 * @param bindings 变量范围
 	 */
 	public ActionContext(Bindings bindings) {
 		createThread  = Thread.currentThread();
@@ -201,7 +197,7 @@ public class ActionContext implements Map<String, Object>{
 	/**
 	 * 返回是否禁止了全局变量上下文。
 	 * 
-	 * @return
+	 * @return 是否禁止
 	 */
 	public boolean isDisableGlobalContext(){
 		return this.peek().disableGloableContext;
@@ -210,8 +206,7 @@ public class ActionContext implements Map<String, Object>{
 	/**
 	 * 设置动作的执行状态。
 	 * 
-	 * @param status
-	 *            执行状态
+	 * @param status  执行状态
 	 */
 	public void setStatus(int status) {
 		threadStatus.set(status);
@@ -224,8 +219,7 @@ public class ActionContext implements Map<String, Object>{
 	/**
 	 * 压入一个变量绑定到堆栈中，当传入的变量绑定为null时自动创建一个新的。
 	 * 
-	 * @param bindings
-	 *            变量绑定
+	 * @param bindings  变量绑定
 	 * @return 压入的变量绑定
 	 */
 	public Bindings push(Bindings bindings) {
@@ -286,7 +280,7 @@ public class ActionContext implements Map<String, Object>{
 	/**
 	 * 获取当前的局部变量范围。
 	 * 
-	 * @return
+	 * @return 变量范围
 	 */
 	public Bindings getScope(){
 		Stack<Bindings> bindingsStack = getBindingStack();
@@ -304,7 +298,7 @@ public class ActionContext implements Map<String, Object>{
 	/**
 	 * 获取当前本地变量.
 	 * 
-	 * @return
+	 * @return 变量范围
 	 */
 	public Bindings getLocalScope(){
 		return getScope();
@@ -313,7 +307,7 @@ public class ActionContext implements Map<String, Object>{
 	/**
 	 * 获取全局变量。
 	 * 
-	 * @return
+	 * @return 变量范围
 	 */
 	public Bindings getGlobalScope(){
 		return getScope(0);
@@ -322,7 +316,7 @@ public class ActionContext implements Map<String, Object>{
 	/**
 	 * 获取全局变量的缩写。
 	 * 
-	 * @return
+	 * @return 全局变量范围
 	 */
 	public Bindings g(){
 		return  getScope(0);
@@ -331,7 +325,7 @@ public class ActionContext implements Map<String, Object>{
 	/**
 	 * 获取局部变量的缩写。
 	 * 
-	 * @return
+	 * @return 本地变量范围
 	 */
 	public Bindings l(){
 		return getScope();
@@ -340,7 +334,7 @@ public class ActionContext implements Map<String, Object>{
 	/**
 	 * 获取当前堆栈信息。
 	 * 
-	 * @return
+	 * @return 堆栈信息
 	 */
 	public String getStackTrace(){
 		Stack<Bindings> bindingsStack = getBindingStack();
@@ -396,8 +390,8 @@ public class ActionContext implements Map<String, Object>{
 	/**
 	 * 根据动作事物的路径来获得变量范围。
 	 * 
-	 * @param actionThingPath
-	 * @return
+	 * @param actionThingPath 动作路径
+	 * @return 动作路径对应的变量范围
 	 */
 	public Bindings getScope(String actionThingPath) {
 		if (actionThingPath == null) {
@@ -452,7 +446,7 @@ public class ActionContext implements Map<String, Object>{
 	/**
 	 * 返回所有包括线程之前创建的变量范围大小。
 	 * 
-	 * @return
+	 * @return 变量栈的大小
 	 */
 	public int getScopesSizeAll(){
 		return getBindingStack().size();
@@ -642,6 +636,10 @@ public class ActionContext implements Map<String, Object>{
 	 * 相应的键那么调用Bindings的put方法，如果所有的Bingings都不包含给定的键值，没有那么设置到顶端的Bindings中。
 	 * 
 	 * 要确保设置全局变量的本地变量，可以通过getScope取得相应的Bindings，然后在赋值。
+	 * 
+	 * @param key 变量key
+	 * @param value 变量值
+	 * @return 如果成功返回变量
 	 */
 	public Object put(String key, Object value) {
 		Stack<Bindings> bindingsStack = getBindingStack();
@@ -659,10 +657,10 @@ public class ActionContext implements Map<String, Object>{
 	/**
 	 * 根据指定的事物从堆栈中寻找变量范围，并设置变量范围的值。
 	 * 
-	 * @param key
-	 * @param value
-	 * @param scopeThing
-	 * @return
+	 * @param key 变量的key
+	 * @param value 变量的值
+	 * @param scopeThingPath 变量范围路径	
+	 * @return 变量值
 	 */
 	public Object put(String key, Object value, String scopeThingPath) {
 		Stack<Bindings> bindingsStack = getBindingStack();
@@ -686,9 +684,9 @@ public class ActionContext implements Map<String, Object>{
 	/**
 	 * 把某个值放到指定的变量范围中。
 	 * 
-	 * @param key
-	 * @param scopeThingPath
-	 * @return
+	 * @param key 变量key
+	 * @param scopeThingPath 路径
+	 * @return 变量值
 	 */
 	public Object putTo(String key, String scopeThingPath) {
 		Object value = this.get(key);

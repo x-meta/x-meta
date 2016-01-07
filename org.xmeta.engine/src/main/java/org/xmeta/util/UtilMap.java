@@ -22,8 +22,8 @@ public class UtilMap {
 	/**
 	 * 为了便于在代码中书写，把数组转化为Map参数。
 	 * 
-	 * @param paramArray
-	 * @return
+	 * @param paramArray 参数列表
+	 * @return 参数集
 	 */
 	public static Map<String, Object> toParams(Object[] paramArray){
 		Map<String, Object> params = new HashMap<String, Object>();

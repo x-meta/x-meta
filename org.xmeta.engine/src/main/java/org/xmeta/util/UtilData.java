@@ -73,9 +73,9 @@ public class UtilData {
 	/**
 	 * 如果str和matchs中任何一个匹配返回true，如果str=null或者matchs=null，返回false。
 	 * 
-	 * @param str
-	 * @param matchs
-	 * @return
+	 * @param str 字符串
+	 * @param matchs 匹配正则表达式
+	 * @return 是否匹配
 	 */
 	public static boolean equalsOne(String str, String[] matchs){
 		if(str == null || matchs == null){
@@ -94,10 +94,9 @@ public class UtilData {
 	/**
 	 * 把数据对象转换为字符串类型。
 	 * 
-	 * @param value
-	 * @param type
-	 * @param pattern
-	 * @return
+	 * @param value 值
+	 * @param pattern 格式
+	 * @return 结果
 	 */
 	public static String format(Object value, String pattern){
 		if(value == null) return VALUE_BLANK;
@@ -226,6 +225,8 @@ public class UtilData {
 	 * @param source 源事物列表
 	 * @param forAdd 要添加的事物列表
 	 * @param strict 是否严格判断，如果是严格判断那么校验两个事物必须相等，否则校验事物的描述者和名
+	 * 
+	 * @return 结果
 	 */
 	public static List<Thing> addToSource(List<Thing> source, List<Thing> forAdd, boolean strict){
 		if(forAdd == null){
@@ -249,6 +250,7 @@ public class UtilData {
 	 * @param source 源事物列表
 	 * @param forAdd 需要添加的事物
 	 * @param strict 是否严格判断，如果是严格判断那么校验两个事物必须相等，否则校验事物的描述者和名
+	 * @return 事物列表
 	 */
 	public static List<Thing> addToSource(List<Thing> source, Thing forAdd, boolean strict){
 		if(forAdd == null){
@@ -639,8 +641,8 @@ public class UtilData {
 	/** 
 	 * 按照字节、千字节和兆返回大小的值。
 	 * 
-	 * @param size
-	 * @return
+	 * @param size 大小
+	 * @return 字符串
 	 */
 	public static String getSizeInfo(double size) {
 		DecimalFormat sf = new DecimalFormat("#.##");
@@ -656,8 +658,8 @@ public class UtilData {
 	/**
 	 * 将"00 01 02"形式的字符串转成byte[]
 	 * 
-	 * @param hex
-	 * @return
+	 * @param hex 16进制字符串
+	 * @return 字节数组
 	 */
 	public static byte[] hexStringToByteArray(String hex) {
 		if (hex == null) {
@@ -684,8 +686,8 @@ public class UtilData {
 	/**
 	 * 二进制转字符串。
 	 * 
-	 * @param bytes
-	 * @return
+	 * @param bytes 字节数组
+	 * @return 16进制字符串
 	 */
 	 public static String bytesToHexString(byte[] bytes) {
 		char[] buf = new char[bytes.length * 2];
@@ -702,13 +704,13 @@ public class UtilData {
 	 /**
 		 * 转换数据类型。
 		 * 
-		 * @param sourceValue
-		 * @param targetType
-		 * @param pattern
-		 * @param patternType
-		 * @param patternAction
-		 * @return
-		 * @throws ParseException
+		 * @param sourceValue 原值
+		 * @param targetType 目标值
+		 * @param pattern 格式
+		 * @param patternType 格式类型
+		 * @param patternAction 动作
+		 * @return 转换后的结果
+		 * @throws ParseException 异常
 		 */
 	public static Object transfer(Object sourceValue, String targetType, String pattern, String patternType, String patternAction) throws ParseException{
 		if (pattern != null  && !"".equals(pattern) && sourceValue != null && !"".equals(sourceValue)) {
@@ -763,11 +765,11 @@ public class UtilData {
 	/**
 	 * 返回通过属性定义的对象，首先使用UtilData获取，如果没有从actionContext中获取。
 	 * 
-	 * @param thing
-	 * @param attributeName
-	 * @param actionContext
-	 * @return
-	 * @throws OgnlException
+	 * @param thing 事物
+	 * @param attributeName 属性名
+	 * @param actionContext 变量上下文
+	 * @return 对象
+	 * @throws OgnlException 异常
 	 */
 	public static Object getObject(Thing thing, String attributeName, ActionContext actionContext) throws OgnlException{
 		Object obj = UtilData.getData(thing, attributeName, actionContext);
@@ -778,16 +780,6 @@ public class UtilData {
 		return obj;
 	}
 	
-	/**
-	 * 返回指定类型的对象。
-	 * 
-	 * @param thing
-	 * @param attributeName
-	 * @param t
-	 * @param actionContext
-	 * @return
-	 * @throws OgnlException
-	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getObjectByType(Thing thing, String attributeName, Class<T> t, ActionContext actionContext) throws OgnlException{
 		Object obj = getObject(thing, attributeName, actionContext);
@@ -801,11 +793,11 @@ public class UtilData {
 	/**
 	 * 通过事物的属性获取数据。
 	 * 
-	 * @param thing
-	 * @param attributeName
-	 * @param actionContext
-	 * @return
-	 * @throws OgnlException
+	 * @param thing 事物
+	 * @param attributeName 属性名
+	 * @param actionContext 变量上下文
+	 * @return 结果
+	 * @throws OgnlException 异常
 	 */
 	public static Object getData(Thing thing, String attributeName, ActionContext actionContext) throws OgnlException{
 		Object value = thing.get(attributeName);

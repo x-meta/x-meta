@@ -19,9 +19,9 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
 /**
- * 因ByteBuffer需实现分配长度，而保存事物到文件时是无法确定长度的，所以使用ResizeableByteBuffer
+ * <p>因ByteBuffer需实现分配长度，而保存事物到文件时是无法确定长度的，所以使用ResizeableByteBuffer
  * 代理ByteBuffer，这里默认分配ByteBuffer 20*1024字节，当越界时在分配一个ByteBuffer，而所有的
- * Bytebuffer放置在一个数组中。<p/>
+ * Bytebuffer放置在一个数组中。</p>
  * 
  * 此对象是线程不安全的，设计时只是考虑在一个线程里使用。
  * 
@@ -43,7 +43,7 @@ public class ResizeableByteBuffer {
 	/**
 	 * 获取所有的字节缓存。
 	 * 
-	 * @return
+	 * @return 缓存列表
 	 */
 	public ByteBuffer[] getByteBuffers(){
 		return buffers;
@@ -90,25 +90,23 @@ public class ResizeableByteBuffer {
 
 	/**
 	 * 相对批量 put 方法（可选操作）。
+	 * @param src 源
+	 * @param offset 偏移
+	 * @param length 长度
+	 * @return 结果。
 	 */
-	ByteBuffer put(byte[] src, int offset, int length) {
+	public ByteBuffer put(byte[] src, int offset, int length) {
 		checkAllocate();
 		
 		return buffers[index].put(src, offset, length);
 	}
 
-	/**
-	 * 相对批量 put 方法（可选操作）。
-	 */
 	public ByteBuffer put(ByteBuffer src) {
 		checkAllocate();
 		
 		return buffers[index].put(src);
 	}
 
-	/**
-	 * 相对批量 put 方法（可选操作）。
-	 */
 	public ByteBuffer put(int index_, byte b) {
 		checkAllocate();
 		

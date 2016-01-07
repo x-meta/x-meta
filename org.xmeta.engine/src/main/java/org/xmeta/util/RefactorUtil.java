@@ -38,29 +38,29 @@ public class RefactorUtil {
 	 * 在X-Meta的Groovy脚本中，如果使用线程直接访问RefactorUtil的静态方法，会出现类装载器
 	 * 不一致而导致类型转换错误，故使用此方法在启动线程前获得类。
 	 * 
-	 * @return
+	 * @return 实例
 	 */
 	public static RefactorUtil getInstance(){
 		return instance;
 	}
 	
 	/**
-	 * 重构，重构目录或事物，必须是目录重构为目录，事物重构为事物，不支持子事物的重构。<p/>
+	 * <p>重构，重构目录或事物，必须是目录重构为目录，事物重构为事物，不支持子事物的重构。</p>
 	 * 
-	 * 重构会检查所有事物以便确保更新所有引用，因此会比较耗时。<p/>
+	 * <p>重构会检查所有事物以便确保更新所有引用，因此会比较耗时。</p>
 	 * 
-	 * 如果重构出错需手工处理，现在还不支持回滚操作。<p/>
+	 * <p>如果重构出错需手工处理，现在还不支持回滚操作。</p>
 	 * 
-	 * 重构的流程是：<br>
-     *     1. 计算要移动和更新的事物总数，事物总数也是操作数量的总数。<br/>
-     *     2. 进行拷贝操作，把原事物拷贝到目标事物。<br/>
-     *     3. 更新所有的事物对原目标的引用到目标事物，操作可能是更新或未更新。<br/>
-     *     4. 删除原事物。<br/>
+	 * 重构的流程是：
+     *     1. 计算要移动和更新的事物总数，事物总数也是操作数量的总数。
+     *     2. 进行拷贝操作，把原事物拷贝到目标事物。
+     *     3. 更新所有的事物对原目标的引用到目标事物，操作可能是更新或未更新。
+     *     4. 删除原事物。
      *     
 	 * 
 	 * @param sourcePath 原路径，目录或事物
 	 * @param targetPath 目标路径，目录或事物
-	 * @param listener 
+	 * @param listener 监听器
 	 */
 	public void refactor(String sourcePath, String targetPath, RefactorListener listener){
 		try{
@@ -194,7 +194,7 @@ public class RefactorUtil {
 	/**
 	 * 返回所有事物的总数。
 	 * 
-	 * @return
+	 * @return 数量
 	 */
 	private static int getThingCount(Index index, Map<String, String> context){
 		int count = 0;
@@ -220,8 +220,9 @@ public class RefactorUtil {
 	/**
 	 * 用目标字符串替换所有事物的所有属性的字符串中包含源字符串。
 	 * 
-	 * @param replaceFor
-	 * @param replaceWidth
+	 * @param replaceFor 要替换的
+	 * @param replaceWidth 替换为的字符串
+	 * @param listener 监听器
 	 */
 	public static void replaceAll(String replaceFor, String replaceWidth, RefactorListener listener) {
 		World world = World.getInstance();
@@ -292,6 +293,7 @@ public class RefactorUtil {
 	/**
 	 * 把旧的路径命名规则改为新的路径命名规则。
 	 * 
+	 * @param listener 监听器
 	 */
 	public static void changeOldPathToNewRule( RefactorListener listener){
 		World world = World.getInstance();

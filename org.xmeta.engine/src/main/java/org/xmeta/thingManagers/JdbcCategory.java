@@ -177,12 +177,12 @@ public class JdbcCategory  extends CachedCategory{
 	}
 	
 	public Jedis getJedis(){
-		RegisThingManager th = (RegisThingManager) this.getThingManager();
+		RedisThingManager th = (RedisThingManager) this.getThingManager();
 		return th.getJedis();
 	}
 	
 	public void releaseJedis(Jedis jedis){
-		RegisThingManager th = (RegisThingManager) this.getThingManager();
+		RedisThingManager th = (RedisThingManager) this.getThingManager();
 		th.releaseJedis(jedis);
 	}
 

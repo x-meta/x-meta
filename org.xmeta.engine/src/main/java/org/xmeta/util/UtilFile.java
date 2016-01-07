@@ -57,9 +57,12 @@ public class UtilFile {
 	}
 	
 	/**
-	 * 
-	 * @param src
-	 * @param target
+	 *  拷贝文件。
+	 *  
+	 * @param src 源文件  
+	 * @param target 目标文件
+	 * @param monitor 监控器
+	 * @throws IOException IO异常
 	 */
 	public static void copyFile(File src, File target, FileCopyMonitor monitor) throws IOException{
 		if(!src.exists()){
@@ -124,8 +127,8 @@ public class UtilFile {
 	/**
 	 * 把一个正常的文件路径转化成XWorker表示下的文件路径。
 	 * 
-	 * @param fileName
-	 * @return
+	 * @param fileName 文件名
+	 * @return 字符串
 	 */
 	public static String toXWorkerFilePath(String fileName){
 		File file = new File(fileName);		
@@ -145,8 +148,8 @@ public class UtilFile {
 	/**
 	 * 获取文件路径，符合XWorker文件路径规则的。
 	 * 
-	 * @param fileName
-	 * @return
+	 * @param fileName 文件名
+	 * @return 路径
 	 */
 	public static String getFilePath(String fileName){
 		String path = null;
@@ -179,9 +182,9 @@ public class UtilFile {
 	/**
 	 * 从路径获取文件或输入流。
 	 * 
-	 * @param path
-	 * @param actionContext
-	 * @return
+	 * @param path 路径
+	 * @param actionContext 变量上下文
+	 * @return 对象
 	 */
 	public static Object getFileOrInputStream(String path, ActionContext actionContext){
 		String filePath = path;

@@ -44,13 +44,13 @@ import org.xmeta.util.ThingClassLoader;
 import org.xmeta.util.UtilAction;
 
 /**
- * 动作是可以运行的程序，是事物的另一种形态。<p/>
+ * <p>动作是可以运行的程序，是事物的另一种形态。</p>
  * 
- * 动作的原生语言是Java，但可以通过动作的动作方式实现其他语言支持，可以在动作的结构中编写一个run方法，
- * 在run方法里解释执行动作中定义的代码。<p/>
+ * <p>动作的原生语言是Java，但可以通过动作的动作方式实现其他语言支持，可以在动作的结构中编写一个run方法，
+ * 在run方法里解释执行动作中定义的代码。</p>
  * 
- * 有些语言可能会编译成类或者动作发生了变化后会重新生成，此时为了避免事物发生变化了（如版本回退）而类不会重新编译，
- * 需要在编译类成功后调用动作的updateCompileTime()方法保存编译时间。
+ * <p>有些语言可能会编译成类或者动作发生了变化后会重新生成，此时为了避免事物发生变化了（如版本回退）而类不会重新编译，
+ * 需要在编译类成功后调用动作的updateCompileTime()方法保存编译时间。</p>
  *  
  * @author <a href="mailto:zhangyuxiang@tom.com">zyx</a>
  *
@@ -469,8 +469,8 @@ public class Action extends Semaphore{
 	/**
 	 * 返回动作的类，如果存在。有些动作可能会返回null。
 	 * 
-	 * @param actionContext
-	 * @return
+	 * @param actionContext 变量上下文
+	 * @return 返回Action对应的类
 	 */
 	@SuppressWarnings({"rawtypes" })
 	public Class getActionClass(ActionContext actionContext){
@@ -815,11 +815,12 @@ public class Action extends Semaphore{
 	/**
 	 * 执行上下文的成功或者失败的方法。
 	 * 
-	 * @param selfContexts
-	 * @param binding
-	 * @param methodName
-	 * @param exception
-	 * @return
+	 * @param contexts 上下文列表
+	 * @param actionContext 变量上下文
+	 * @param methodName 方法名称
+	 * @param exception 抛出的异常
+	 * 
+	 * @return 如果动作可以抛出异常则抛出异常
 	 */
 	public static Throwable doThingContextMethod(List<Thing> contexts, ActionContext actionContext, String methodName, Throwable exception){
 		if(contexts.size() == 0){
@@ -873,8 +874,8 @@ public class Action extends Semaphore{
 	/**
 	 * 初始化上下文。
 	 * 
-	 * @param context
-	 * @param actionContext
+	 * @param context 上下文事物
+	 * @param actionContext 变量上下文
 	 */
 	public static void initContext(Thing context, ActionContext actionContext){
 		if(context == null || context.getBoolean("disable")){
@@ -901,18 +902,7 @@ public class Action extends Semaphore{
 			context.doAction("init", acContext);
 			bindings.getContexts().put(context, acContext);
 		}		
-	}
-	
-	/**
-	 * 初始化上下文。
-	 * 
-	 * @param thingContext 事物定义的上下文
-	 * @param context 动作上下文
-	 * @param datas 变量
-	 */
-	//private static void initThingContext(Thing thingContext, ActionContext context, Map<Object, Object> datas){
-		
-	//}
+	}	
 	
 	public ClassLoader getClassLoader(){
 		return classLoader;
@@ -925,7 +915,7 @@ public class Action extends Semaphore{
 	/**
 	 * 返回动作对应的日志。
 	 * 
-	 * @return
+	 * @return 返回动作的日志
 	 */
 	public Logger getLogger(){
 		return this.logger;
@@ -934,8 +924,8 @@ public class Action extends Semaphore{
 	/**
 	 * 返回正确的包名，因在X-Meta包名和类名没有约束，但java的包名和类名不能是关键字，所以修改，在关键字前加t。
 	 * 
-	 * @param className
-	 * @return
+	 * @param className 类名
+	 * @return 返回完整类名
 	 */
 	public static String getClassName(String className){
 		String[] cns = className.split("[.]");

@@ -24,8 +24,8 @@ import org.xmeta.util.ThingClassLoader;
 
 /**
  * 数据JDBC数据库存储事物，需要表：
- * tblCategorys(name<String>, parent<String>, simpleName<String>)
- * tblThings(name<String>, label<String>, descriptors<String>, data<byte[]>, path<String>, category<String>)
+ * tblCategorys(name&lt;String&gt;, parent&lt;String&gt;, simpleName&lt;String&gt;)
+ * tblThings(name&lt;String&gt;, label&lt;String&gt;, descriptors&lt;String&gt;, data&lt;byte[]&gt;, path&lt;String&gt;, category&lt;String&gt;)
  * @author Administrator
  *
  */
@@ -50,8 +50,7 @@ public class JdbcThingManager extends AbstractThingManager{
 	/**
 	 * 返回数据库连接。
 	 * 
-	 * @return
-	 * @throws SQLException 
+	 * @return 连接
 	 */
 	public Connection getConnection(){		
 		try {

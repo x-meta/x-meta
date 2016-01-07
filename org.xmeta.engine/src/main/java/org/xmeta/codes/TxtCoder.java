@@ -79,10 +79,10 @@ public class TxtCoder {
 	/**
 	 * 编码。
 	 * 
-	 * @param thing
-	 * @param out
-	 * @param context
-	 * @throws IOException
+	 * @param thing 事物
+	 * @param out 输出流writer
+	 * @param context 上下文
+	 * @throws IOException 异常
 	 */
 	public static void encode(Thing thing, PrintWriter out,	Map<Thing, String> context) throws IOException {
 		if (context == null) {
@@ -381,11 +381,12 @@ public class TxtCoder {
 	/**
 	 * 解码。
 	 * 
-	 * @param thing
-	 * @param input
-	 * @param full
-	 * @return
-	 * @throws IOException
+	 * @param thing 事物
+	 * @param input 输入流
+	 * @param full 是否全部导入
+	 * @param lastModified 最后修改日期
+	 * @return 事物
+	 * @throws IOException 异常如果发生
 	 */
 	public static Thing decode(Thing thing, InputStream input, boolean full, long lastModified)
 			throws IOException {

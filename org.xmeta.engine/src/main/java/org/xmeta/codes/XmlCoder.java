@@ -46,7 +46,7 @@ import org.xmeta.util.UtilData;
 import org.xml.sax.SAXException;
 
 /**
- * XML格式的事物编码，XML格式的事物不保存修改日期等。<p/>
+ * <p>XML格式的事物编码，XML格式的事物不保存修改日期等。</p>
  * 
  * @author <a href="mailto:zhangyuxiang@tom.com">zyx</a>
  *
@@ -56,8 +56,8 @@ public class XmlCoder {
 	/**
 	 * 把事物编码成XML字符串。
 	 * 
-	 * @param thing
-	 * @return
+	 * @param thing 事物
+	 * @return XML代码
 	 */
 	public static String encodeToString(Thing thing){
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -78,10 +78,10 @@ public class XmlCoder {
 	/**
 	 * 把指定的事物以XML编码到输出流中。
 	 * 
-	 * @param thing
-	 * @param out
-	 * @throws XMLStreamException
-	 * @throws IOException 
+	 * @param thing 事物
+	 * @param out 输出流
+	 * @throws XMLStreamException XML异常
+	 * @throws IOException  IO异常
 	 */
 	public static void encode(Thing thing, OutputStream out) throws XMLStreamException, IOException{
 		//element.a
@@ -100,8 +100,9 @@ public class XmlCoder {
 	/**
 	 * 把事物编码成XML字符串。
 	 * 
-	 * @param thing
-	 * @return
+	 * @param thing 事物
+	 * @param includeDefaultValue 是否包含默认值
+	 * @return XML字符串
 	 */
 	public static String encodeToString(Thing thing,  boolean includeDefaultValue){
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -122,10 +123,11 @@ public class XmlCoder {
 	/**
 	 * 把指定的事物以XML编码到输出流中。
 	 * 
-	 * @param thing
-	 * @param out
-	 * @throws XMLStreamException
-	 * @throws IOException 
+	 * @param thing 事物
+	 * @param out 输出流
+	 * @param includeDefaultValue 是否包含默认值
+	 * @throws XMLStreamException XML异常
+	 * @throws IOException  IO异常
 	 */
 	public static void encode(Thing thing, OutputStream out,  boolean includeDefaultValue) throws XMLStreamException, IOException{
 		//element.a
@@ -142,17 +144,18 @@ public class XmlCoder {
 	}
 	
 	/**
-	 * 编码事物到XML。<p/>
+	 * <p>编码事物到XML。</p>
 	 * 
-	 * 由于每个节点都有descriptors属性，使用XML编写比较麻烦，因此简化子节点的描述者：<br/>
+	 * 由于每个节点都有descriptors属性，使用XML编写比较麻烦，因此简化子节点的描述者：<br></br>
 	 * 1. 如果描述者只有一个，且描述者是父节点的第一个描述者的事物子节点，那么节点名是描述者的名字。
 	 * 
-	 * @param thing
-	 * @param descriptor
-	 * @param writer
-	 * @param ident
-	 * @throws XMLStreamException
-	 * @throws IOException
+	 * @param thing 事物
+	 * @param descriptor 描述者
+	 * @param writer XML写入
+	 * @param ident 偏移
+	 * @param includeDefaultValue 是否包含默认值
+	 * @throws XMLStreamException XML异常
+	 * @throws IOException IO异常
 	 */
 	private static void encode(Thing thing, Thing parentDescriptors, XMLStreamWriter writer, String ident, boolean includeDefaultValue) throws XMLStreamException, IOException{
 		writer.writeCharacters("\n" + ident);
@@ -310,13 +313,11 @@ public class XmlCoder {
 	/**
 	 * 分析XML字符串并返回事物。
 	 * 
-	 * @param content XML字符串
-	 * @param descripotrs 用来分析XML的描述者
-	 * 
-	 * @return 事物
-	 * @throws ParserConfigurationException 
-	 * @throws IOException 
-	 * @throws SAXException 
+	 * @param thing 事物
+	 * @param content 内容 
+	 * @throws ParserConfigurationException  分析异常
+	 * @throws IOException  IO异常
+	 * @throws SAXException  XML异常
 	 */
 	public static void parse(Thing thing, String content) throws ParserConfigurationException, SAXException, IOException{
 		if(content == null){
@@ -338,11 +339,11 @@ public class XmlCoder {
 	/**
 	 * 从输入流中读取事物。
 	 * 
-	 * @param thing
-	 * @param input
-	 * @throws SAXException
-	 * @throws IOException
-	 * @throws ParserConfigurationException
+	 * @param thing 事物
+	 * @param input 输入流
+	 * @throws SAXException SAX异常
+	 * @throws IOException IO异常
+	 * @throws ParserConfigurationException 分析异常
 	 */
 	public static void parse(Thing thing, InputStream input) throws SAXException, IOException, ParserConfigurationException{
 		Document document = null;
@@ -359,8 +360,10 @@ public class XmlCoder {
 	/**
 	 * 分析XML元素数据到事物中。
 	 * 
-	 * @param thing
-	 * @param element
+	 * @param thing 事物
+	 * @param element 元素
+	 * @param parentDescriptor 父描述者
+	 * @param lastModifyed 最后修改日期
 	 */
 	public static void parse(Thing thing, Thing parentDescriptor, Element element, long lastModifyed){
 		Map<String, Object> attributes = thing.getAttributes();
@@ -438,10 +441,10 @@ public class XmlCoder {
 	
 	/**
 	 * 具有换行的字符串可以保存到cdata下，如果节点不包含任何属性，并且子节点只有一个并且是CDATA，那么认为是属性：
-	 * <xxx><![CDATA[]]></xxx>
+	 * &lt;xxx&gt;&lt;![CDATA[]]&gt;&lt;/xxx&gt;
 	 * 
-	 * @param node
-	 * @return
+	 * @param node 节点
+	 * @return 是否是属性
 	 */
 	public static boolean isAttributeNode(Node node){
 		if (node.getNodeType() == Node.ELEMENT_NODE ) {		

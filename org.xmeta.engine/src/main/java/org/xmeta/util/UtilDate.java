@@ -18,8 +18,8 @@ public class UtilDate  {
     /**
      * 返回持续时间的信息，如36分32秒这样的字符串。
      * 
-     * @param time
-     * @return
+     * @param time 时间
+     * @return 格式化后的字符串
      */
     public static String getLastTimeInfo(long time){
     	long day = 24 * 3600000;
@@ -64,7 +64,7 @@ public class UtilDate  {
     /**
      * 获取本星期的第一天。
      * 
-     * @return
+     * @return 日期
      */
     public static Date getWeekStart(){
     	GregorianCalendar calendar = new GregorianCalendar();
@@ -85,7 +85,7 @@ public class UtilDate  {
     /**
      * 获取本星期的最后一天。
      * 
-     * @return
+     * @return 日期
      */
     public static Date getWeekEnd(){
     	GregorianCalendar calendar = new GregorianCalendar();
@@ -106,7 +106,7 @@ public class UtilDate  {
     /**
      * 获取本月的第一天。
      * 
-     * @return
+     * @return 日期
      */
     public static Date getMonthStart(){
     	GregorianCalendar calendar = new GregorianCalendar();
@@ -127,7 +127,7 @@ public class UtilDate  {
     /**
      * 获取本月的最后一天。
      * 
-     * @return
+     * @return 日期
      */
     public static Date getMonthEnd(){
     	GregorianCalendar calendar = new GregorianCalendar();
@@ -150,7 +150,7 @@ public class UtilDate  {
     /**
      * 获取当年的第一天。
      * 
-     * @return
+     * @return 日期
      */
     public static Date getYearStart(){
     	GregorianCalendar calendar = new GregorianCalendar();
@@ -168,7 +168,7 @@ public class UtilDate  {
     
     /**
      * 获取本年的最后一天。
-     * @return
+     * @return 日期
      */    
     public static Date getYearEnd(){
     	GregorianCalendar calendar = new GregorianCalendar();
@@ -187,8 +187,8 @@ public class UtilDate  {
     /**
      * 返回指定日期所在月的天数。
      * 
-     * @param date
-     * @return
+     * @param date 日期
+     * @return 天数
      */
     public static int getMonthDayCount(Date date){
     	GregorianCalendar calendar = new GregorianCalendar();
@@ -208,10 +208,10 @@ public class UtilDate  {
     /**
      * 是否是在一个时间段范围里。
      * 
-     * @param adate
-     * @param start
-     * @param end
-     * @return
+     * @param adate 第一个日期
+     * @param start 第二个日期
+     * @param end 结束日期
+     * @return 是否
      */
     public static boolean isBetween(Date adate, Date start, Date end){
     	if(adate == null) return false;
@@ -230,8 +230,8 @@ public class UtilDate  {
     /**
      * 查看是否是今天。
      * 
-     * @param date
-     * @return
+     * @param date 日期
+     * @return 是否
      */
     public static boolean isToday(Date date){
     	Date now = new Date();
@@ -246,9 +246,9 @@ public class UtilDate  {
     /**
      * 获取一个时间加一个时间间隔（毫秒）后的时间。
      * 
-     * @param date1
-     * @param interval
-     * @return
+     * @param date1 日期
+     * @param interval 间隔
+     * @return 结果
      */
     public static Date getDate(Date date1, long interval){
     	if(date1 == null) return null;
@@ -260,9 +260,9 @@ public class UtilDate  {
     /**
      * 获取一个时间加一个时间间隔（天）后的时间。
      * 
-     * @param date
-     * @param interval
-     * @return
+     * @param date 日期
+     * @param interval 间隔
+     * @return 结果
      */
     public static Date getDate(Date date, double interval){
     	if(date == null){
@@ -274,7 +274,7 @@ public class UtilDate  {
     
     /**
      * 返回昨天
-     * @return
+     * @return 日期
      */
     public static Date getYesterday(){
     	Date date = new Date();
@@ -289,7 +289,7 @@ public class UtilDate  {
     /**
      * 取得明天。
      * 
-     * @return
+     * @return 明天
      */
     public static Date getTomorrow(){
     	Date date = new Date();
@@ -351,9 +351,9 @@ public class UtilDate  {
     /**
      * 取两个时间的时间差。
      * 
-     * @param date1
-     * @param date2
-     * @return
+     * @param date1 日期1
+     * @param date2 日期2
+     * @return 间隔
      */
     public static long getInterval(Date date1, Date date2){
     	//如果其中的一个时间为空，返回0

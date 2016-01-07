@@ -31,8 +31,8 @@ public class UtilJava {
 	/**
 	 * 把指定对象转换成Iterable，如果是数据或Iterable本身的条目也是返回的Iteralbe的条目，
 	 * null返回一个空List，其他包装成一个Iterable，把对象放到Iterable条目中。
-	 * @param collection
-	 * @return
+	 * @param collection 集合
+	 * @return 可遍历对象
 	 */
 	@SuppressWarnings("unchecked")
 	public static Iterable<Object> getIterable(Object collection){
@@ -61,10 +61,10 @@ public class UtilJava {
 	/**
 	 * 通过参数值列表获取对象的方法。
 	 * 
-	 * @param object
-	 * @param methodName
-	 * @param params
-	 * @return
+	 * @param cls 类 
+	 * @param methodName 方法名称
+	 * @param params 参数
+	 * @return 方法
 	 */
 	public static Method getMethod(Class<?> cls, String methodName, List<Object> params){
 		//不能直接使用cls.getDeclaredMethod，因为int,boolean等会编程Integer,Boolean类，使用这个方法取不到方法

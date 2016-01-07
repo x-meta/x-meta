@@ -27,8 +27,8 @@ public class ThingCache {
 	/**
 	 * 获取缓存。
 	 * 
-	 * @param path
-	 * @return
+	 * @param path 路径
+	 * @return 事物
 	 */
 	public static Thing get(String path){
 		SoftReference<Thing> wr = cache.get(path);
@@ -51,8 +51,8 @@ public class ThingCache {
 	/**
 	 * 放入缓存。
 	 * 
-	 * @param path
-	 * @param thing
+	 * @param path 路径
+	 * @param thing 事物
 	 */
 	public static void put(String path, Thing thing){
 		SoftReference<Thing> wr = cache.get(path);
@@ -65,7 +65,7 @@ public class ThingCache {
 	/**
 	 * 删除缓存。
 	 * 
-	 * @param path
+	 * @param path 路径
 	 */
 	public static void remove(String path){
 		cache.remove(path);

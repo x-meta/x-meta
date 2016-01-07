@@ -25,7 +25,7 @@ import redis.clients.jedis.JedisPoolConfig;
  * @author Administrator
  *
  */
-public class RegisThingManager extends AbstractThingManager{
+public class RedisThingManager extends AbstractThingManager{
 	/** Redist服务器的地址 */
 	String host;
 	/** Redist服务器的端口 */
@@ -35,14 +35,14 @@ public class RegisThingManager extends AbstractThingManager{
 	
 	JedisPool jedisPool;
 	
-	public RegisThingManager(String name, File rootFile) throws IOException{
+	public RedisThingManager(String name, File rootFile) throws IOException{
 		super(name);
 	}
 	
 	/**
 	 * 返回Jedis示例。
 	 * 
-	 * @return
+	 * @return Jedis实例
 	 */
 	public Jedis getJedis(){
 		return jedisPool.getResource();
@@ -51,7 +51,7 @@ public class RegisThingManager extends AbstractThingManager{
 	/**
 	 * 释放连接。
 	 * 
-	 * @param jedis
+	 * @param jedis jedis
 	 */
 	public void releaseJedis(Jedis jedis){
 		jedisPool.returnResource(jedis);

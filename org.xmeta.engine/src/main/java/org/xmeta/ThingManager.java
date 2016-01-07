@@ -117,7 +117,7 @@ public interface ThingManager {
 	 * 根据事物描述者取得指定目录下的事物列表。
 	 * 
 	 * @param categoryName 目录名称
-	 * @param descritporPath 事物描述者的路径
+	 * @param descriptorPath 事物描述者的路径
 	 * 
 	 * @return 事物列表
 	 */
@@ -153,12 +153,13 @@ public interface ThingManager {
 	 * 刷新指定目录。
 	 * 
 	 * @param categoryName 目录
-	 * @param includechildCategory 是否包含子目录
+	 * @param includeChildCategory 是否包含子目录
 	 */
 	public void refresh(String categoryName, boolean includeChildCategory);
 	
 	/**
 	 * 删除此事物管理者，在此方法里实现清除此事物管理者的相关内容。
+	 * @return 是否成功
 	 *
 	 */
 	public boolean remove();
@@ -183,6 +184,7 @@ public interface ThingManager {
 	 * 删除事物管理者的监听事件。
 	 * 
 	 * @param listener 事物管理者监听事件
+	 * @return 是否成功
 	 */
 	public boolean removeThingManagerListener(ThingManagerListener listener);
 	
@@ -197,37 +199,37 @@ public interface ThingManager {
 	/** 
 	 * 返回事物管理器的类装载器。
 	 * 
-	 * @return
+	 * @return 类装载器
 	 */
 	public ThingClassLoader getClassLoader();
 	
 	/**
 	 * 获取事物管理器所依赖的类库的路径。
 	 * 
-	 * @return
+	 * @return 类路径
 	 */
 	public String getClassPath();
 	
 	/**
 	 * 获取资源当作输入流，如果没有返回null。
 	 * 
-	 * @param name
-	 * @return
+	 * @param name 资源名
+	 * @return 资源输入流
 	 */
 	public InputStream getResourceAsStream(String name);
 	
 	/** 
 	 * 查找资源。
 	 * 
-	 * @param name
-	 * @return
+	 * @param name 资源名
+	 * @return 资源URL
 	 */
 	public URL findResource(String name);
 	
 	/**
 	 * 初始化事物管理器。
 	 * 
-	 * @param properties
+	 * @param properties 参数
 	 */
 	public void init(Properties properties);
 }

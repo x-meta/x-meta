@@ -36,7 +36,7 @@ import org.xmeta.World;
 import org.xmeta.util.ThingClassLoader;
 
 /**
- * 瞬态的事物的管理者。<p/>
+ * <p>瞬态的事物的管理者。</p>
  * 
  * @author <a href="mailto:zhangyuxiang@tom.com">zyx</a>
  *

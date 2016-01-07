@@ -49,12 +49,11 @@ import org.xmeta.util.ThingOgnlAccessor;
 import org.xmeta.util.UtilFile;
 
 /**
- * 世界是存放事物的容器。
- * <p/>
+ * <p>世界是存放事物的容器。</p>
  * 
- * 可以通过事物的路径访问这个世界下的所有事物。<p/>
+ * <p>可以通过事物的路径访问这个世界下的所有事物。</p>
  *
- * 事物的路径规则参看{@link org.xmeta.Path}}<br/>
+ * 事物的路径规则参看{@link org.xmeta.Path}}
  * 
  * @author <a href="mailto:zhangyuxiang@tom.com">zyx</a>
  * 
@@ -163,9 +162,11 @@ public class World {
 	}
 	
 	/**
-	 * 创建一个ThingManager，必须是全路径<projectName>:<thingManagerName>。
+	 * 创建一个ThingManager，必须是全路径&lt;projectName&gt;:&lt;thingManagerName&gt;。
 	 * 
-	 * @param path
+	 * @param name 名称
+	 * @param link 连接
+	 * @return 事物管理器
 	 */
 	public ThingManager createThingManager(String name, String link){
 		File managerRootFile = new File(this.getPath() + "/projects/" + name);
@@ -199,8 +200,7 @@ public class World {
 		
 	/**
 	 * 获取加载和初始化失败的事物管理器名称的列表。
-	 * 
-	 * @return
+	 * @return 事物管理器列表
 	 */
 	public List<String> getFailureThingManangers() {
 		return failureThingManangers;
@@ -209,8 +209,8 @@ public class World {
 	/**
 	 * 返回指定的事物管理器是否是加载或初始化失败。
 	 * 
-	 * @param thingManager
-	 * @return
+	 * @param thingManager 事物管理器
+	 * @return 是否失败
 	 */
 	public boolean isFailureThingManager(String thingManager){
 		return failureThingManangers.contains(thingManager);
@@ -219,7 +219,7 @@ public class World {
 	/**
 	 * 从加载或初始化失败的事物管理器列表中移除指定的事物管理器。
 	 * 
-	 * @param thingManager
+	 * @param thingManager 事物管理器名
 	 */
 	public void removeFailureThingManager(String thingManager){
 		failureThingManangers.remove(thingManager);
@@ -228,7 +228,8 @@ public class World {
 	/**
 	 * 添加全局上下文。
 	 * 
-	 * @param contextThing
+	 * @param contextThing 事物
+	 * @param index 位置
 	 */
 	public void addGlobalContext(Thing contextThing, int index) {
 		boolean have = false;
@@ -255,7 +256,7 @@ public class World {
 	/**
 	 * 移除一个全局上下文。
 	 * 
-	 * @param contextThing
+	 * @param contextThing 事物
 	 */
 	public void removeGlobalContext(Thing contextThing) {
 		ThingEntry forRemoved = null;
@@ -277,8 +278,7 @@ public class World {
 	/**
 	 * 通过路径来获得事物，可能会返回项目、事物管理者、目录、事物或者事物的列表。
 	 * 
-	 * @param path
-	 *            路径
+	 * @param pathStr  路径
 	 * @return 路径所对应的事物
 	 */
 	public Object get(String pathStr) {
@@ -391,10 +391,8 @@ public class World {
 	/**
 	 * 从类的路径中装载事物。
 	 * 
-	 * @param project
-	 * @param manager
-	 * @param thingCategory
-	 * @return
+	 * @param thingPath 事物路径
+	 * @return 事物
 	 */
 	public Thing loadThingFromClasspath(String thingPath){		
 		Thing thing = null;
@@ -465,8 +463,9 @@ public class World {
 	/**
 	 * 以流的形式返回资源，如果没有返回null。首先从文件系统中找，其次从classpath下寻找资源。
 	 * 
-	 * @param path
-	 * @return
+	 * @param path 路径
+	 * @return 输入流
+	 * @throws IOException IO异常
 	 */
 	public InputStream getResourceAsStream(String path) throws IOException{
 		if(path == null){
@@ -555,9 +554,9 @@ public class World {
 	/**
 	 * 返回动作类，通常是动作事物对应的类，有些动作可能没有对应类。
 	 * 
-	 * @param actionPath
-	 * @param actionContext
-	 * @return
+	 * @param actionPath 动作路径
+	 * @param actionContext 变量上下文
+	 * @return 类
 	 */
 	@SuppressWarnings({ "rawtypes" })
 	public Class getActionClass(String actionPath, ActionContext actionContext){
@@ -567,9 +566,9 @@ public class World {
 	/**
 	 * 返回动作类，通常是动作事物对应的类，有些动作可能没有对应类。
 	 * 
-	 * @param actionThing
-	 * @param actionContext
-	 * @return
+	 * @param actionThing 动作事物
+	 * @param actionContext 变量上下文
+	 * @return 类
 	 */
 	@SuppressWarnings({"rawtypes" })
 	public Class getActionClass(Thing actionThing, ActionContext actionContext){
@@ -594,8 +593,8 @@ public class World {
 	/**
 	 * 获取一个用户数据。
 	 * 
-	 * @param key
-	 * @return
+	 * @param key 键
+	 * @return 值
 	 */
 	public Object getData(String key) {
 		return userDatas.get(key);
@@ -632,7 +631,7 @@ public class World {
 	 * 执行一个已经设置了断点的动作，可以把该方法的调用嵌入到代码中，从而可以
 	 * 实现在代码中的调试断点。
 	 * 
-	 * @param actionContext
+	 * @param actionContext 变量上下文
 	 */
 	public void debug(ActionContext actionContext){
 		Thing debugAction = this.getThing("xworker.ide.debug.action.DebugAction");
@@ -664,7 +663,7 @@ public class World {
 	 * @param path 事物的路径
 	 * @param thingManager 事物管理器
 	 * @param descriptor 描述者
-	 * @return
+	 * @return 事物
 	 */
 	public Thing getThing(String path, String thingManager, String descriptor){
 		Thing thing = getThing(path);
@@ -680,7 +679,7 @@ public class World {
 	/**
 	 * 获取事物管理器列表。
 	 * 
-	 * @return
+	 * @return 事物管理器列表
 	 */
 	public List<ThingManager> getThingManagers(){
 		return thingManagers;
@@ -830,7 +829,7 @@ public class World {
 	/**
 	 * 返回是否已经初始化过。
 	 * 
-	 * @return
+	 * @return 是否已经初始化
 	 */
 	public boolean isInited(){
 		return inited;
@@ -885,14 +884,12 @@ public class World {
 	}
 
 	/**
-	 * 注册事物管理器的监听者。<p?.
+	 * <p>注册事物管理器的监听者。</p>
 	 * 
-	 * 这里注册的监听者是所有事物管理者共有的，注册的键值是事物管理者的名称，不同项目下同名的事物管理者可以通过自身的名字获得相同
-	 * 的事物管理者事件监听者列表，如果注册时事物管理者名称为*，那么表示此事件监听者监听所有事物管理者的事件。
-	 * <p/>
+	 * <p>这里注册的监听者是所有事物管理者共有的，注册的键值是事物管理者的名称，不同项目下同名的事物管理者可以通过自身的名字获得相同
+	 * 的事物管理者事件监听者列表，如果注册时事物管理者名称为*，那么表示此事件监听者监听所有事物管理者的事件。</p>
 	 * 
-	 * 虽然在World中注册了事物管理者监听事件，但在具体的事物管理者实现中要使用注册的监听者，那么需在触发 事件通过World取得相应的监听者列表。
-	 * <p/>
+	 * <p>虽然在World中注册了事物管理者监听事件，但在具体的事物管理者实现中要使用注册的监听者，那么需在触发 事件通过World取得相应的监听者列表。</p>
 	 * 
 	 * 如要监听具体的事物管理者，可获得具体的事物管理者然后调用事物管理者的addListener方法添加监听。
 	 * 
@@ -969,8 +966,8 @@ public class World {
 	/**
 	 * 设置一个用户数据。
 	 * 
-	 * @param key
-	 * @param value
+	 * @param key 键
+	 * @param value 值
 	 */
 	public void setData(String key, Object value) {
 		if(value == null){
@@ -983,7 +980,7 @@ public class World {
 	/**
 	 * 移除一个用户数据。
 	 * 
-	 * @param key
+	 * @param key 键
 	 */
 	public void removeData(String key){
 		userDatas.remove(key);
@@ -1021,8 +1018,8 @@ public class World {
 	/**
 	 * 返回指定的文件名是否是保存事物的文件。
 	 * 
-	 * @param fileName
-	 * @return
+	 * @param fileName 文件名
+	 * @return 是否是事物文件
 	 */
 	public boolean isThingFile(String fileName){
 		for(ThingCoder coder : this.thingCoders){
@@ -1035,8 +1032,7 @@ public class World {
 	/**
 	 * 添加事物管理器。
 	 * 
-	 * @param index
-	 * @param thingManager
+	 * @param thingManager 事物管理器
 	 */
 	public void addThingManager(ThingManager thingManager){
 		checkIfThingManagerExists(thingManager);
@@ -1047,7 +1043,7 @@ public class World {
 	/**
 	 * 添加事物管理器到最前面。
 	 * 
-	 * @param thingManager
+	 * @param thingManager 事物管理器
 	 */
 	public void addThingManagerFirst(ThingManager thingManager){
 		checkIfThingManagerExists(thingManager);
@@ -1066,8 +1062,8 @@ public class World {
 	/**
 	 * 根据事物管理器的名称返回事物管理器。
 	 * 
-	 * @param name
-	 * @return
+	 * @param name 名称
+	 * @return 事物管理器
 	 */
 	public ThingManager getThingManager(String name){
 		for(ThingManager manager : thingManagers){
@@ -1082,7 +1078,7 @@ public class World {
 	/**
 	 * 移除事物管理器。
 	 * 
-	 * @param thingManager
+	 * @param thingManager 事物管理器
 	 */
 	public void removeThingManager(ThingManager thingManager){
 		thingManagers.remove(thingManager);
@@ -1229,9 +1225,9 @@ public class World {
 	/**
 	 * 添加运行期的帮助。
 	 * 
-	 * @param title
-	 * @param sourcePath
-	 * @param helpPath
+	 * @param title 标题
+	 * @param sourcePath 范围
+	 * @param helpPath 路径事物
 	 */
 	public void addHelp(String title, String sourcePath, String helpPath){
 		Help help = new Help(title, sourcePath, helpPath);
@@ -1269,7 +1265,7 @@ public class World {
 	/**
 	 * 返回编码器列表。
 	 * 
-	 * @return
+	 * @return 事物编码劣列表
 	 */
 	public List<ThingCoder> getThingCoders(){
 		return thingCoders;
@@ -1278,8 +1274,8 @@ public class World {
 	/**
 	 * 通过类型返回事物的编码器，类型通常是文件的后缀名。
 	 * 
-	 * @param type
-	 * @return
+	 * @param type 编码类型
+	 * @return  事物编码器
 	 */
 	public ThingCoder getThingCoder(String type){
 		for(ThingCoder thingCoder : thingCoders){

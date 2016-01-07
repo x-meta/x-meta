@@ -47,9 +47,9 @@ public class WorldIndex extends Index{
 	/**
 	 * 获取所有事物管理器的索引列表。
 	 * 
-	 * @param context
-	 * @param index
-	 * @param list
+	 * @param context 上下文
+	 * @param index 索引
+	 * @param list 列表
 	 */
 	private void getThingManagerIndexs(Map<String, String> context, Index index, List<Index> list){
 		if(Index.TYPE_THINGMANAGER.equals(index.getType())){

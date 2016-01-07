@@ -16,13 +16,13 @@
 package org.xmeta.util;
 
 /**
- * 重构监听器。<p/>
+ * <p>重构监听器。</p>
  * 
- * 重构的流程是：<br>
- *     1. 计算要移动和更新的事物总数，事物总数也是操作数量的总数。<br/>
- *     2. 进行拷贝操作，把原事物拷贝到目标事物。<br/>
- *     3. 更新所有的事物对原目标的引用到目标事物，操作可能是更新或未更新。<br/>
- *     4. 删除原事物。<br/>
+ * 重构的流程是：
+ *     1. 计算要移动和更新的事物总数，事物总数也是操作数量的总数。
+ *     2. 进行拷贝操作，把原事物拷贝到目标事物。
+ *     3. 更新所有的事物对原目标的引用到目标事物，操作可能是更新或未更新。
+ *     4. 删除原事物。
  * 
  * @author zhangyuxiang
  *
@@ -38,29 +38,29 @@ public interface RefactorListener {
 	/**
 	 * 拷贝原事物到目标事物。
 	 * 
-	 * @param sourcePath
-	 * @param targetPath
+	 * @param sourcePath 源路径
+	 * @param targetPath 目标路径
 	 */
 	public void onCopy(String sourcePath, String targetPath);
 	
 	/**
 	 * 删除原事物。
 	 * 
-	 * @param sourcePaht
+	 * @param sourcePath 源路径
 	 */
 	public void onDelete(String sourcePath);
 	
 	/**
 	 * 事物更新了，引用变更后事物更新。
 	 * 		
-	 * @param path
+	 * @param path 路径
 	 */
 	public void onUpdated(String path);
 	
 	/**
 	 * 路径对应的事物没有更改。
 	 * 
-	 * @param path
+	 * @param path 路径
 	 */
 	public void notMidify(String path);	
 	

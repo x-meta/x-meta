@@ -21,8 +21,8 @@ public class ExceptionUtil {
 	 * 
 	 * 有时候异常被捕获的多次并包装了多次，取第一个原始的异常信息。
 	 * 
-	 * @param t
-	 * @return
+	 * @param t 异常
+	 * @return 异常的字符串
 	 */
 	public static String getRootMessage(Throwable t){
 		String message = t.getMessage();

@@ -29,17 +29,17 @@ public interface FileCopyMonitor {
 	 * 如果要覆盖目标文件，可直接返回目标文件，否则可以返回
 	 * 一个可以覆盖的文件，如果取消返回null。
 	 * 
-	 * @param src
-	 * @param dest
-	 * @return
+	 * @param src 源
+	 * @param dest 目标
+	 * @return 新文件
 	 */
 	public File onOverWrite(File src, File dest);
 	
 	/**
 	 * 当文件拷贝成功后触发的事件。
 	 * 
-	 * @param src
-	 * @param dest
+	 * @param src 源文件
+	 * @param dest 目标文件
 	 */
 	public void onCopyed(File src, File dest);
 	
@@ -47,7 +47,7 @@ public interface FileCopyMonitor {
 	 * 当不覆盖一个已存在文件后，会调用此方法决定是否
 	 * 取消整个拷贝任务。
 	 * 
-	 * @return
+	 * @return 是否取消
 	 */
 	public boolean cancel();
 }

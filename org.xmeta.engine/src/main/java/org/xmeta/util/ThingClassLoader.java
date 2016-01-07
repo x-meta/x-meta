@@ -47,7 +47,7 @@ public class ThingClassLoader extends URLClassLoader {
 	/**
 	 * 构建一个世界级的类装载器。
 	 * 
-	 * @param parent
+	 * @param parent 父类装载器
 	 */
 	public ThingClassLoader(ClassLoader parent) {
 		super(new URL[] {}, parent);
@@ -133,7 +133,7 @@ public class ThingClassLoader extends URLClassLoader {
 	/**
 	 * 从一个目录或者jar或zip添加类库。
 	 * 
-	 * @param dir
+	 * @param dir 目录
 	 */
 	public void addJarOrZip(File dir){
 		if(!dir.exists()){
@@ -202,7 +202,7 @@ public class ThingClassLoader extends URLClassLoader {
 	/**
 	 * 返回所有以目录为主的类库路径。
 	 * 
-	 * @return
+	 * @return 类路径列表
 	 */
 	public List<String> getAlClassPathDirs(){
 		Map<String, String> dirContext = new HashMap<String, String>();
@@ -229,7 +229,7 @@ public class ThingClassLoader extends URLClassLoader {
 	/**
 	 * 返回所有的Jar名称列表。
 	 * 
-	 * @return
+	 * @return jar列表
 	 */
 	public List<String> getAllJarsByName(){
 		Map<String, String> jarContext = new HashMap<String, String>();

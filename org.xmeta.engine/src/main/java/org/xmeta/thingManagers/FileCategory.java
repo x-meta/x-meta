@@ -44,6 +44,7 @@ public class FileCategory extends CachedCategory{
 	 * 
 	 * @param name 目录名称
 	 * @param thingManager 事物管理者
+	 * @param parent 父目录
 	 */
 	public FileCategory(String name, ThingManager thingManager, Category parent){		
 		super(thingManager, parent, name);

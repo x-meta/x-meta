@@ -75,7 +75,8 @@ public class ActionException extends RuntimeException{
     
     /**
      * 如果构造ActionExeption时传入了ActionContext，那么可以获取它的所有Bindings此时返回的列表不为空，其他则为空。
-     * @return
+     * 
+     * @return 变量范围列表
      */
     public List<Bindings> getBindings(){
     	return bindingList;

@@ -29,34 +29,33 @@ public interface ThingCoder {
 	/**
 	 * 编码一个事物到输出流中。
 	 * 
-	 * @param thing
-	 * @param out
-	 * @throws ThingCoderException
+	 * @param thing 事物
+	 * @param out 输出流
 	 */
 	public void encode(Thing thing, OutputStream out);
 		
 	/**
 	 * 解码一个输入流到事物中。
 	 * 
-	 * @param in
+	 * @param thing 事物
+	 * @param in 输入流
 	 * @param lastModifyed 如果为0表示解码时不能获取时间，可能需要在格式中去解
-	 * @return
-	 * @throws ThingCoderException
 	 */
 	public void decode(Thing thing, InputStream in, long lastModifyed);
 	
 	/**
 	 * 只解码用于索引事物的部分，事物索引通常用于UI的导航中。
-	 * 
-	 * @param in
-	 * @return
+     * 
+	 * @param thingIndex 事物索引
+	 * @param in 输入流
+	 * @param lastModifyed 如果为0表示解码时不能获取时间，可能需要在格式中去解
 	 */
 	public void decodeIndex(ThingIndex thingIndex, InputStream in, long lastModifyed);
 	
 	/**
 	 * 返回编码器的类型，通常是文件的后缀名。
 	 * 
-	 * @return
+	 * @return 类型
 	 */
 	public String getType();
 }

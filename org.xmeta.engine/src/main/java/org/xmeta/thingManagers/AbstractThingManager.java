@@ -99,7 +99,7 @@ public abstract class AbstractThingManager implements ThingManager{
 	/**
 	 * 刷新父目录，在创建或删除目录时使用。
 	 * 
-	 * @param categoryName
+	 * @param categoryName 目录名
 	 */
 	public void refreshParentCategory(String categoryName){
 		if(categoryName == null || "".equals(categoryName)){
@@ -261,8 +261,8 @@ public abstract class AbstractThingManager implements ThingManager{
 	/**
 	 * 装载事物。
 	 * 
-	 * @param thingName
-	 * @return
+	 * @param thingName 事物名
+	 * @return 事物
 	 */
 	public abstract Thing doLoadThing(String thingName);
 
@@ -285,7 +285,8 @@ public abstract class AbstractThingManager implements ThingManager{
 	/**
 	 * 执行删除事物。
 	 * 
-	 * @param thing
+	 * @param thing 事物
+	 * @return 是否成功
 	 */
 	public abstract boolean  doRemoveThing(Thing thing);
 	
@@ -308,8 +309,8 @@ public abstract class AbstractThingManager implements ThingManager{
 	/**
 	 * 执行保存事物。
 	 * 
-	 * @param thing
-	 * @return
+	 * @param thing 事物
+	 * @return 是否保存成功
 	 */
 	public abstract boolean doSaveThing(Thing thing);
 }

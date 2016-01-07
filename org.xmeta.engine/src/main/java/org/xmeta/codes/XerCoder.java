@@ -104,10 +104,10 @@ public class XerCoder {
 	/**
 	 * 编码事物到输出流中。
 	 * 
-	 * @param thing
-	 * @param out
-	 * @param context
-	 * @throws IOException
+	 * @param thing 事物
+	 * @param out 输出流
+	 * @param context 上下文
+	 * @throws IOException 异常
 	 */
 	public static void encode1(Thing thing, OutputStream out,
 			Map<Thing, String> context) throws IOException {
@@ -591,10 +591,10 @@ public class XerCoder {
 	/**
 	 * 编码所有。
 	 * 
-	 * @param thing
-	 * @param out
-	 * @param context
-	 * @throws IOException
+	 * @param thing 事物
+	 * @param out 输出流
+	 * @param context 上下文
+	 * @throws IOException 异常
 	 */
 	public static void encodeAllx(Thing thing, OutputStream out,
 			Map<Thing, String> context) throws IOException {
@@ -717,11 +717,11 @@ public class XerCoder {
 	/**
 	 * 从字节流里构建数据对象。
 	 * 
-	 * @param thing
-	 * @param bytes
-	 * @param offset
-	 * @return
-	 * @throws IOException
+	 * @param thing 事物
+	 * @param bytes 字节数组
+	 * @param offset 偏移
+	 * @return 偏移量
+	 * @throws IOException 异常
 	 */
 	public static int decode(Thing thing, byte[] bytes, int offset)
 			throws IOException {
@@ -909,10 +909,10 @@ public class XerCoder {
 	/**
 	 * 仅仅读取一个数据对象的属性。
 	 * 
-	 * @param bytes
-	 * @param offset
-	 * @return
-	 * @throws UnsupportedEncodingException 
+	 * @param bytes 字节数组
+	 * @param offset 偏移
+	 * @return 事物
+	 * @throws UnsupportedEncodingException 异常 
 	 */
 	public static Thing decodeAttributeOnly(byte[] bytes, int offset)
 			throws UnsupportedEncodingException {
@@ -1021,7 +1021,7 @@ public class XerCoder {
 	 * 
 	 * @param aname 一个名字
 	 * @param buffer 字节缓存
-	 * @throws UnsupportedEncodingException 
+	 * @throws UnsupportedEncodingException 异常 
 	 */
 	private static void encodeName(String aname, ByteBuffer buffer)
 			throws UnsupportedEncodingException {
@@ -1033,10 +1033,10 @@ public class XerCoder {
 	/**
 	 * 编码事物到字节缓存中。
 	 * 
-	 * @param thing
-	 * @param buffer
-	 * @param context
-	 * @throws IOException
+	 * @param thing 事物
+	 * @param buffer 缓冲
+	 * @param context 上下文
+	 * @throws IOException 异常
 	 */
 	public static void encode(Thing thing, ByteBuffer buffer,
 			Map<Thing, String> context) throws IOException {

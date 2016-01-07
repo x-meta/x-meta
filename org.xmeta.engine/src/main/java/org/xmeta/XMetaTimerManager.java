@@ -24,9 +24,9 @@ public class XMetaTimerManager {
 	/**
 	 * 注册定时器。
 	 * 
-	 * @param task
-	 * @param delay
-	 * @param period
+	 * @param task 定时器任务
+	 * @param delay 延迟
+	 * @param period 周期
 	 */
 	public static void schedule(TimerTask task, long delay, long period){
 		timer.schedule(task, delay, period);

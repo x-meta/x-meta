@@ -39,6 +39,9 @@ import org.xmeta.ui.session.SessionManager;
 public class UtilString {
 	/**
 	 * 解析使用Groovy方式定义的字符串数组，如["cb", "cb"] as String[]。
+	 * 
+	 * @param str 字符串
+	 * @return 数组
 	 */
 	public static String[] getGroovyStringArray(String str){
 		if(str.startsWith("[") && str.endsWith("as String[]")){
@@ -59,10 +62,10 @@ public class UtilString {
 	/**
 	 * 返回字符串是否相等，如果属性值为null也返回false。
 	 * 
-	 * @param thing
-	 * @param attributeName
-	 * @param value
-	 * @return
+	 * @param thing 事物
+	 * @param attributeName 属性名
+	 * @param value 值
+	 * @return 是否相等
 	 */
 	public static boolean eq(Thing thing, String attributeName, String value){
 		String attrValue = thing.getString(attributeName);
@@ -76,9 +79,9 @@ public class UtilString {
 	/**
 	 * 返回指定的事物的属性是否为空，如果是字符串那么null和""都返回true。
 	 * 
-	 * @param thing
-	 * @param attributeName
-	 * @return
+	 * @param thing 事物
+	 * @param attributeName 属性名
+	 * @return 是否为null
 	 */
 	public static boolean isNull(Thing thing, String attributeName){
 		Object value = thing.getAttribute(attributeName);
@@ -92,9 +95,9 @@ public class UtilString {
 	/**
 	 * 分割字符串的方法非String实现，稍微快一些。
 	 * 
-	 * @param str
-	 * @param ch
-	 * @return
+	 * @param str 字符串
+	 * @param ch 分给符
+	 * @return 结果
 	 */
 	public static String[] split(String str, char ch){
 		char[] chs = str.toCharArray();
@@ -136,7 +139,7 @@ public class UtilString {
 	 * 判断描述者列表字符串中是否包含描述者。
 	 * 
 	 * @param descriptors 描述者列表
-	 * @param descritpor 描述者
+	 * @param descriptor 描述者
 	 * @return 是否包含
 	 */
 	public static boolean haveDescriptor(String descriptors, String descriptor){
@@ -243,8 +246,8 @@ public class UtilString {
 	/**
 	 * 让字符串的第一个字母小写。
 	 * 
-	 * @param str
-	 * @return
+	 * @param str 字符串
+	 * @return 出理后的字符串
 	 */
     public static String uncapFirst(String str){
     	if(str == null || str.length() == 0){
@@ -293,10 +296,10 @@ public class UtilString {
 	}
 	
 	/**
-	 * 解码参数字符串，分隔符默认为&，默认编码utf-8，过滤引号。
+	 * 解码参数字符串，分隔符默认为&amp;，默认编码utf-8，过滤引号。
 	 * 
-	* @param str    参数字符串
-	 * @return
+	* @param str 参数字符串
+	 * @return 参数
 	 */
 	public static Map<String, String> getParams(String str){
 		return getParams(str, "&", "utf-8", true);
@@ -307,7 +310,7 @@ public class UtilString {
 	 * 
 	* @param str    参数字符串
 	 * @param splitStr 分隔符
-	 * @return
+	 * @return 参数
 	 */
 	public static Map<String, String> getParams(String str, String splitStr){
 		return getParams(str, splitStr, "utf-8", true);
@@ -319,7 +322,7 @@ public class UtilString {
 	* @param str    参数字符串
 	 * @param splitStr 分隔符
 	 * @param encoding 编码
-	 * @return
+	 * @return 分析后的参数集
 	 */
 	public static Map<String, String> getParams(String str, String splitStr, String encoding){
 		return getParams(str, splitStr, encoding, true);
@@ -332,7 +335,7 @@ public class UtilString {
 	 * @param splitStr 分隔符
 	 * @param encoding 编码
 	 * @param trimQuotate  是否过滤参数值包围的引号
-	 * @return
+	 * @return 参数集
 	 */
 	public static Map<String, String> getParams(String str, String splitStr, String encoding, boolean trimQuotate){
 		if(str == null || "".equals(str)){
@@ -380,10 +383,10 @@ public class UtilString {
 	/**
 	 * 从事物取指定的属性的字符串值，然后从actionContext中取可能的值。
 	 * 
-	 * @param thing
-	 * @param attribute
-	 * @param actionContext
-	 * @return
+	 * @param thing 事物
+	 * @param attribute 属性名
+	 * @param actionContext 变量上下文
+	 * @return 值
 	 */
 	public static String getString(Thing thing, String attribute, ActionContext actionContext){
 		String value = thing.getString(attribute);
@@ -391,12 +394,12 @@ public class UtilString {
 	}
 	
 	/**
-	 * 从制定的字符串值中读取字符串。<p/>
+	 * <p>从制定的字符串值中读取字符串。</p>
 	 * 
-	 * 如果字符串值为"号开头，那么返回"号包围的字符串值，如果是以res:开头那么从资源文件中读取，如果以上条件都不符合那么从
-	 * actionContext或binding中读取。<p/>
+	 * <p>如果字符串值为"号开头，那么返回"号包围的字符串值，如果是以res:开头那么从资源文件中读取，如果以上条件都不符合那么从
+	 * actionContext或binding中读取。</p>
 	 * 
-	 * 如果是读取资源，那么字符串的格式为：res:<resourceName>:<varName>:<defaultValue>。
+	 * 如果是读取资源，那么字符串的格式为：res:&lt;resourceName&gt;:&lt;varName&gt;:&lt;defaultValue&gt;。
 	 * 
 	 * @param value 字符串值
 	 * @param actionContext 动作上下文
@@ -583,8 +586,8 @@ public class UtilString {
 		/**
 		 * 将"00 01 02"形式的字符串转成byte[]
 		 * 
-		 * @param hex
-		 * @return
+		 * @param hex 16进制字符串
+		 * @return 字节数组
 		 */
 		public static byte[] hexStringToByteArray(String hex) {
 			if (hex == null) {

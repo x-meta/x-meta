@@ -16,11 +16,11 @@
 package org.xmeta;
 
 /**
- * 事物的路径，把路径整字符串分解成小单元，用作缓存，不用每次都执行分解的方法。<p/>
+ * <p>事物的路径，把路径整字符串分解成小单元，用作缓存，不用每次都执行分解的方法。</p>
  * 
  * 路径的规则
  * <pre>
- *     <package>.<thingName>/<childPath1>/<childPath2>.../<childPathn>
+ *     &lt;package&gt;.&lt;thingName&gt;/&lt;childPath1&gt;/&lt;childPath2&gt;.../&lt;childPathn&gt;
  * 包的路径，比如
  *     com
  *     xmeta.core
@@ -33,7 +33,6 @@ package org.xmeta;
  *     /thingName@thingId     //取事物名为thingName且标识为thingId的子事物
  *     /thingName@            //取事物名为thingName的所有子事物
  * </pre>
- * <p/>
  * 
  * @author <a href="mailto:zhangyuxiang@tom.com">zhangyuxiang</a>
  *
@@ -128,9 +127,9 @@ public class Path {
 	/**
 	 * 分析子节点。
 	 * 
-	 * @param path
-	 * @param childPath
-	 * @return
+	 * @param path 路径
+	 * @param childPath 子路径
+	 * @return 路径
 	 */
 	public static Path parseChildPath(String path, String childPath){
 		Path child = null;
@@ -180,9 +179,9 @@ public class Path {
 	/**
 	 * 分析旧规则的子路径。
 	 * 
-	 * @param path
-	 * @param childPath
-	 * @return
+	 * @param path 路径
+	 * @param childPath 子路径
+	 * @return 路径
 	 */
 	public static Path parseOldChildPath(String path, String childPath){
 		Path child = null;

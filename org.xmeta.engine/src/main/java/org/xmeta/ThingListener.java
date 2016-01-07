@@ -16,7 +16,7 @@
 package org.xmeta;
 
 /**
- * 事物事件的监听者接口，主要用来监听一个事物的改动事件和删除事件。<p/>
+ * <p>事物事件的监听者接口，主要用来监听一个事物的改动事件和删除事件。</p>
  * 
  * @author <a href="mailto:zhangyuxiang@tom.com">zyx</a>
  *

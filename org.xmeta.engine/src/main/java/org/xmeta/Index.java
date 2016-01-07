@@ -60,8 +60,8 @@ public abstract class Index {
 	/**
 	 * 通过Index生成一个ID，使用这个ID可以通过getIndexById方法获取。
 	 * 
-	 * @param index
-	 * @return
+	 * @param index 索引
+	 * @return ID
 	 */
 	public static String getIndexId(Index index){
 		Index parent = index.getParent();
@@ -77,8 +77,8 @@ public abstract class Index {
 	/**
 	 * 通过标识获取索引。
 	 * 
-	 * @param id
-	 * @return
+	 * @param id 索引ID
+	 * @return 索引
 	 */
 	public static Index getIndexById(String id){
 		Index parent = Index.getInstance();
@@ -160,7 +160,7 @@ public abstract class Index {
 	/**
 	 * 取路径，这个路径是通过World.get(path)可以获取的那个参数路径。
 	 * 
-	 * @return
+	 * @return 路径
 	 */
 	public abstract String getPath() ;	
 	
@@ -175,6 +175,7 @@ public abstract class Index {
 	/**
 	 * 刷新子索引。
 	 *
+	 * @return 是否刷新成功
 	 */
 	public abstract boolean refresh();
 	

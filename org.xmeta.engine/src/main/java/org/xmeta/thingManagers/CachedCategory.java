@@ -297,7 +297,7 @@ public abstract class CachedCategory implements Category{
 	/**
 	 * 添加子包。
 	 * 
-	 * @param childPackage
+	 * @param category 包
 	 */
 	public void addCategory(Category category){
 		childCategorys.add(category);
@@ -306,7 +306,7 @@ public abstract class CachedCategory implements Category{
 	/**
 	 * 添加事物索引。
 	 * 
-	 * @param thingIndex
+	 * @param thingIndex 事物索引
 	 */
 	public void addThingIndex(ThingIndex thingIndex){
 		thingIndexs.add(thingIndex);

@@ -46,8 +46,8 @@ public class GeneratedObjectEntry {
 	/**
 	 * 获取生成的对象。
 	 * 
-	 * @param actionContext
-	 * @return
+	 * @param actionContext 变量上下文
+	 * @return 对象
 	 */
 	public Object getObject(ActionContext actionContext){
 		Thing thing = thingEntry.getThing();

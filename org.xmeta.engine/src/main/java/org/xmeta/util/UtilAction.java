@@ -25,9 +25,9 @@ public class UtilAction {
 	/**
 	 * 获取一个动作的代码文件名。
 	 * 
-	 * @param actionThing
+	 * @param actionThing 动作事物
 	 * @param ext 代码文件的后缀
-	 * @return
+	 * @return 文件名
 	 */
 	public static String getActionCodeFilePath(Thing actionThing, String ext){
 		String className = "";
@@ -63,10 +63,10 @@ public class UtilAction {
 	/**
 	 * 把变量赋值到动作定义的变量范围中。
 	 * 
-	 * @param action
-	 * @param varName
-	 * @param var
-	 * @param actionContext
+	 * @param action 动作事物
+	 * @param varName 变量名
+	 * @param var 变量值
+	 * @param actionContext 变量上下文
 	 */
 	public static void putVarByActioScope(Thing action, String varName, Object var, ActionContext actionContext){
 		if(varName != null && !"".equals(varName)){
@@ -80,9 +80,9 @@ public class UtilAction {
 	/**
 	 * 获取变量范围。
 	 *  
-	 * @param self
-	 * @param actionContext
-	 * @return
+	 * @param action 动作 
+	 * @param actionContext 变量上下文
+	 * @return 结果
 	 */
 	public static Bindings getVarScope(Thing action, ActionContext actionContext){
 		if(action == null){
@@ -96,9 +96,9 @@ public class UtilAction {
 	/**
 	 * 通过VarScope的字符串返回相应的Scope，如Gloabl, Local等。
 	 * 
-	 * @param varScope
-	 * @param actionContext
-	 * @return
+	 * @param varScope 变量范围
+	 * @param actionContext 变量上下文
+	 * @return 变量范围
 	 */
 	public static Bindings getVarScope(String varScope, ActionContext actionContext){
 		Bindings binding = null;
@@ -128,9 +128,9 @@ public class UtilAction {
 	/**
 	 * 返回是否是打印调试日志。
 	 * 
-	 * @param actionThing
-	 * @param actionContext
-	 * @return
+	 * @param actionThing 动作事物
+	 * @param actionContext 变量上下文
+	 * @return 是否
 	 */
 	public static boolean getDebugLog(Thing actionThing, ActionContext actionContext){
 		return actionThing.getBoolean("debugLog");

@@ -50,14 +50,14 @@ public interface Category {
 	/**
 	 * 返回目录的简写。
 	 * 
-	 * @return
+	 * @return 目录名
 	 */
 	public String getSimpleName();
 	
 	/**
 	 * 返回文件所在的位置。
 	 * 
-	 * @return
+	 * @return 文件路径
 	 */
 	public String getFilePath();
 	
@@ -76,7 +76,7 @@ public interface Category {
 	/**
 	 * 刷新。
 	 * 
-	 * @param includeChild
+	 * @param includeChild 是否包含子目录
 	 */
 	public void refresh(boolean includeChild);
 	
@@ -105,8 +105,8 @@ public interface Category {
 	/**
 	 * 根据描述返回事物索引列表。
 	 * 
-	 * @param descriptor
-	 * @return
+	 * @param descriptor 描述者
+	 * @return 事物索引列表
 	 */
 	public List<ThingIndex> getThingIndexs(String descriptor);
 	
@@ -124,8 +124,8 @@ public interface Category {
 	 * 
 	 * 取具体事物是请用World，World负责缓存。
 	 * 
-	 * @param descriptor
-	 * @return
+	 * @param descriptor 描述者
+	 * @return 事物列表
 	 */
 	public List<Thing> getThings(String descriptor);
 	
