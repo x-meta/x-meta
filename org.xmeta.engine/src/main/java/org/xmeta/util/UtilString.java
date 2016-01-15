@@ -622,8 +622,10 @@ public class UtilString {
 			return String.valueOf(size) + "B";
 		} else if (size < 1024 * 1024) {
 			return sf.format(size / 1024) + "KB";
-		} else {
+		} else if(size < 1024 * 1024 * 1024){
 			return sf.format(size / 1024 / 1024) + "MB";
+		}else{
+			return sf.format(size / 1024 / 1024 / 1025) + "G";
 		}
 	}
 }

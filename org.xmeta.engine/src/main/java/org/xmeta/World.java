@@ -397,7 +397,9 @@ public class World {
 	public Thing loadThingFromClasspath(String thingPath){		
 		Thing thing = null;
 		for(ThingCoder coder : this.thingCoders){
-			String resource = "/" + thingPath.replace('.', '/') + "." + coder.getType();
+			//加前缀/在eclipse项目中找不到，等打包后试试
+			//String resource = "/" + thingPath.replace('.', '/') + "." + coder.getType();
+			String resource = thingPath.replace('.', '/') + "." + coder.getType();
 			URL url = this.getClassLoader().getResource(resource);
 			
 			if(url != null){
@@ -526,11 +528,17 @@ public class World {
 					}
 				}
 				
-				if(path.startsWith("/")){
-					return getClassLoader().getResourceAsStream(path);
-				}else{
-					return getClassLoader().getResourceAsStream("/" + path);
+				InputStream in = getClassLoader().getResourceAsStream(path);
+				if(in == null){
+					if(path.startsWith("/") || path.startsWith("\\")){
+						in = getClassLoader().getResourceAsStream(path.substring(1, path.length()));
+					}else{
+						in = getClassLoader().getResourceAsStream("/" + path);
+					}
 				}
+				
+				
+				return in;
 			}
 		}		
 	}
@@ -739,16 +747,13 @@ public class World {
 			}catch(Exception e){
 				OS = System.getProperty("os.name").toLowerCase();
 			}
-			PROCESSOR_ARCHITECTURE = "bit" + System.getProperty("sun.arch.data.model"); //System.getenv("PROCESSOR_ARCHITECTURE").toLowerCase();			
-			File file = new File(worldPath + "/xworker.properties");
-			if(file.exists()){
+			PROCESSOR_ARCHITECTURE = "bit" + System.getProperty("sun.arch.data.model"); //System.getenv("PROCESSOR_ARCHITECTURE").toLowerCase();
+			InputStream osin = World.class.getResourceAsStream("/xworker_os.properties");
+			if(osin != null){
 				Properties p = new Properties();
-				FileReader fr = new FileReader(file);
-				try{
-					p.load(fr);
-				}finally{
-					fr.close();
-				}
+				p.load(osin);
+				osin.close();
+				
 				String value = p.getProperty(OS);
 				if(value != null && !"".equals(value)){
 					OS = value;
@@ -1153,6 +1158,9 @@ public class World {
 			File linkFile = new File(link);
 			if(!linkFile.exists()){
 				linkFile = new File(worldPath, link);
+			}
+			if(!linkFile.exists()){
+				linkFile = new File(rootPath.getParentFile(), link);
 			}
 			if(linkFile.exists()){
 				isLink = true;

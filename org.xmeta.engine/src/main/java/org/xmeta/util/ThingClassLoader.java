@@ -51,7 +51,7 @@ public class ThingClassLoader extends URLClassLoader {
 	 */
 	public ThingClassLoader(ClassLoader parent) {
 		super(new URL[] {}, parent);
-		
+
 		World world = World.getInstance();
 		String worldPath = world.getPath();
 		File libFile = new File(worldPath + "/lib/");

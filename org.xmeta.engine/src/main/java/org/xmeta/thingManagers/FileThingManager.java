@@ -42,10 +42,18 @@ public class FileThingManager extends AbstractThingManager{
 	File rootFile = null;
 	
 	public FileThingManager(String name, File rootFile){
+		this(name, rootFile, true);
+	}
+	
+	public FileThingManager(String name, File rootFile, boolean things){
 		super(name);
 		
 		this.rootFile = rootFile;
-		this.thingRootFile = new File(rootFile, "things");
+		if(things){
+			this.thingRootFile = new File(rootFile, "things");
+		}else{
+			this.thingRootFile = rootFile;
+		}
 		rootCategory = new FileCategory(null, this , null);
 	}
 	

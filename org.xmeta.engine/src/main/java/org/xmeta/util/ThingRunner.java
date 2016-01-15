@@ -25,6 +25,7 @@ import java.util.jar.JarFile;
 import org.xmeta.ActionContext;
 import org.xmeta.Thing;
 import org.xmeta.World;
+import org.xmeta.thingManagers.FileThingManager;
 
 /**
  * 执行指定事物的run方法。
@@ -167,6 +168,11 @@ public class ThingRunner {
 					world.initThingManager(new File("."));
 				}
 				fin.close();
+			}else{
+				if(world.getThingManager("default") == null){
+					FileThingManager working = new FileThingManager("default", new File("."), false);
+					world.addThingManager(working);
+				}
 			}
 			
 			if("-war".equals(thingPath)){

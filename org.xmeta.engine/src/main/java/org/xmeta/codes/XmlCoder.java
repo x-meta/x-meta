@@ -173,7 +173,7 @@ public class XmlCoder {
 		}
 		attrContext.put("name", name);
 		String id = thing.getMetadata().getId(); //写入meta中的id属性 
-		if(includeDefaultValue== false && id != null && !id.equals(name)){ //如果id和name不同，写入
+		if(includeDefaultValue== false && id != null && !"".equals(id) && !id.equals(name)){ //如果id和name不同，写入
 			writer.writeAttribute("_xmeta_id_", id);
 		}
 		
@@ -191,7 +191,7 @@ public class XmlCoder {
 				}
 			}
 		}
-		if(writeDescriptor){
+		if(writeDescriptor && descriptors != null){
 			writer.writeAttribute("descriptors", descriptors);			
 		}
 		attrContext.put("descriptors", descriptors);
@@ -206,7 +206,7 @@ public class XmlCoder {
 				//过滤重复的属性
 				continue;
 			}
-			attrContext.put(attrname, attrname);
+			attrContext.put(attrname, attrname);			
 			
 			String defaultValue = attribute.getString("default");
 			if(includeDefaultValue){
@@ -217,6 +217,10 @@ public class XmlCoder {
 				//if(defaultValue != null && !"".equals(defaultValue.trim()) && !"false".equals(defaultValue.trim())){
 				//	writer.writeAttribute(name, "");
 				//}
+				continue;
+			}
+			if("label".equals(attrname) && name.equals(value)){
+				//如果标签和label相同，也可以省略
 				continue;
 			}
 			
