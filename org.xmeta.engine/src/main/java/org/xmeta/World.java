@@ -136,7 +136,11 @@ public class World {
 		thingCoders.add(new TxtThingCoder());
 		thingCoders.add(new XerThingCoder());
 		thingCoders.add(new XmlThingCoder());	
-		thingCoders.add(new JsonThingCoder());
+		try{
+			thingCoders.add(new JsonThingCoder());
+		}catch(Throwable e){
+			log.debug("JsonThingCoder init error, if need json, need Jackson, " + e.getMessage());
+		}
 		
 		try{
 			ThingOgnlAccessor.init();

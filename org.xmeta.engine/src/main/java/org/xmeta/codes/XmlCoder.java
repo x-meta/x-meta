@@ -180,7 +180,7 @@ public class XmlCoder {
 		//描述者，descriptors
 		boolean writeDescriptor = true;
 		String descriptors = thing.getString("descriptors");
-		Thing descriptor = thing.getDescriptor();;
+		Thing descriptor = thing.getDescriptor();
 		//如果描述者只有一个且是父描述者的子节点，那么不用写入描述者
 		if(parentDescriptors != null && descriptors != null && descriptors.split("[,]").length == 1){
 			for(Thing parentDescriptor : parentDescriptors.getAllChilds("thing")){
@@ -280,7 +280,7 @@ public class XmlCoder {
 			
 			if(!isCdata){//cdata另外保存				
 				if(strValue != null){				
-					if(defaultValue == null || (defaultValue != null && !strValue.equals(defaultValue))){
+					if(includeDefaultValue || !CoderUtils.isDefault(attribute, strValue)){
 						//XML不保存和默认值相同的值
 						writer.writeAttribute(attrname, strValue);
 					}
@@ -392,7 +392,13 @@ public class XmlCoder {
 		//如果descriptors为空，默认设置为元事物
 		descriptors = (String) attributes.get("descriptors");
 		if(descriptors == null || descriptors.equals("")){
-			attributes.put("descriptors", "MetaThing");
+			if("actions".equals(thingName)){
+				attributes.put("descriptors", "MetaThing/@actions");
+			}else if("JavaAction".equals(thingName)){
+				attributes.put("descriptors", "MetaThing/@actions/@JavaAction");
+			}else{
+				attributes.put("descriptors", "MetaThing");
+			}
 		}
 		
 		//最后修改时间

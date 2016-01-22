@@ -296,8 +296,12 @@ public class Action extends Semaphore{
 		
 		methodName = thing.getString("methodName");
 		
-		//设置是否使用外部的Java
-		useOuterJava  = thing.getBoolean("useOuterJava");
+		//设置是否使用外部的Java，默认是使用外部java
+		if(thing.get("useOuterJava") == null){
+			useOuterJava = true;
+		}else{
+			useOuterJava  = thing.getBoolean("useOuterJava");
+		}
 		outerClassName = thing.getString("outerClassName");
 					
 		//需要重新编译
@@ -441,8 +445,9 @@ public class Action extends Semaphore{
 					if(methodName != null && !"".equals(methodName)){
 						method = actionClass.getDeclaredMethod(methodName, new Class[]{ActionContext.class});
 					}
-				}catch(Exception e){		
-					throw new ActionException("", e);
+				}catch(Throwable e){		
+					throw new ActionException("load method error, class=" + actionClass.getName() 
+							+ ", method=" + methodName + ",action=" + thing.getMetadata().getPath(), e);
 				}
 			}else if(method == null){
 				try{	
@@ -691,7 +696,12 @@ public class Action extends Semaphore{
 					//获取事物自己的行为run，然后执行 
 					Thing actionThing = thing.getActionThing("run");
 					if(actionThing != null){
-						Action ac = actionThing.getAction();
+						Action ac = null;
+						try{
+							ac = actionThing.getAction();
+						}catch(Exception e){
+							throw new ActionException("Get run action error, thing=" + thing.getMetadata().getPath(), e);
+						}
 						result = ac.run(context, null, caller, isSubAction);
 					}
 				}

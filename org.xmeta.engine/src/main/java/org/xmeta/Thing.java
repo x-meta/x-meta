@@ -47,6 +47,7 @@ import org.xmeta.util.ThingCallable;
 import org.xmeta.util.ThingRunnable;
 import org.xmeta.util.ThingUtil;
 import org.xmeta.util.UtilData;
+import org.xmeta.util.UtilMap;
 import org.xmeta.util.UtilString;
 import org.xml.sax.SAXException;
 
@@ -676,6 +677,10 @@ public class Thing {
 	 */
 	public Object doAction(String name, ActionContext actionContext, Map<String, Object> parameters){
 		return run(name, actionContext, parameters, false, true);
+	}
+	
+	public Object doAction(String name, ActionContext actionContext, Object ... parameters){
+		return doAction(name, actionContext, UtilMap.toMap(parameters));
 	}
 		
 	/**
@@ -2092,7 +2097,8 @@ public class Thing {
 	        				UtilData.resetAttributeByType(this, name, type);
 	        			}
 	        		}else if(!this.getAttributes().containsKey(name)){
-	        			attributes.put(name, null);
+	        			//这个代码应该会产生大量的空值，会占用内存
+	        			//attributes.put(name, null);
 	        		}
 	        	}
 	        }
@@ -2307,6 +2313,19 @@ public class Thing {
 		}
 		
 		extendsCaches = temp;
+	}
+	
+	/**
+	 * 使用新的事物来覆盖当前事物。
+	 * 
+	 * @param thing
+	 */
+	public void replace(Thing thing){
+		this.attributes.clear();		
+		this.childs.clear();
+		
+		this.paste(thing);
+		this.initChildPath();
 	}
 	
 	/**
@@ -2812,4 +2831,9 @@ public class Thing {
 			child.setTransient(isTransient, context);
 		}
 	} 
+	
+	@SuppressWarnings("unchecked")
+	public <T> T getObject(String key){
+		return (T) get(key);
+	}
 }

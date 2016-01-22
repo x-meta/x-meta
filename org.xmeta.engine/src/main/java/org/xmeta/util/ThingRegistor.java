@@ -36,6 +36,17 @@ import org.xmeta.World;
  */
 public class ThingRegistor {
 	private static Map<String, String> things = new HashMap<String, String>();
+	static{
+		//默认注册的事物
+		ThingRegistor.regist("_xworker_thing_attribute_editor_config", "xworker.swt.xworker.attributeEditor.EditorConfig");
+        ThingRegistor.regist("_xworker_thing_attribute_editor_CodeEditor", "xworker.swt.xworker.CodeEditor");
+        ThingRegistor.regist("_xworker_thing_attribute_editor_GridData", "xworker.swt.layout.GridData");
+        ThingRegistor.regist("_xworker_thing_attribute_editor_CodeEditor", "xworker.swt.xworker.CodeEditor");
+        ThingRegistor.regist("_xworker_thing_attribute_editor_HtmlEditor", "xworker.swt.xworker.HtmlEditor");
+        
+        ThingRegistor.regist("_xworker.swt_model", "xworker.swt.model.Model");
+        ThingRegistor.regist("_xworker_globalConfig", "_local.xworker.config.GlobalConfig");
+	}
 	
 	/**
 	 * 注册一个路径。

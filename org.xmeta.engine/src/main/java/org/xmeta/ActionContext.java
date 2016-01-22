@@ -15,14 +15,19 @@
 ******************************************************************************/
 package org.xmeta;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+
+import org.xmeta.util.UtilData;
 
 /**
  * <p>变量上下文是执行动作时的变量空间，起到函数调用时栈的作用，是一个Stack和Map的综合体。</p>
@@ -750,4 +755,58 @@ public class ActionContext implements Map<String, Object>{
 		return "ActionContext [hashCode=" + this.hashCode() + ",callers=" +  this.getThings() + "]";
 	}
 
+	public String getString(String key){
+		return UtilData.getString(get(key), null);
+	}
+	
+	public byte getByte(String key){
+		return UtilData.getByte(get(key), (byte) 0);
+	}
+	
+	public short getShort(String key){
+		return UtilData.getShort(get(key), (short) 0);
+	}
+	
+	public int getInt(String key){
+		return UtilData.getInt(get(key), 0);
+	}
+	
+	public long getLong(String key){
+		return UtilData.getLong(get(key), 0);
+	}
+	
+	public boolean getBoolean(String key){
+		return UtilData.getBoolean(get(key), false);
+	}
+	
+	public byte[] getBytes(String key){
+		return UtilData.getBytes(get(key), null);
+	}
+	
+	public Date getDate(String key){
+		return UtilData.getDate(get(key), null);
+	}
+	
+	public double getDouble(String key){
+		return UtilData.getDouble(get(key), 0);
+	}
+	
+	public float getFloat(String key){
+		return UtilData.getFloat(get(key), 0);
+	}
+	
+	
+	public BigDecimal getBigDecimal(String key){
+		return UtilData.getBigDecimal(get(key), null);
+	}
+	
+	public BigInteger getBigInteger(String key){
+		return UtilData.getBigInteger(get(key), null);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> T getObject(String key){
+		Object obj = get(key);
+		return (T) obj;		
+	}
 }

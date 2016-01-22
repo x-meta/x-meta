@@ -126,7 +126,11 @@ public class FileCategory extends CachedCategory{
 										child = new ThingIndex();
 										thingCoder.decodeIndex(child, fin, file.lastModified());
 										child.name = thingName;
-										child.path = name + "." + thingName;
+										if(name != null){
+											child.path = name + "." + thingName;
+										}else{
+											child.path = thingName;
+										}
 										child.thingManager = thingManager;
 										child.lastModified = file.lastModified();
 									}catch(ThingCoderException e){

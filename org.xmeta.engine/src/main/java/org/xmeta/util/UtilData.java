@@ -781,6 +781,16 @@ public class UtilData {
 	}
 	
 	@SuppressWarnings("unchecked")
+	public static <T> T get(Thing thing, String attributeName, ActionContext actionContext) throws OgnlException{
+		Object obj = UtilData.getData(thing, attributeName, actionContext);
+		if(obj instanceof String){
+			obj = actionContext.get((String) obj);
+		}
+		
+		return (T) obj;
+	}
+	
+	@SuppressWarnings("unchecked")
 	public static <T> T getObjectByType(Thing thing, String attributeName, Class<T> t, ActionContext actionContext) throws OgnlException{
 		Object obj = getObject(thing, attributeName, actionContext);
 		if(t.isInstance(obj)){
@@ -789,7 +799,7 @@ public class UtilData {
 			return null;
 		}
 	}
-	
+		
 	/**
 	 * 通过事物的属性获取数据。
 	 * 

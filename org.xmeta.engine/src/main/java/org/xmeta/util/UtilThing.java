@@ -15,6 +15,7 @@
 ******************************************************************************/
 package org.xmeta.util;
 
+import org.xmeta.ActionException;
 import org.xmeta.Thing;
 import org.xmeta.World;
 
@@ -133,5 +134,27 @@ public class UtilThing {
 		}
 		
 		return thing;
+	}
+	
+	/**
+	 * 改变一个事物的编码格式。
+	 * 
+	 * @param thing
+	 * @param coder
+	 */
+	public static void changeCoder(Thing thing, String coder){
+		if(coder != null && !coder.equals(thing.getMetadata().getCoderType())){
+			if(World.getInstance().getThingCoder(coder) == null){
+				throw new ActionException("Thing coder not exists, type=" + coder);
+			}
+			
+			thing = thing.getRoot();
+			
+			//先删除原有事物，这样可以从文件中删除，然后再保存
+			thing.remove();
+			
+			thing.getMetadata().setCoderType(coder);
+			thing.save();
+		}
 	}
 }

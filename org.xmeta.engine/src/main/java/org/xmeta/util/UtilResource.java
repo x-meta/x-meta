@@ -71,9 +71,7 @@ public class UtilResource {
 				rs = new Resources(name, locale);
 				cache.put(name, rs);
 			}catch(Exception e){
-				if(log.isWarnEnabled()){
-					log.warn("找不到资源:" + name);
-				}
+				log.debug("找不到资源:" + name);
 				//e.printStackTrace();
 			}
 		}
