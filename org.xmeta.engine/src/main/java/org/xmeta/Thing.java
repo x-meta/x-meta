@@ -2633,7 +2633,9 @@ public class Thing {
 			thing.getMetadata().setReserve(thingName);
 			//thing.getMetadata().setReserve(root.getMetadata().getReserve());
 			thing.getMetadata().initPath();
-			thing.getMetadata().setCoderType(TxtThingCoder.TYPE);
+			if(thing.getMetadata().getCoderType() == null || "".equals(thing.getMetadata().getCoderType())){
+				thing.getMetadata().setCoderType(TxtThingCoder.TYPE);
+			}
 			thing.initChildPath();
 			
 			//替换属性路径

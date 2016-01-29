@@ -109,13 +109,13 @@ public abstract class AbstractThingManager implements ThingManager{
 		int index = categoryName.lastIndexOf(".");
 		if(index != -1){
 			String name = categoryName.substring(0, index);
-			Category category = this.getCategory(name);
+			Category category = this.getCategory(name, true);
 			if(category != null){
 				category.refresh();
 			}else{
 				refreshParentCategory(name);
 				
-				category = this.getCategory(name);
+				category = this.getCategory(name, true);
 				if(category != null){
 					category.refresh();
 				}
