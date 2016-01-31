@@ -124,7 +124,7 @@ public class FileCategory extends CachedCategory{
 									FileInputStream fin = new FileInputStream(file);
 									try{
 										child = new ThingIndex();
-										thingCoder.decodeIndex(child, fin, file.lastModified());
+										//thingCoder.decodeIndex(child, fin, file.lastModified());										
 										child.name = thingName;
 										if(name != null){
 											child.path = name + "." + thingName;

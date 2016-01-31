@@ -127,7 +127,7 @@ public class FileThingManager extends AbstractThingManager{
 			try{
 				if(rootThing.getMetadata().getThingManager() == this){
 					ThingCoder thingCoder = World.getInstance().getThingCoder(rootThing.getMetadata().getCoderType());
-					File thingFile = new File(thingRootFile, rootThingPath.replace('.', '/') + "." + thing.getMetadata().getCoderType());
+					File thingFile = new File(thingRootFile, rootThingPath.replace('.', '/') + "." + thingCoder.getType());
 					if(!thingFile.exists()){
 						thingFile.getParentFile().mkdirs();
 					}

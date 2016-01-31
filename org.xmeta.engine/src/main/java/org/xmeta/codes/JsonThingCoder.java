@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsonThingCoder implements ThingCoder{
 	private static  ObjectMapper mapper = new ObjectMapper();
+	private static String codeType = "xer.js";
 
 	@Override
 	public void encode(Thing thing, OutputStream out) {
@@ -168,7 +169,12 @@ public class JsonThingCoder implements ThingCoder{
 
 	@Override
 	public String getType() {
-		return "xer.js";
+		return codeType;
+	}
+
+	@Override
+	public boolean acceptType(String type) {
+		return codeType.equals(type);
 	}
 
 }

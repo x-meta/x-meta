@@ -152,13 +152,14 @@ public class JarThingManager extends AbstractThingManager{
 		ThingIndex thingIndex = new ThingIndex();
 		InputStream in = jFile.getInputStream(jarEntry);
 		try{
-			thingCoder.decodeIndex(thingIndex, in, jarEntry.getTime());
+			//thingCoder.decodeIndex(thingIndex, in, jarEntry.getTime());
 		}finally{
 			in.close();
 		}
 		thingIndex.name = thingName;
 		thingIndex.path = name + "." + thingName;
 		thingIndex.thingManager = this;
+		thingIndex.lastModified = jarEntry.getTime();
 		((CachedCategory) category).addThingIndex(thingIndex);
 	}
 		

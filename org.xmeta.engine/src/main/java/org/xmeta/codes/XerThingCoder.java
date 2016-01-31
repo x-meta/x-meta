@@ -86,4 +86,10 @@ public class XerThingCoder implements ThingCoder{
 		return TYPE;
 	}
 
+
+	@Override
+	public boolean acceptType(String type) {
+		return TYPE.equals(type);
+	}
+
 }

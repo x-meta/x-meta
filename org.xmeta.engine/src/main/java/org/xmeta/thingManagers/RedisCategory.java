@@ -105,7 +105,7 @@ public class RedisCategory extends CachedCategory{
 						thingPath = "thing|" + name + "." + path;
 						String thingCode = jedis.get(thingPath);
 						if(thingCode != null){
-							ThingCoder coder = World.getInstance().getThingCoder("xer.txt");
+							//ThingCoder coder = World.getInstance().getThingCoder("xer.txt");
 							ThingIndex childIndex = new ThingIndex();
 							childIndex.name = path;
 							if(name != null && !"".equals(name)){
@@ -115,7 +115,7 @@ public class RedisCategory extends CachedCategory{
 							}
 							childIndex.thingManager = thingManager;
 							childIndex.lastModified = 0;
-							coder.decodeIndex(childIndex, new ByteArrayInputStream(thingCode.getBytes()), 0);
+							//coder.decodeIndex(childIndex, new ByteArrayInputStream(thingCode.getBytes()), 0);
 							thingIndexs.add(childIndex);
 						}						
 					}

@@ -58,4 +58,12 @@ public interface ThingCoder {
 	 * @return 类型
 	 */
 	public String getType();
+	
+	/**
+	 * 是否是制定类型的编码者。
+	 * 
+	 * @param type 类型
+	 * @return 如果是返回ture，否则返回false
+	 */
+	public boolean acceptType(String type);
 }

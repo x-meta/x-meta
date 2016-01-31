@@ -18,7 +18,6 @@ package org.xmeta;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -35,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmeta.cache.ThingCache;
 import org.xmeta.cache.ThingEntry;
+import org.xmeta.codes.DmlThingCoder;
 import org.xmeta.codes.JsonThingCoder;
 import org.xmeta.codes.TxtThingCoder;
 import org.xmeta.codes.XerThingCoder;
@@ -132,7 +132,8 @@ public class World {
 	 */
 	private World() {		
 		//默认事物编码
-		thingCoders.clear();
+		//thingCoders.clear();
+		thingCoders.add(new DmlThingCoder());
 		thingCoders.add(new TxtThingCoder());
 		thingCoders.add(new XerThingCoder());
 		thingCoders.add(new XmlThingCoder());	
@@ -145,7 +146,7 @@ public class World {
 		try{
 			ThingOgnlAccessor.init();
 		}catch(Exception e){			
-		}
+		}		
 	}
 
 	/**
@@ -1291,7 +1292,7 @@ public class World {
 	 */
 	public ThingCoder getThingCoder(String type){
 		for(ThingCoder thingCoder : thingCoders){
-			if(thingCoder.getType().equals(type)){
+			if(thingCoder.acceptType(type)){
 				return thingCoder;
 			}
 		}
