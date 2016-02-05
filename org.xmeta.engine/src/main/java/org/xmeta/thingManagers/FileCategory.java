@@ -69,6 +69,16 @@ public class FileCategory extends CachedCategory{
 				List<Category> _childs = new ArrayList<Category>();
 				List<ThingIndex> _thingIndexs = new ArrayList<ThingIndex>();
 				
+				try{
+					for(File file : categoryFile.listFiles()){
+						
+					}					
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+				if(categoryFile == null || !categoryFile.exists() || categoryFile.isFile()){
+					System.out.println();
+				}
 				for(File file : categoryFile.listFiles()){
 					String childName = file.getName();
 					String path = childName;

@@ -164,7 +164,7 @@ public class XmlCoder {
 		Map<String, String> attrContext = new HashMap<String, String>();
 		//节点名
 		String thingName = thing.getThingName();
-		writer.writeStartElement(thingName);		
+		writer.writeStartElement(thingName);				
 		
 		//name和id
 		String name = thing.getMetadata().getName(); //总是先写入name属性
@@ -290,6 +290,20 @@ public class XmlCoder {
 				}
 			}
 
+		}
+		
+		//写入schema的引用，如果存在话
+		String xmlns = thing.getStringBlankAsNull("xmlns");
+		String xmlns_xsi = thing.getStringBlankAsNull("xmlns:xsi");
+		String schemaLocation = thing.getStringBlankAsNull("xsi:schemaLocation");
+		if(xmlns != null){
+			writer.writeAttribute("xmlns", xmlns);
+		}
+		if(xmlns_xsi != null){
+			writer.writeAttribute("xmlns:xsi", xmlns_xsi);
+		}
+		if(schemaLocation != null){
+			writer.writeAttribute("xsi:schemaLocation", schemaLocation);
 		}
 		
 		for(Thing attribute : cDataAttributes){

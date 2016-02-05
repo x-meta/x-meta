@@ -125,5 +125,10 @@ public class XmlThingCoder implements ThingCoder{
 	public boolean acceptType(String type) {
 		return TYPE.equals(type);
 	}
+	
+	@Override
+	public String[] getCodeTypes() {
+		return new String[]{TYPE};
+	}
 
 }

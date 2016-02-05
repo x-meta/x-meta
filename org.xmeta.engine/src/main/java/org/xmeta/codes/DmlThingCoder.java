@@ -1,5 +1,6 @@
 package org.xmeta.codes;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -7,7 +8,6 @@ import org.xmeta.Thing;
 import org.xmeta.ThingCoder;
 import org.xmeta.ThingCoderException;
 import org.xmeta.ThingIndex;
-import org.xmeta.World;
 
 /**
  * 
@@ -19,20 +19,17 @@ import org.xmeta.World;
  *
  */
 public class DmlThingCoder implements ThingCoder{
-	private static ThingCoder xmlThingCoder = World.getInstance().getThingCoder("xer.xml");
-	private static ThingCoder txtThingCoder = World.getInstance().getThingCoder("xer.txt");
-	static{
-		if(xmlThingCoder == null){
-			xmlThingCoder = new XmlThingCoder();
-		}
-		
-		if(txtThingCoder == null){
-			txtThingCoder = new XmlThingCoder();
-		}
-	}
+	ThingCoder xmlThingCoder = null;
+	ThingCoder txtThingCoder = null;
+
 	private static String TYPE = "dml";
 	private static String TYPE_TXT = "dml_txt";
 	private static String TYPE_XML = "dml_xml";
+	
+	public DmlThingCoder(ThingCoder xmlThingCoder, ThingCoder txtThingCoder){
+		this.xmlThingCoder = xmlThingCoder;
+		this.txtThingCoder = txtThingCoder;		
+	}
 	
 	@Override
 	public void encode(Thing thing, OutputStream out) {
@@ -45,18 +42,21 @@ public class DmlThingCoder implements ThingCoder{
 
 	@Override
 	public void decode(Thing thing, InputStream in, long lastModifyed)  {
-		in.mark(10);
+		BufferedInputStream bin = new BufferedInputStream(in);
+		bin.mark(10);
 		try{
-			int firstChar = in.read();
-			in.reset();
+			int firstChar = bin.read();
+			bin.reset();
 			
 			if(firstChar == '^'){
-				txtThingCoder.decode(thing, in, lastModifyed);
+				txtThingCoder.decode(thing, bin, lastModifyed);
 				thing.getMetadata().setCoderType(TYPE_TXT);
 			}else{
-				xmlThingCoder.decode(thing, in, lastModifyed);
+				xmlThingCoder.decode(thing, bin, lastModifyed);
 				thing.getMetadata().setCoderType(TYPE_XML);
 			}
+			
+			bin.close();
 		}catch(Exception e){
 			throw new ThingCoderException(e);
 		}
@@ -76,6 +76,11 @@ public class DmlThingCoder implements ThingCoder{
 	@Override
 	public boolean acceptType(String type) {
 		return TYPE.equals(type) || TYPE_TXT.equals(type) || TYPE_XML.equals(type);
+	}
+
+	@Override
+	public String[] getCodeTypes() {
+		return new String[]{TYPE_TXT, TYPE_XML};
 	}
 
 }

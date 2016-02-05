@@ -96,92 +96,74 @@ public class ClassThingManager implements ThingManager{
 
 	@Override
 	public Thing getThing(String thingName) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<ThingIndex> getThingIndexs(String categoryName) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<ThingIndex> getThingIndexs(String categoryName, String descriptorPath) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<Thing> getThings(String categoryName) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<Thing> getThings(String categoryName, String descriptorPath) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Iterator<Thing> iterator(String categoryName, boolean includeChildCategory) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Iterator<Thing> iterator(String categoryName, String descriptorPath, boolean includeChildCategory) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void refresh() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void refresh(String categoryName, boolean includeChildCategory) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public boolean remove() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean remove(Thing thing) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean removeCategory(String categoryName) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean removeThingManagerListener(ThingManagerListener listener) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean save(Thing athing) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void init(Properties properties) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

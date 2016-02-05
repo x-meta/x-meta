@@ -347,7 +347,7 @@ public class ThingMetadata {
 
 	public boolean isRemoved() {
 		if(removed == true){
-			logger.info("thing is removed: " + path);
+			//logger.info("thing is removed: " + path);
 		}
 		return removed;
 	}

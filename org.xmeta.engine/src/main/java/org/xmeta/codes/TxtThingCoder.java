@@ -97,4 +97,10 @@ public class TxtThingCoder implements ThingCoder{
 		return TYPE.equals(type);
 	}
 
+
+	@Override
+	public String[] getCodeTypes() {
+		return new String[]{TYPE};
+	}
+
 }

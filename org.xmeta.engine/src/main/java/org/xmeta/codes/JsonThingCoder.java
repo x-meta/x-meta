@@ -177,4 +177,9 @@ public class JsonThingCoder implements ThingCoder{
 		return codeType.equals(type);
 	}
 
+	@Override
+	public String[] getCodeTypes() {
+		return new String[]{codeType};
+	}
+
 }

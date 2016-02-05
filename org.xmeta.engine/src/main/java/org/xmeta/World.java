@@ -132,11 +132,15 @@ public class World {
 	 */
 	private World() {		
 		//默认事物编码
-		//thingCoders.clear();
-		thingCoders.add(new DmlThingCoder());
-		thingCoders.add(new TxtThingCoder());
+		//thingCoders.clear();		
+		ThingCoder txtThingCoder = new TxtThingCoder();
+		ThingCoder xmlThingCoder = new XmlThingCoder();
+		ThingCoder dmlThingCoder = new DmlThingCoder(xmlThingCoder, txtThingCoder);
+		thingCoders.add(dmlThingCoder);
+		thingCoders.add(txtThingCoder);
+		thingCoders.add(xmlThingCoder);
 		thingCoders.add(new XerThingCoder());
-		thingCoders.add(new XmlThingCoder());	
+		
 		try{
 			thingCoders.add(new JsonThingCoder());
 		}catch(Throwable e){

@@ -60,6 +60,13 @@ public interface ThingCoder {
 	public String getType();
 	
 	/**
+	 * 返回编码器所支持的所有类型。
+	 * 
+	 * @return 编码器所支持的所有类型。
+	 */
+	public String[] getCodeTypes();
+	
+	/**
 	 * 是否是制定类型的编码者。
 	 * 
 	 * @param type 类型

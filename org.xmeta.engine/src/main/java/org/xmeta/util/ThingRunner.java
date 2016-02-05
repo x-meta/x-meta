@@ -24,6 +24,7 @@ import java.util.jar.JarFile;
 
 import org.xmeta.ActionContext;
 import org.xmeta.Thing;
+import org.xmeta.ThingCoder;
 import org.xmeta.World;
 import org.xmeta.thingManagers.FileThingManager;
 
@@ -34,6 +35,7 @@ import org.xmeta.thingManagers.FileThingManager;
  * 
  */
 public class ThingRunner {
+	public static final String working_project = "prj_working_dir";
 	public static void main(String args[]){
 		run(args);
 	}
@@ -42,7 +44,7 @@ public class ThingRunner {
 		try{
 			JarFile jarFile = new JarFile(fileName);
 			try{
-				 JarEntry entry = jarFile.getJarEntry("xer.ini");
+				 JarEntry entry = jarFile.getJarEntry("dml.ini");
 				 if(entry == null){
 					 return false;
 				 }
@@ -77,7 +79,7 @@ public class ThingRunner {
 				actionName = args[2];
 			}
 			
-			//读取xer.ini的参数配置
+			//读取dml.ini的参数配置
 			Properties p = new Properties();
 			File jarFile = null;
 			if("-jar".equals(thingPath)){
@@ -88,17 +90,17 @@ public class ThingRunner {
 				actionName = null;
 			}else{
 				//从文件中读取
-				String xerFileName = "xer.ini";
+				String xerFileName = "dml.ini";
 				File xerFile = new File(xerFileName);
 				if(!xerFile.exists()){
-					xerFile = new File(worldPath + "/xer.ini");
+					xerFile = new File(worldPath + "/dml.ini");
 				}
 				if(xerFile.exists()){
 					FileInputStream fin = new FileInputStream(xerFile);
 					p.load(fin);
 					fin.close();
 				}else{
-					InputStream fin = ThingRunner.class.getResourceAsStream("/xer.ini");
+					InputStream fin = ThingRunner.class.getResourceAsStream("/dml.ini");
 					if(fin != null){
 						p.load(fin);
 						fin.close();
@@ -157,21 +159,31 @@ public class ThingRunner {
 				}				
 			}
 			
-			//如果当前目录是XWorker项目，那么加入
-			File xworkerProperties = new File("xworker.properties");
-			if(xworkerProperties.exists()){
-				//当前目录下的projectName必须存在
-				Properties prop = new Properties();
-				FileInputStream fin = new FileInputStream(xworkerProperties);
-				prop.load(fin);
-				if(prop.get("projectName") != null){
-					world.initThingManager(new File("."));
+			//根据事物路径确定事物的真正路径和项目目录，事物路径现在有可能是文件路径
+			Info info = getInfo(thingPath);
+			if(info == null){
+				//如是在当前目录下运行事物
+				File xworkerProperties = new File(".dmlprj");
+				if(xworkerProperties.exists()){
+					//当前目录下的projectName必须存在
+					Properties prop = new Properties();
+					FileInputStream fin = new FileInputStream(xworkerProperties);
+					prop.load(fin);
+					if(prop.get("projectName") != null){
+						world.initThingManager(new File("."));
+					}
+					fin.close();
+				}else{
+					if(world.getThingManager(working_project) == null){
+						FileThingManager working = new FileThingManager(working_project, new File("."), false);
+						world.addThingManagerFirst(working);
+					}
 				}
-				fin.close();
 			}else{
-				if(world.getThingManager("default") == null){
-					FileThingManager working = new FileThingManager("default", new File("."), false);
-					world.addThingManager(working);
+				thingPath = info.thingPath;
+				if(thingPath != null && info.thingManagerPath != null){
+					FileThingManager working = new FileThingManager(working_project, new File(info.thingManagerPath), false);
+					world.addThingManagerFirst(working);
 				}
 			}
 			
@@ -210,6 +222,86 @@ public class ThingRunner {
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
+		}
+	}
+	
+	/**
+	 * 现在X-Meta引擎支持直接打开系统中的DML文件并运行，此时传入的可能事物路径而是文件名了，
+	 * 这是需要找出事物的真正路径和项目路径。
+	 * 
+	 * @param thingPath 事物路径
+	 * 
+	 * @return 事物管理器和事物的路径信息
+	 */
+	public static Info getInfo(String thingPath){
+		File file = new File(thingPath);
+		if(!file.exists()){
+			return null;
+		}else{
+			File projectDir = getProjectDir(file);
+			String thingP = getThingPath(projectDir, file);
+			String managerPath = projectDir == null ? file.getParentFile().getAbsolutePath() : projectDir.getAbsolutePath();
+			
+			return new Info(thingP, managerPath);
+		}
+	}
+	
+	/**
+	 * 通过项目路径和事物文件返回事物的真正路径。
+	 * 
+	 * @param projectDir 项目目录
+	 * @param thingFile 事物文件
+	 * 
+	 * @return 事物路径
+	 */
+	public static String getThingPath(File projectDir, File thingFile){
+		String path = thingFile.getAbsolutePath();
+		String prjPath = projectDir != null ? projectDir.getAbsolutePath() : null;
+		
+		if(prjPath != null){
+			path = path.substring(prjPath.length(), path.length());
+		}else{
+			path = thingFile.getName();
+		}
+		
+		//过滤文件名后缀
+		for(ThingCoder coder : World.getInstance().getThingCoders()){
+			String type = coder.getType();
+			if(path.endsWith(type)){
+				path = path.substring(0, path.length() - type.length() - 1);
+				return path.replace(File.separatorChar, '.');
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * 获取项目路径。
+	 * 
+	 * @param file 当前文件
+	 * 
+	 * @return 如果返回File，否则返回null
+	 */
+	public static File getProjectDir(File file){
+		if(file == null || !file.exists()){
+			return null;
+		}
+		
+		if(file.getName().equals(".dmlprj") && file.isDirectory()){
+			return file;
+		}else{
+			return getProjectDir(file.getParentFile());
+		}
+	}
+	
+	public static class Info{		
+		String thingPath;
+		String thingManagerPath;
+		
+		public Info(String thingPath, String thingManagerPath){
+			this.thingManagerPath = thingManagerPath;
+			this.thingPath =  thingPath;
 		}
 	}
 }
