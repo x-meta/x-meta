@@ -801,6 +801,47 @@ public class UtilData {
 	}
 		
 	/**
+	 * 根据事物的属性返回指定的事物。
+	 * 
+	 * @param thing 事物
+	 * @param attributeName 属性名
+	 * @param actionContext 变量上下文
+	 * @return 事物，如果不存在返回null
+	 * @throws OgnlException
+	 */
+	public static Thing getThing(Thing thing, String attributeName, ActionContext actionContext) throws OgnlException{
+		Object obj = UtilData.getData(thing, attributeName, actionContext);
+		if(obj instanceof Thing){
+			return (Thing) obj;
+		}else if(obj instanceof String){
+			return World.getInstance().getThing((String) obj);
+		}else if(obj != null){
+			return World.getInstance().getThing(obj.toString());
+		}else{
+			return null;
+		}
+	}
+	
+	/**
+	 * 先从事物指定的属性上获取事物，如果不存在从子节点的路径上获取。
+	 * 
+	 * @param thing 事物
+	 * @param attributeName 属性名
+	 * @param childThingPath 子事物节点
+	 * @param actionContext 变量上下文
+	 * @return 要返回的额事物，如果不存在返回null
+	 * @throws OgnlException
+	 */
+	public static Thing getThing(Thing thing, String attributeName, String childThingPath, ActionContext actionContext) throws OgnlException{
+		Thing th = getThing(thing, attributeName, actionContext);
+		if(th == null && childThingPath != null){
+			return thing.getThing(childThingPath);
+		}else{
+			return th;
+		}
+	}
+	
+	/**
 	 * 通过事物的属性获取数据。
 	 * 
 	 * @param thing 事物
