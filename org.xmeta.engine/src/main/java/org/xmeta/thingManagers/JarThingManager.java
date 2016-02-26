@@ -62,7 +62,7 @@ public class JarThingManager extends AbstractThingManager{
 	@Override
 	public Thing doLoadThing(String thingName) {
 		try{
-			String jarEntryName = "/" + thingName.replace('.', '/');
+			String jarEntryName = thingName.replace('.', '/');
 			for(ThingCoder thingCoder : World.getInstance().getThingCoders()){
 				JarEntry jarEntry = jarFile.getJarEntry(jarEntryName + "." + thingCoder.getType());
 				if(jarEntry != null){
@@ -133,7 +133,7 @@ public class JarThingManager extends AbstractThingManager{
 	            	
 	            	index = fileName.indexOf(".");
 	            	if(index != -1){
-	            		String fileExt = fileName.substring(index + 1, jarEntryName.length());
+	            		String fileExt = fileName.substring(index + 1, fileName.length());
 	            		ThingCoder thingCoder = world.getThingCoder(fileExt);
 	            		if(thingCoder != null){
 	            			String thingName = fileName.substring(0, index);
@@ -149,6 +149,14 @@ public class JarThingManager extends AbstractThingManager{
 	
 	private void initThingIndex(JarFile jFile, JarEntry jarEntry, ThingCoder thingCoder, String packageName, String thingName, String fileExt) throws IOException{
 		Category category = initCategory(packageName);
+		CachedCategory cat = ((CachedCategory) category);
+		for(ThingIndex index : cat.getThingIndexs()){
+			//过滤目录下的重复事物，为什么会重复，目前还未知
+			if(index.getThingName().equals(thingName)){
+				return;
+			}
+		}
+		
 		ThingIndex thingIndex = new ThingIndex();
 		InputStream in = jFile.getInputStream(jarEntry);
 		try{
@@ -157,7 +165,7 @@ public class JarThingManager extends AbstractThingManager{
 			in.close();
 		}
 		thingIndex.name = thingName;
-		thingIndex.path = name + "." + thingName;
+		thingIndex.path = packageName + "." + thingName;
 		thingIndex.thingManager = this;
 		thingIndex.lastModified = jarEntry.getTime();
 		((CachedCategory) category).addThingIndex(thingIndex);
@@ -169,12 +177,19 @@ public class JarThingManager extends AbstractThingManager{
 			category = rootCategory;			
 		}else{
 			Category parentPackage = rootCategory;
-			for(String pkName : packageName.split("[,]")){
+			for(String pkName : packageName.split("[.]")){
 				category = parentPackage.getCategory(pkName);
 				if(category == null){
-					category = new JarCategory(this, parentPackage, pkName);
+					String name = parentPackage.getName();
+					if(name != null && !"".equals(name)){
+						name = name + "." + pkName;
+					}else{
+						name = pkName;
+					}
+					category = new JarCategory(this, parentPackage, name);
 					((JarCategory) parentPackage).addCategory(category);
 				}
+				parentPackage = category;				
 			}
 		}
 		
@@ -231,5 +246,10 @@ public class JarThingManager extends AbstractThingManager{
 
 	@Override
 	public void init(Properties properties) {
+	}
+
+	@Override
+	public boolean isSaveable() {
+		return false;
 	}
 }

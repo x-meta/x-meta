@@ -16,10 +16,13 @@
 package org.xmeta.util;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.xmeta.ActionContext;
 
 /**
  * Java相关的一些工具类。
@@ -169,4 +172,31 @@ public class UtilJava {
         	return methods.get(index);
         }
 	}	
+	
+	/**
+	 * 调用参数是ActionContext的静态方法。
+	 * 
+	 * @param className 类名
+	 * @param methodName 方法名
+	 * @param actionContext 变量上下文
+	 * 
+	 * @return 方法的执行结果
+	 * @throws InvocationTargetException 
+	 * @throws IllegalArgumentException 
+	 * @throws IllegalAccessException 
+	 * @throws SecurityException 
+	 * @throws NoSuchMethodException 
+	 * @throws ClassNotFoundException 
+	 */
+	public static Object invokeMethod(String className, String methodName, ActionContext actionContext) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException{
+		Class<?> cls = Class.forName(className);
+		if(cls != null){
+			Method method = cls.getDeclaredMethod(methodName, ActionContext.class);
+			if(method != null){
+				return method.invoke(null, actionContext);
+			}
+		}
+		
+		return null;
+	}
 }

@@ -380,4 +380,9 @@ public class TransientThingManager implements ThingManager{
 	@Override
 	public void init(Properties properties) {
 	}
+
+	@Override
+	public boolean isSaveable() {
+		return true;
+	}
 }

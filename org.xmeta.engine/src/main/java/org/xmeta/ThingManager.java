@@ -196,6 +196,13 @@ public interface ThingManager {
 	 */
 	public boolean save(Thing athing);
 	
+	/**
+	 * 事物是否是可以保存的，如果不能保存，那么即使事物在内存中改变了，也不能同步到存储上。
+	 * 
+	 * @return
+	 */
+	public boolean isSaveable();
+	
 	/** 
 	 * 返回事物管理器的类装载器。
 	 * 

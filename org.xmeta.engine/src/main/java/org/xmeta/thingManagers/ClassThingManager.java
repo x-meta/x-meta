@@ -66,7 +66,6 @@ public class ClassThingManager implements ThingManager{
 
 	@Override
 	public List<Category> getCategorys() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -164,6 +163,11 @@ public class ClassThingManager implements ThingManager{
 
 	@Override
 	public void init(Properties properties) {
+	}
+
+	@Override
+	public boolean isSaveable() {
+		return false;
 	}
 
 }

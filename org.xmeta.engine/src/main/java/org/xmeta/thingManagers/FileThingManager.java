@@ -263,4 +263,9 @@ public class FileThingManager extends AbstractThingManager{
 	public String toString(){
 		return "FileThingManger[name:" + getName() + ", rootFile: " + rootFile.getAbsolutePath() + "]";
 	}
+
+	@Override
+	public boolean isSaveable() {
+		return true;
+	}
 }

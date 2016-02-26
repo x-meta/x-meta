@@ -204,4 +204,9 @@ public class RedisThingManager extends AbstractThingManager{
 		return true;
 	}
 
+	@Override
+	public boolean isSaveable() {
+		return true;
+	}
+
 }

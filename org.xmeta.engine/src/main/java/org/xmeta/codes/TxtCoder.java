@@ -422,6 +422,10 @@ public class TxtCoder {
 			
 			while((line = br.readLine()) != null){
 				//属性或子节点
+				if(line.length() == 0){
+					continue;
+				}
+				
 				char type = line.charAt(0);
 				String name = line.substring(1, line.length());
 				if(type == TxtCoder.TYPE_NODE){

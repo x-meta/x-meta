@@ -174,14 +174,16 @@ public class ThingRunner {
 					}
 					fin.close();
 				}else{
-					if(world.getThingManager(working_project) == null){
+					File worldDir = new File(world.getPath());
+					if(world.getThingManager(working_project) == null && !worldDir.equals(new File("."))){
 						FileThingManager working = new FileThingManager(working_project, new File("."), false);
 						world.addThingManagerFirst(working);
 					}
 				}
 			}else{
 				thingPath = info.thingPath;
-				if(thingPath != null && info.thingManagerPath != null){
+				File worldDir = new File(world.getPath());
+				if(thingPath != null && info.thingManagerPath != null && !worldDir.equals(new File(info.thingManagerPath))){
 					FileThingManager working = new FileThingManager(working_project, new File(info.thingManagerPath), false);
 					world.addThingManagerFirst(working);
 				}

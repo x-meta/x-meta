@@ -379,4 +379,9 @@ public class JdbcThingManager extends AbstractThingManager{
 			}
 		}
 	}
+
+	@Override
+	public boolean isSaveable() {
+		return true;
+	}
 }
