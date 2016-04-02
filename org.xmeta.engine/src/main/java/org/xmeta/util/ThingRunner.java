@@ -174,18 +174,13 @@ public class ThingRunner {
 					}
 					fin.close();
 				}else{
-					File worldDir = new File(world.getPath());
-					if(world.getThingManager(working_project) == null && !worldDir.equals(new File("."))){
-						FileThingManager working = new FileThingManager(working_project, new File("."), false);
-						world.addThingManagerFirst(working);
-					}
+					addLocalThingManager(world, new File("."));					
 				}
 			}else{
 				thingPath = info.thingPath;
-				File worldDir = new File(world.getPath());
-				if(thingPath != null && info.thingManagerPath != null && !worldDir.equals(new File(info.thingManagerPath))){
-					FileThingManager working = new FileThingManager(working_project, new File(info.thingManagerPath), false);
-					world.addThingManagerFirst(working);
+				
+				if(thingPath != null && info.thingManagerPath != null){
+					addLocalThingManager(world, new File(info.thingManagerPath));
 				}
 			}
 			
@@ -227,6 +222,25 @@ public class ThingRunner {
 		}
 	}
 	
+	private static void addLocalThingManager(World world, File dir){
+		if(!dir.isDirectory()){
+			return;
+		}
+		
+		File worldDir = new File(world.getPath());
+		String path = dir.getAbsolutePath();
+		String worldPath = worldDir.getAbsolutePath();
+		if(path.equals(worldPath)){
+			//不能把world目录添加成事物管理器
+			return;
+		}
+
+		if(world.getThingManager(working_project) == null){
+			FileThingManager working = new FileThingManager(working_project, dir, false);
+			world.addThingManagerFirst(working);
+		}
+	}
+		
 	/**
 	 * 现在X-Meta引擎支持直接打开系统中的DML文件并运行，此时传入的可能事物路径而是文件名了，
 	 * 这是需要找出事物的真正路径和项目路径。
