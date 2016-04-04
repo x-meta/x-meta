@@ -17,6 +17,7 @@ package org.xmeta.util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.jar.JarEntry;
@@ -35,7 +36,7 @@ import org.xmeta.thingManagers.FileThingManager;
  * 
  */
 public class ThingRunner {
-	public static final String working_project = "prj_working_dir";
+	public static final String working_project = "working_directory";
 	public static void main(String args[]){
 		run(args);
 	}
@@ -222,14 +223,15 @@ public class ThingRunner {
 		}
 	}
 	
-	private static void addLocalThingManager(World world, File dir){
+	private static void addLocalThingManager(World world, File dir) throws IOException{
 		if(!dir.isDirectory()){
 			return;
 		}
 		
 		File worldDir = new File(world.getPath());
-		String path = dir.getAbsolutePath();
-		String worldPath = worldDir.getAbsolutePath();
+		String path = dir.getCanonicalPath();
+		String worldPath = worldDir.getCanonicalPath();
+
 		if(path.equals(worldPath)){
 			//不能把world目录添加成事物管理器
 			return;
