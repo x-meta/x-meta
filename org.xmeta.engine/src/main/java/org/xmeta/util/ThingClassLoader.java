@@ -196,7 +196,7 @@ public class ThingClassLoader extends URLClassLoader {
 	
 	public String getClassPath() {
 		Map<String, String> context = new HashMap<String, String>();
-		return getClassPathFormClassLoader(this, "", context);
+		return getClassPathFormClassLoader(this, null, context);
 	}
 	
 	/**
@@ -264,7 +264,11 @@ public class ThingClassLoader extends URLClassLoader {
 			String filePath = url.getFile();
 			if(filePath != null && context.get(filePath) == null){
 				context.put(filePath, filePath);
-				classPath = classPath + File.pathSeparator + filePath;
+				if(classPath == null){
+					classPath = filePath;
+				}else{
+					classPath = classPath + File.pathSeparator + filePath;
+				}
 			}
 		}
 		

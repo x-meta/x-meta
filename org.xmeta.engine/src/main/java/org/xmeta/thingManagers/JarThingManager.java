@@ -238,7 +238,8 @@ public class JarThingManager extends AbstractThingManager{
 				return new URL("jar:file:/" + jarFilePath + "!" + name);
 			}
 		}catch(Exception e){
-			throw new XMetaException("get resource from jar error", e);
+			//throw new XMetaException("get resource from jar error", e);
+			return null;
 		}
 		
 		return null;
