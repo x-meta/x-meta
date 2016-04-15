@@ -48,7 +48,7 @@ public class Bindings extends HashMap<String, Object>{
 	 * 
 	 * 为了实现类似其他语言如java的变量范围的设置。
 	 */
-	public boolean isVarScopeFlag = false;
+	private boolean isVarScopeFlag = false;
 	
 	/**
 	 * 构造一个空的StackMap。
@@ -58,6 +58,14 @@ public class Bindings extends HashMap<String, Object>{
 		super();	
 	}
 
+	public boolean isVarScopeFlag(){
+		return isVarScopeFlag;
+	}
+	
+	public void setVarScopeFlag(){
+		isVarScopeFlag = true;
+	}
+	
 	public Object getCaller() {
 		return caller;
 	}

@@ -628,8 +628,9 @@ public class Action extends Semaphore{
 		
 		//外面的调用已经压入
 		context.push(bindings);		
-		if(!isSubAction || isCreateLocalVarScope){
-			bindings.isVarScopeFlag = true;//可以判定是函数调用的入口，因此设置一个局部变量范围标志
+		//if(!isSubAction || isCreateLocalVarScope){ 2016-04-15现在方法的调用没有自动的局部变量范围了
+		if(isCreateLocalVarScope){
+			bindings.setVarScopeFlag();//.isVarScopeFlag = true;//可以判定是函数调用的入口，因此设置一个局部变量范围标志
 		}
 		context.pushAction(this);
 				

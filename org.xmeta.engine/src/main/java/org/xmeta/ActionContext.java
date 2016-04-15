@@ -283,7 +283,7 @@ public class ActionContext implements Map<String, Object>{
 	}
 
 	/**
-	 * 获取当前的局部变量范围。
+	 * 获取当前的局部变量范围，如果没有这是局部变量范围将返回null。
 	 * 
 	 * @return 变量范围
 	 */
@@ -291,13 +291,14 @@ public class ActionContext implements Map<String, Object>{
 		Stack<Bindings> bindingsStack = getBindingStack();
 		for (int i = bindingsStack.size() - 1; i >= 0; i--) {
 			Bindings bindings = bindingsStack.get(i);
-			if(bindings.isVarScopeFlag){
+			if(bindings.isVarScopeFlag()){
 				return bindings;
 			}
 		}
 		
-		//如果没有返回最全局的
-		return bindingsStack.get(dummyScopeCount);
+		//如果没有返回null
+		return null;
+		//return bindingsStack.get(dummyScopeCount);
 	}
 	
 	/**
