@@ -65,22 +65,19 @@ public class FileCategory extends CachedCategory{
 			}
 			String filePath = ((FileThingManager) thingManager).getFilePath() + "/" + categoryName.replace('.', '/');
 			File categoryFile = new File(filePath);
-			if(categoryFile.isDirectory()){
+			if(categoryFile.isDirectory()){				
 				List<Category> _childs = new ArrayList<Category>();
 				List<ThingIndex> _thingIndexs = new ArrayList<ThingIndex>();
 				
-				try{
-					for(File file : categoryFile.listFiles()){
-						
-					}					
-				}catch(Exception e){
-					e.printStackTrace();
-				}
 				if(categoryFile == null || !categoryFile.exists() || categoryFile.isFile()){
-					System.out.println();
+					//System.out.println();
 				}
 				for(File file : categoryFile.listFiles()){
 					String childName = file.getName();
+					if(".svn".equals(childName)){
+						//自动过滤svn的目录，2016-04-19添加，svn目录太烦了
+						continue;
+					}
 					String path = childName;
 					if(name != null && !"".equals(name)){
 						path = name + "." + childName;

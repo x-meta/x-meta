@@ -360,6 +360,15 @@ public class ThingMetadata {
 		}
 	}
 
+	public String getCoderFileType(){
+		ThingCoder coder = World.getInstance().getThingCoder(coderType);
+		if(coder == null){
+			throw new ActionException("ThingCoder not exists, type=" + coderType);
+		}else{
+			return coder.getType();
+		}
+	}
+	
 	public String getCoderType() {
 		return coderType;
 	}

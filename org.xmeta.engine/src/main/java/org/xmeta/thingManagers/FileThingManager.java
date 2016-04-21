@@ -104,7 +104,7 @@ public class FileThingManager extends AbstractThingManager{
 	public boolean doRemoveThing(Thing thing) {
 		Thing rootThing = thing.getRoot();
 		if(rootThing.getMetadata().getThingManager() == this){
-			File thingFile = new File(thingRootFile, rootThing.getMetadata().getPath().replace('.', '/') + "." + thing.getMetadata().getCoderType());
+			File thingFile = new File(thingRootFile, rootThing.getMetadata().getPath().replace('.', '/') + "." + thing.getMetadata().getCoderFileType());
 			if(thingFile.exists()){
 				thingFile.delete();
 				return true;
