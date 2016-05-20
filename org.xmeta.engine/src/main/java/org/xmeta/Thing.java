@@ -88,6 +88,9 @@ public class Thing {
 	/** 描述属性的名字 */
 	public static final String DESCRIPTION = "description";
 	
+	/** 原始事物的路径，尤其是在做detach时 */
+	public static final String ORIGIN_THING_PATH = "__ORIGIN_THING_PATH__";
+	
 	/** 事物的属性集合。 */
 	protected Map<String, Object> attributes = new HashMap<String, Object>(32);
 	
@@ -616,6 +619,10 @@ public class Thing {
 			
 			for(Thing childThing : getChilds()){
 				addDetachedChild(newThing, childThing, context);
+			}
+			
+			if(this.get(ORIGIN_THING_PATH) == null){
+				newThing.set(ORIGIN_THING_PATH, this.getMetadata().getPath());
 			}
 		}finally{
 			endModify(true);

@@ -31,7 +31,41 @@ public class ThingUtil {
 	private static Logger logger = LoggerFactory.getLogger(ThingUtil.class); 
 	static World world = World.getInstance();
 
-
+	/**
+	 * 把目标事物粘贴为子事物。
+	 * 
+	 * @param thing
+	 * @param forPasteThing
+	 */
+	public static void pasteAsChild(Thing thing, Thing forPasteThing){
+		String oldPath = forPasteThing.getStringBlankAsNull(Thing.ORIGIN_THING_PATH);
+		
+		thing.addChild(forPasteThing);
+		
+		if(oldPath != null){
+			//替换子事物的路径
+			String newPath = forPasteThing.getMetadata().getPath();
+			ThingUtil.replaceThing(forPasteThing, oldPath, newPath);
+		}
+	}
+	
+	/**
+	 * 把目标事物粘贴到指定事物上。
+	 * 
+	 * @param thing
+	 * @param forPasteThing
+	 */
+	public static void paste(Thing thing, Thing forPasteThing){
+		String oldPath = forPasteThing.getStringBlankAsNull(Thing.ORIGIN_THING_PATH);
+		
+		thing.cognize(forPasteThing);
+		
+		if(oldPath != null){
+			//替换子事物的路径
+			String newPath = thing.getMetadata().getPath();
+			ThingUtil.replaceThing(thing, oldPath, newPath);
+		}
+	}
 
 	public static void replaceCategory(Category category, String replaceFor, String replaceWidth){
 		for (Iterator<Thing> iter = category.iterator(true); iter.hasNext();) {

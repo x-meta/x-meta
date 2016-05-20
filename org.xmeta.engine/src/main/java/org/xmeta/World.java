@@ -787,7 +787,23 @@ public class World {
 	public void init(String worldPath) {
 		// 设置事物的路径
 		if(worldPath == null){
-			worldPath = ".";
+			//尝试从系统变量中获取
+			String home = System.getProperty("xmeta_home");
+			if(home == null){
+				home = System.getProperty("XMETA_HOME");
+			}
+			if(home == null){
+				home = System.getenv("xmeta_home");
+			}
+			if(home == null){
+				home = System.getenv("XMETA_HOME");
+			}
+			if(home == null){
+				worldPath = ".";
+			}else{
+				worldPath = home;
+			}
+			
 		}
 		ThingCache.clear();
 		

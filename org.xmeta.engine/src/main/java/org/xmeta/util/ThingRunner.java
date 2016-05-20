@@ -167,13 +167,17 @@ public class ThingRunner {
 				File xworkerProperties = new File(".dmlprj");
 				if(xworkerProperties.exists()){
 					//当前目录下的projectName必须存在
+					String projectName = working_project;
 					Properties prop = new Properties();
 					FileInputStream fin = new FileInputStream(xworkerProperties);
 					prop.load(fin);
+					
 					if(prop.get("projectName") != null){
-						world.initThingManager(new File("."));
+						projectName  = (String) prop.get("projectName");
 					}
 					fin.close();
+					FileThingManager thingManager = new FileThingManager(projectName, new File("."), false);
+					world.addThingManager(thingManager);
 				}else{
 					addLocalThingManager(world, new File("."));					
 				}
@@ -238,7 +242,8 @@ public class ThingRunner {
 		}
 
 		if(world.getThingManager(working_project) == null){
-			FileThingManager working = new FileThingManager(working_project, dir, false);
+			boolean things = new File(dir, "xworker.properties").exists();
+			FileThingManager working = new FileThingManager(working_project, dir, things);
 			world.addThingManagerFirst(working);
 		}
 	}
@@ -274,7 +279,16 @@ public class ThingRunner {
 	 */
 	public static String getThingPath(File projectDir, File thingFile){
 		String path = thingFile.getAbsolutePath();
-		String prjPath = projectDir != null ? projectDir.getAbsolutePath() : null;
+		String prjPath =  null;
+		if(projectDir != null){
+			if(new File(projectDir, "xworker.properties").exists()){
+				prjPath = new File(projectDir, "things").getAbsolutePath();
+			}else{
+				prjPath = projectDir.getAbsolutePath();
+			}
+		}else{
+			prjPath = null;
+		}
 		
 		if(prjPath != null){
 			path = path.substring(prjPath.length(), path.length());
@@ -305,8 +319,9 @@ public class ThingRunner {
 		if(file == null || !file.exists()){
 			return null;
 		}
-		
-		if(file.getName().equals(".dmlprj") && file.isDirectory()){
+				
+		//.dmlprj和xworker.properties都是xworker项目的标志
+		if(file.isDirectory() && (new File(file, ".dmlprj").exists() || new File(file, "xworker.properties").exists())){
 			return file;
 		}else{
 			return getProjectDir(file.getParentFile());
