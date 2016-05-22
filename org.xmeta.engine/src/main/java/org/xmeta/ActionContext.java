@@ -132,6 +132,7 @@ public class ActionContext implements Map<String, Object>{
 
 		Bindings bindings = this.push(null);
 		bindings.put("actionContext", this);
+		bindings.put("_g", bindings);
 	}
 
 	/**
@@ -144,6 +145,7 @@ public class ActionContext implements Map<String, Object>{
 		
 		Bindings bds = this.push(bindings);
 		bds.put("actionContext", this);
+		bds.put("_g", bds);
 	}
 	
 	private Stack<Action> getActionStack(){
