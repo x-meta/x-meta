@@ -16,4 +16,10 @@ Apache License2
 
 主页
 ======
-http://www.x-meta.org。
+http://www.x-meta.org
+
+模型库和编辑器
+======
+XWorker是动态模型的模型库和编辑器，参看：http://www.xworker.org
+
+XWorker的项目也在github上。
