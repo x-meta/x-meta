@@ -18,6 +18,8 @@ Apache License2
 ======
 http://www.x-meta.org
 
+![输入图片说明](http://www.x-meta.org/images/2016/0522/224834swtexample.gif "在这里输入图片标题")
+
 模型库和编辑器
 ======
 XWorker是动态模型的模型库和编辑器，参看：http://www.xworker.org
