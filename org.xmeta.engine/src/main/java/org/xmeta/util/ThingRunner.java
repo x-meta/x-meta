@@ -23,6 +23,8 @@ import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xmeta.ActionContext;
 import org.xmeta.Thing;
 import org.xmeta.ThingCoder;
@@ -36,6 +38,8 @@ import org.xmeta.thingManagers.FileThingManager;
  * 
  */
 public class ThingRunner {
+	private static final Logger logger = LoggerFactory.getLogger(ThingRunner.class);
+	
 	public static final String working_project = "working_directory";
 	public static void main(String args[]){
 		run(args);
@@ -89,7 +93,9 @@ public class ThingRunner {
 			if("-jar".equals(thingPath) && jarFile.exists() && loadXerFromJar(p, jarFile)){		
 				thingPath = null;
 				actionName = null;
-			}else{
+			}
+			
+			if(worldPath == null || thingPath == null){				
 				//从文件中读取
 				String xerFileName = "dml.ini";
 				File xerFile = new File(xerFileName);
@@ -100,15 +106,8 @@ public class ThingRunner {
 					FileInputStream fin = new FileInputStream(xerFile);
 					p.load(fin);
 					fin.close();
-				}else{
-					InputStream fin = ThingRunner.class.getResourceAsStream("/dml.ini");
-					if(fin != null){
-						p.load(fin);
-						fin.close();
-					}				
 				}
-			}
-			if(worldPath == null || thingPath == null){								
+				
 				if(worldPath == null && thingPath == null && actionName == null){
 					actionName = p.getProperty("actionName");
 				}
@@ -125,28 +124,8 @@ public class ThingRunner {
 			}
 
 			System.out.println("world path : " + worldPath);
-			
-			if("new".equals(thingPath)){				
-				if(actionName == null || "".equals(actionName) || args.length < 3){
-					System.out.println("Please input project name, command: xer new <projectName>");
-					return;
-				}else{
-					System.out.println("create new project: " + actionName);
-					
-					World world = World.getInstance();
-					world.init(worldPath);
-					
-					Thing thing = world.getThing("xworker.tools.CreateProjectMini");
-					
-					ActionContext actionContext = new ActionContext();
-					actionContext.put("args", args);
-					thing.doAction("run", actionContext);
-					return;
-				}
-			}else{
-				System.out.println("thing path : " + thingPath);
-				System.out.println("action name : " + actionName);
-			}
+			System.out.println("thing path : " + thingPath);
+			System.out.println("action name : " + actionName);
 			
 			World world = World.getInstance();
 			world.init(worldPath);
@@ -160,74 +139,38 @@ public class ThingRunner {
 				}				
 			}
 			
-			//根据事物路径确定事物的真正路径和项目目录，事物路径现在有可能是文件路径
-			Info info = getInfo(thingPath);
-			if(info == null){
-				//如是在当前目录下运行事物
-				File xworkerProperties = new File(".dmlprj");
-				if(xworkerProperties.exists()){
-					//当前目录下的projectName必须存在
-					String projectName = working_project;
-					Properties prop = new Properties();
-					FileInputStream fin = new FileInputStream(xworkerProperties);
-					prop.load(fin);
-					
-					if(prop.get("projectName") != null){
-						projectName  = (String) prop.get("projectName");
-					}
-					fin.close();
-					FileThingManager thingManager = new FileThingManager(projectName, new File("."), false);
-					world.addThingManager(thingManager);
+			File thingFile = new File(thingPath);
+			if(thingFile.exists()){
+				//打开的事物是一个文件
+				Info info = getThingManagerAndThingInfo(thingFile, thingPath);
+				if(info != null){
+					thingPath = info.thingPath;
 				}else{
-					addLocalThingManager(world, new File("."));					
+					thingPath = getThingPath(null, thingFile, false);
+					addWorkingDirAsThingManager(world, new File("."));
 				}
 			}else{
-				thingPath = info.thingPath;
-				
-				if(thingPath != null && info.thingManagerPath != null){
-					addLocalThingManager(world, new File(info.thingManagerPath));
-				}
-			}
+				//打开的是事物的路径
+				addWorkingDirAsThingManager(world, new File("."));
+			}			
 			
-			if("-war".equals(thingPath)){
-				if(actionName == null || "".equals(actionName) || args.length < 3){
-					System.out.println("Please input a war file, command: xer -war <warFile> <port>");
-					return;
-				}else{
-					Thing startJetty = world.getThing("xworker.tools.StartJetty");
-					if(startJetty == null){
-						System.out.println("Thing xworker.tools.StartJetty not exists");
-						return;
-					}
-					
-					ActionContext actionContext = new ActionContext();
-					actionContext.put("warFile", actionName);
-					
-					int port = 9003;
-					if(args.length == 4){
-						port = Integer.parseInt(args[3]);
-					}
-					actionContext.put("port", port);
-					startJetty.doAction("run", actionContext);
-				}
-			}else{
-				Thing thing = world.getThing(thingPath);
-				if (thing == null) {
-					System.out.println("thing not exists : " + thingPath);
-					System.exit(0);
-				} else {
-					ActionContext actionContext = new ActionContext();
-					actionContext.put("args", args);
-					thing.doAction(actionName, actionContext);
-				}
-			}
+			//执行事物
+			Thing thing = world.getThing(thingPath);
+			if (thing == null) {
+				System.out.println("thing not exists : " + thingPath);
+				System.exit(0);
+			} else {
+				ActionContext actionContext = new ActionContext();
+				actionContext.put("args", args);
+				thing.doAction(actionName, actionContext);
+			}			
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
 	}
 	
-	private static void addLocalThingManager(World world, File dir) throws IOException{
+	private static void addWorkingDirAsThingManager(World world, File dir) throws IOException{
 		if(!dir.isDirectory()){
 			return;
 		}
@@ -256,16 +199,26 @@ public class ThingRunner {
 	 * 
 	 * @return 事物管理器和事物的路径信息
 	 */
-	public static Info getInfo(String thingPath){
-		File file = new File(thingPath);
-		if(!file.exists()){
+	public static Info getThingManagerAndThingInfo(File file, String thingPath){
+		if(file == null || !file.exists()){
 			return null;
-		}else{
-			File projectDir = getProjectDir(file);
-			String thingP = getThingPath(projectDir, file);
-			String managerPath = projectDir == null ? file.getParentFile().getAbsolutePath() : projectDir.getAbsolutePath();
+		}
+				
+		//.dmlprj和xworker.properties都是xworker项目的标志
+		if(file.isDirectory()){
+			File prj = new File(file, ".dmlprj");
+			if(prj.exists()){
+				return new Info(thingPath, file, true, prj);
+			}
 			
-			return new Info(thingP, managerPath);
+			prj = new File(file, "xworker.properties");
+			if(prj.exists()){
+				return new Info(thingPath, file, false, prj);
+			}
+		
+			return getThingManagerAndThingInfo(file.getParentFile(), thingPath);
+		}else{
+			return getThingManagerAndThingInfo(file.getParentFile(), thingPath);
 		}
 	}
 	
@@ -274,14 +227,15 @@ public class ThingRunner {
 	 * 
 	 * @param projectDir 项目目录
 	 * @param thingFile 事物文件
+	 * @param isDmlPrj 是否是dmlprj项目
 	 * 
 	 * @return 事物路径
 	 */
-	public static String getThingPath(File projectDir, File thingFile){
+	public static String getThingPath(File projectDir, File thingFile, boolean isDmlPrj){
 		String path = thingFile.getAbsolutePath();
 		String prjPath =  null;
 		if(projectDir != null){
-			if(new File(projectDir, "xworker.properties").exists()){
+			if(!isDmlPrj){
 				prjPath = new File(projectDir, "things").getAbsolutePath();
 			}else{
 				prjPath = projectDir.getAbsolutePath();
@@ -291,7 +245,7 @@ public class ThingRunner {
 		}
 		
 		if(prjPath != null){
-			path = path.substring(prjPath.length(), path.length());
+			path = path.substring(prjPath.length() + 1, path.length());
 		}else{
 			path = thingFile.getName();
 		}
@@ -308,33 +262,34 @@ public class ThingRunner {
 		return null;
 	}
 	
-	/**
-	 * 获取项目路径。
-	 * 
-	 * @param file 当前文件
-	 * 
-	 * @return 如果返回File，否则返回null
-	 */
-	public static File getProjectDir(File file){
-		if(file == null || !file.exists()){
-			return null;
-		}
-				
-		//.dmlprj和xworker.properties都是xworker项目的标志
-		if(file.isDirectory() && (new File(file, ".dmlprj").exists() || new File(file, "xworker.properties").exists())){
-			return file;
-		}else{
-			return getProjectDir(file.getParentFile());
-		}
-	}
-	
 	public static class Info{		
 		String thingPath;
-		String thingManagerPath;
+		File projectDir;
+		String thingManagerName;
 		
-		public Info(String thingPath, String thingManagerPath){
-			this.thingManagerPath = thingManagerPath;
+		public Info(String thingPath, File projectDir, boolean isDmlprj, File prj){
 			this.thingPath =  thingPath;
+			this.projectDir = projectDir;
+			
+			//事物的真实路径
+			this.thingPath = getThingPath(projectDir, new File(thingPath), isDmlprj);
+			
+			//把项目加入到xworker中
+			World world = World.getInstance();
+			if(isDmlprj){
+				Properties p = new Properties();
+				try{
+					FileInputStream fin = new FileInputStream(prj);
+					p.load(fin);
+					fin.close();
+				}catch(Exception e){
+					logger.error("Init .dmlprj file error", e);				
+				}
+				String name = p.getProperty("projectName");
+				world.addThingManager(new FileThingManager(name, projectDir, false));
+			}else{
+				world.initThingManager(projectDir);
+			}			
 		}
 	}
 }

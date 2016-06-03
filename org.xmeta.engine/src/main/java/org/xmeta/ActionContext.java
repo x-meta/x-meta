@@ -812,4 +812,9 @@ public class ActionContext implements Map<String, Object>{
 		Object obj = get(key);
 		return (T) obj;		
 	}
+
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
 }

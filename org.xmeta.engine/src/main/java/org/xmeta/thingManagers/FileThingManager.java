@@ -45,11 +45,11 @@ public class FileThingManager extends AbstractThingManager{
 		this(name, rootFile, true);
 	}
 	
-	public FileThingManager(String name, File rootFile, boolean things){
+	public FileThingManager(String name, File rootFile, boolean hasThingsDir){
 		super(name);
 		
 		this.rootFile = rootFile;
-		if(things){
+		if(hasThingsDir){
 			this.thingRootFile = new File(rootFile, "things");
 		}else{
 			this.thingRootFile = rootFile;

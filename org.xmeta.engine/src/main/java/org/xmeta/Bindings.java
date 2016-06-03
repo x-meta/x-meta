@@ -16,7 +16,9 @@
 package org.xmeta;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * 动作上下文中栈点保存的就是Bindings，Bindings是一个Map，用于保存变量和一些函数调用相关的数据。
@@ -84,5 +86,23 @@ public class Bindings extends HashMap<String, Object>{
 	
 	public String getCallerMethod(){
 		return callerMethod;
+	}
+
+	@Override
+	public int hashCode() {
+		int h = 0;
+        Iterator<Entry<String,Object>> i = entrySet().iterator();
+        while (i.hasNext()){
+        	Entry<String,Object> obj = i.next();
+        	if(obj.getValue() instanceof Bindings || obj.getValue() instanceof ActionContext){
+        		//因为可能会引起递归，所以屏蔽这些类型了
+        		continue;
+        	}
+        	
+        	if(obj.getValue() != this){
+        		h += obj.hashCode();
+        	}
+        }
+        return h;
 	}
 }
