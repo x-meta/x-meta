@@ -15,10 +15,15 @@
 ******************************************************************************/
 package org.xmeta.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -139,6 +144,7 @@ public class ThingRunner {
 				}				
 			}
 			
+			boolean isFile = false;
 			File thingFile = new File(thingPath);
 			if(thingFile.exists()){
 				//打开的事物是一个文件
@@ -147,12 +153,39 @@ public class ThingRunner {
 					thingPath = info.thingPath;
 				}else{
 					thingPath = getThingPath(null, thingFile, false);
-					addWorkingDirAsThingManager(world, new File("."));
+					addWorkingDirAsThingManager(world, thingFile.getParentFile());
 				}
+				
+				if(thingPath == null){
+					System.out.println("Cann't open, file is no a thing, file=" + thingPath);
+				}
+				isFile = true;
 			}else{
 				//打开的是事物的路径
 				addWorkingDirAsThingManager(world, new File("."));
 			}			
+			
+			if(isFile){
+				//如果是文件，那么可以选择是编辑还是运行
+				System.out.print("编辑请按回车键，否则3秒后运行该事物(If edit press enter key)：");
+				WaiterForEnter we = new WaiterForEnter();
+				we.start();
+				long timestart = System.currentTimeMillis();
+				boolean edit = false;
+				while(System.currentTimeMillis() - timestart < 3000){
+					if(we.ctrPressed){
+						edit = true;
+						break;
+					}
+				}
+				we.close();
+				
+				if(edit){
+					if(editThing(thingFile.getAbsolutePath())){
+						return;
+					}
+				}
+			}
 			
 			//执行事物
 			Thing thing = world.getThing(thingPath);
@@ -170,7 +203,36 @@ public class ThingRunner {
 		}
 	}
 	
-	private static void addWorkingDirAsThingManager(World world, File dir) throws IOException{
+	private static boolean editThing(String thingPath){		
+		Thing globalConfig = World.getInstance().getThing("_local.xworker.config.GlobalConfig");
+		if(globalConfig == null){
+			System.out.println("XWorker has not run thing explorer, run thing......");
+			return false;
+		}
+		
+		try{
+			String baseUrl = globalConfig.getString("webUrl") + "do?sc=xworker.ide.worldExplorer.swt.http.IDETools";
+			URL checkIde = new URL(baseUrl + "&ac=isIdeOpened");
+			URLConnection urlcon = checkIde.openConnection();
+			InputStream in = urlcon.getInputStream();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+			String content = reader.readLine();
+			if(!"true".equals(content)){
+				System.out.println("XWorker has not run thing explorer, run thing......");
+				return false;
+			}
+			
+			URL openThing =  new URL(baseUrl + "&ac=oepenThing&path=" + URLEncoder.encode(thingPath, "utf-8"));
+			openThing.openConnection().getContent();
+			
+			return true;
+		}catch(Exception e){
+			System.out.println("Exception happend, run thing......, " + e.getLocalizedMessage());
+			return false;
+		}
+	}
+	
+	public static void addWorkingDirAsThingManager(World world, File dir) throws IOException{
 		if(!dir.isDirectory()){
 			return;
 		}
@@ -184,9 +246,10 @@ public class ThingRunner {
 			return;
 		}
 
-		if(world.getThingManager(working_project) == null){
+		String name = "tempdir_" + dir.getName() + "_" + dir.getAbsolutePath().hashCode();
+		if(world.getThingManager(name) == null){
 			boolean things = new File(dir, "xworker.properties").exists();
-			FileThingManager working = new FileThingManager(working_project, dir, things);
+			FileThingManager working = new FileThingManager(name, dir, things);
 			world.addThingManagerFirst(working);
 		}
 	}
@@ -263,9 +326,9 @@ public class ThingRunner {
 	}
 	
 	public static class Info{		
-		String thingPath;
-		File projectDir;
-		String thingManagerName;
+		public String thingPath;
+		public File projectDir;
+		public String thingManagerName;
 		
 		public Info(String thingPath, File projectDir, boolean isDmlprj, File prj){
 			this.thingPath =  thingPath;
@@ -289,6 +352,34 @@ public class ThingRunner {
 				world.addThingManager(new FileThingManager(name, projectDir, false));
 			}else{
 				world.initThingManager(projectDir);
+			}			
+		}
+	}
+	
+	public static class WaiterForEnter extends Thread{
+		boolean ctrPressed = false;
+		InputStreamReader ir;
+		BufferedReader br;
+		
+		public WaiterForEnter(){
+			ir = new InputStreamReader(System.in);
+			br = new BufferedReader(ir);
+		}
+		
+		public void run(){
+			try{
+				if(br.readLine() != null){
+					ctrPressed = true;				
+				}
+			}catch(Exception e){				
+			}
+		}
+		
+		public void close(){
+			try{
+				br.close();
+				ir.close();
+			}catch(Exception e){				
 			}			
 		}
 	}
