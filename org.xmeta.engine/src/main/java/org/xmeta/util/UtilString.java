@@ -569,7 +569,38 @@ public class UtilString {
 	
 	 public static char toHex(int nibble) {
     	return hexDigit[(nibble & 0xF)];
-    }
+     }
+	 
+	 
+	/**
+	 * 返回一个正常的文件名，把/\.?等替换成_，并且长度保留最后30，如果大于30增加hashcode。
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static String trimFileName(String str){
+		str = str.replace('/', '_');
+		str = str.replace('\\', '_');
+		str = str.replace('.', '_');
+		str = str.replace('?', '_');
+		str = str.replace(':', '_');
+		if(str.length() > 30){			
+			str = str.substring(0, 5) + "_" + str.substring(str.length() - 25, str.length()) + "_" + str.hashCode();
+		}
+		
+		return str;
+	}
+	
+	public static String getThingManagerFileName(Thing thing){
+		String fileManagerName = thing.getMetadata().getThingManager().getName();
+		if(fileManagerName == null){
+			fileManagerName = "null";
+		}else{
+			fileManagerName = UtilString.trimFileName(fileManagerName);
+		}
+		
+		return fileManagerName;
+	}
 
 	 public static String toHexString(byte[] bytes) {
 			char[] buf = new char[bytes.length * 2];

@@ -42,6 +42,7 @@ import org.xmeta.util.JavaCompiler16;
 import org.xmeta.util.Semaphore;
 import org.xmeta.util.ThingClassLoader;
 import org.xmeta.util.UtilAction;
+import org.xmeta.util.UtilString;
 
 /**
  * <p>动作是可以运行的程序，是事物的另一种形态。</p>
@@ -285,8 +286,14 @@ public class Action extends Semaphore{
 		fileName = className.replace('.', '/');
 		//fileName += ".java";
 					
-		fileName = World.getInstance().getPath() + "/actionSources/" + fileName;
-		classFileName = World.getInstance().getPath() + "/actionClasses/" + className.replace('.', '/') + ".class";
+		String fileManagerName = thing.getMetadata().getThingManager().getName();
+		if(fileManagerName == null){
+			fileManagerName = "null";
+		}else{
+			fileManagerName = UtilString.trimFileName(fileManagerName);
+		}
+		fileName = World.getInstance().getPath() + "/actionSources/" + fileManagerName + "/" + fileName;
+		classFileName = World.getInstance().getPath() + "/actionClasses/" + fileManagerName + "/" + className.replace('.', '/') + ".class";
 		
 		//设置代码和方法名
 		code = thing.getString("code");

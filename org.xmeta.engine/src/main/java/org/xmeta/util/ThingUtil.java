@@ -137,5 +137,4 @@ public class ThingUtil {
 
 		return world.getThing(thingPath);
 	}
-
 }

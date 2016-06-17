@@ -1111,12 +1111,19 @@ public class World {
 	 * @param thingManager 事物管理器
 	 */
 	public void removeThingManager(ThingManager thingManager){
-		thingManagers.remove(thingManager);
-		
-		//同时删除目录
-		UtilFile.delete(new File(worldPath + "/projects/" + thingManager.getName()));
+		removeThingManager(thingManager, true);
 	}
 
+	public void removeThingManager(ThingManager thingManager, boolean deleteRes){
+		thingManagers.remove(thingManager);
+		
+		if(deleteRes && thingManager instanceof FileThingManager){
+			//同时删除目录
+			FileThingManager fm = (FileThingManager) thingManager;
+			UtilFile.delete(new File(fm.getFilePath()));
+		}
+	}
+	
 	public String getOS(){
 		return OS;
 	}

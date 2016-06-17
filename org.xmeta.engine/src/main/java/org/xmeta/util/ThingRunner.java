@@ -28,11 +28,8 @@ import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xmeta.ActionContext;
 import org.xmeta.Thing;
-import org.xmeta.ThingCoder;
 import org.xmeta.World;
 import org.xmeta.thingManagers.FileThingManager;
 
@@ -43,7 +40,7 @@ import org.xmeta.thingManagers.FileThingManager;
  * 
  */
 public class ThingRunner {
-	private static final Logger logger = LoggerFactory.getLogger(ThingRunner.class);
+	//private static final Logger logger = LoggerFactory.getLogger(ThingRunner.class);
 	
 	public static final String working_project = "working_directory";
 	public static void main(String args[]){
@@ -148,13 +145,7 @@ public class ThingRunner {
 			File thingFile = new File(thingPath);
 			if(thingFile.exists()){
 				//打开的事物是一个文件
-				Info info = getThingManagerAndThingInfo(thingFile, thingPath);
-				if(info != null){
-					thingPath = info.thingPath;
-				}else{
-					thingPath = getThingPath(null, thingFile, false);
-					addWorkingDirAsThingManager(world, thingFile.getParentFile());
-				}
+				thingPath = UtilFile.getThingPathByFile(thingFile);
 				
 				if(thingPath == null){
 					System.out.println("Cann't open, file is no a thing, file=" + thingPath);
@@ -167,26 +158,25 @@ public class ThingRunner {
 			
 			if(isFile){
 				//如果是文件，那么可以选择是编辑还是运行
-				System.out.print("编辑请按回车键，否则3秒后运行该事物(If edit press enter key)：");
+				/*
+				System.out.print("按任意键进入编辑器(Preess any key to edit)，等待3秒(Wait for 3 seconds): ");
 				WaiterForEnter we = new WaiterForEnter();
 				we.start();
-				long timestart = System.currentTimeMillis();
-				boolean edit = false;
-				while(System.currentTimeMillis() - timestart < 3000){
-					if(we.ctrPressed){
-						edit = true;
-						break;
-					}
-				}
-				we.close();
+				we.waitForEnter();
 				
-				if(edit){
+				if(we.ctrPressed){
 					if(editThing(thingFile.getAbsolutePath())){
 						return;
 					}
-				}
+				}*/
 			}
 			
+			//XWorker是一个命令行的特殊事物，为了和目录xworker区分，所以用了前大写
+			//但用户输入可能会大小写错误，所以再次规避
+			if("XWORKER".equals(thingPath.toUpperCase())){
+				thingPath = "XWorker"; //
+			}
+
 			//执行事物
 			Thing thing = world.getThing(thingPath);
 			if (thing == null) {
@@ -210,8 +200,8 @@ public class ThingRunner {
 			return false;
 		}
 		
-		try{
-			String baseUrl = globalConfig.getString("webUrl") + "do?sc=xworker.ide.worldExplorer.swt.http.IDETools";
+		String baseUrl = globalConfig.getString("webUrl") + "do?sc=xworker.ide.worldExplorer.swt.http.IDETools";
+		try{			
 			URL checkIde = new URL(baseUrl + "&ac=isIdeOpened");
 			URLConnection urlcon = checkIde.openConnection();
 			InputStream in = urlcon.getInputStream();
@@ -221,7 +211,12 @@ public class ThingRunner {
 				System.out.println("XWorker has not run thing explorer, run thing......");
 				return false;
 			}
-			
+		}catch(Exception e){
+			return startExplorerAndEditThing(thingPath);
+		}
+		
+		try{
+			//事物管理器打开的状态，下请求打开
 			URL openThing =  new URL(baseUrl + "&ac=oepenThing&path=" + URLEncoder.encode(thingPath, "utf-8"));
 			openThing.openConnection().getContent();
 			
@@ -230,6 +225,18 @@ public class ThingRunner {
 			System.out.println("Exception happend, run thing......, " + e.getLocalizedMessage());
 			return false;
 		}
+	}
+	
+	private static boolean startExplorerAndEditThing(String filePath){
+		Thing explorer = World.getInstance().getThing("xworker.ide.worldExplorer.swt.SimpleExplorerRunner");
+		if(explorer == null){
+			return false;
+		}
+		
+		ActionContext actionContext = new ActionContext();
+		actionContext.put("defaultOpenFile", new File(filePath));
+		explorer.doAction("run", actionContext);
+		return true;
 	}
 	
 	public static void addWorkingDirAsThingManager(World world, File dir) throws IOException{
@@ -252,135 +259,44 @@ public class ThingRunner {
 			FileThingManager working = new FileThingManager(name, dir, things);
 			world.addThingManagerFirst(working);
 		}
-	}
-		
-	/**
-	 * 现在X-Meta引擎支持直接打开系统中的DML文件并运行，此时传入的可能事物路径而是文件名了，
-	 * 这是需要找出事物的真正路径和项目路径。
-	 * 
-	 * @param thingPath 事物路径
-	 * 
-	 * @return 事物管理器和事物的路径信息
-	 */
-	public static Info getThingManagerAndThingInfo(File file, String thingPath){
-		if(file == null || !file.exists()){
-			return null;
-		}
-				
-		//.dmlprj和xworker.properties都是xworker项目的标志
-		if(file.isDirectory()){
-			File prj = new File(file, ".dmlprj");
-			if(prj.exists()){
-				return new Info(thingPath, file, true, prj);
-			}
-			
-			prj = new File(file, "xworker.properties");
-			if(prj.exists()){
-				return new Info(thingPath, file, false, prj);
-			}
-		
-			return getThingManagerAndThingInfo(file.getParentFile(), thingPath);
-		}else{
-			return getThingManagerAndThingInfo(file.getParentFile(), thingPath);
-		}
-	}
-	
-	/**
-	 * 通过项目路径和事物文件返回事物的真正路径。
-	 * 
-	 * @param projectDir 项目目录
-	 * @param thingFile 事物文件
-	 * @param isDmlPrj 是否是dmlprj项目
-	 * 
-	 * @return 事物路径
-	 */
-	public static String getThingPath(File projectDir, File thingFile, boolean isDmlPrj){
-		String path = thingFile.getAbsolutePath();
-		String prjPath =  null;
-		if(projectDir != null){
-			if(!isDmlPrj){
-				prjPath = new File(projectDir, "things").getAbsolutePath();
-			}else{
-				prjPath = projectDir.getAbsolutePath();
-			}
-		}else{
-			prjPath = null;
-		}
-		
-		if(prjPath != null){
-			path = path.substring(prjPath.length() + 1, path.length());
-		}else{
-			path = thingFile.getName();
-		}
-		
-		//过滤文件名后缀
-		for(ThingCoder coder : World.getInstance().getThingCoders()){
-			String type = coder.getType();
-			if(path.endsWith(type)){
-				path = path.substring(0, path.length() - type.length() - 1);
-				return path.replace(File.separatorChar, '.');
-			}
-		}
-		
-		return null;
-	}
-	
-	public static class Info{		
-		public String thingPath;
-		public File projectDir;
-		public String thingManagerName;
-		
-		public Info(String thingPath, File projectDir, boolean isDmlprj, File prj){
-			this.thingPath =  thingPath;
-			this.projectDir = projectDir;
-			
-			//事物的真实路径
-			this.thingPath = getThingPath(projectDir, new File(thingPath), isDmlprj);
-			
-			//把项目加入到xworker中
-			World world = World.getInstance();
-			if(isDmlprj){
-				Properties p = new Properties();
-				try{
-					FileInputStream fin = new FileInputStream(prj);
-					p.load(fin);
-					fin.close();
-				}catch(Exception e){
-					logger.error("Init .dmlprj file error", e);				
-				}
-				String name = p.getProperty("projectName");
-				world.addThingManager(new FileThingManager(name, projectDir, false));
-			}else{
-				world.initThingManager(projectDir);
-			}			
-		}
-	}
+	}	
 	
 	public static class WaiterForEnter extends Thread{
 		boolean ctrPressed = false;
-		InputStreamReader ir;
-		BufferedReader br;
+		boolean stoped = false;
+		Thread waitThread = Thread.currentThread();	
 		
-		public WaiterForEnter(){
-			ir = new InputStreamReader(System.in);
-			br = new BufferedReader(ir);
+		public WaiterForEnter(){			
 		}
 		
-		public void run(){
-			try{
-				if(br.readLine() != null){
-					ctrPressed = true;				
+		public void waitForEnter(){
+			try{				
+				while(!stoped){
+					if(System.in.available() > 0){
+						ctrPressed = true;
+					}
+					
+					Thread.sleep(300);
 				}
 			}catch(Exception e){				
 			}
 		}
 		
-		public void close(){
-			try{
-				br.close();
-				ir.close();
-			}catch(Exception e){				
-			}			
+		public void run(){
+			long timestart = System.currentTimeMillis();
+			while(System.currentTimeMillis() - timestart < 3000){
+				if(ctrPressed){
+					break;
+				}
+				
+				try {
+					Thread.sleep(300);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			stoped = true;
 		}
 	}
 }

@@ -24,11 +24,15 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmeta.ActionContext;
+import org.xmeta.ActionException;
+import org.xmeta.ThingCoder;
 import org.xmeta.World;
+import org.xmeta.thingManagers.FileThingManager;
 
 /**
  * 文件工具类。
@@ -245,5 +249,134 @@ public class UtilFile {
 	    }else{
 	    	return file;
 	    }
+	}
+	
+	/**
+	 * 如果目标文件是一个模型文件，那么返回它的事物路径。
+	 * 
+	 * 在操作中还会通过.dmlprj和xworker.properties文件自动查找它所属的项目，如果找不到项目，那么把模型事物所在的目录作为它的项目，
+	 * 如果项目存在那么还会加入到XWorker的事物管理器中。
+	 * 
+	 * @param file 模型文件
+	 * @return 模型的路径，如果文件不是模型，那么返回null
+	 * @throws IOException 
+	 */
+	public static String getThingPathByFile(File file) throws IOException{
+		if(file.isFile() == false){
+			return null;
+		}
+		
+		//是否是模型
+		String name = file.getName();
+		boolean isModel = false;
+		for(ThingCoder coder : World.getInstance().getThingCoders()){
+			if(name.endsWith("." + coder.getType())){
+				isModel = true;
+				break;
+			}
+		}
+		if(!isModel){
+			return null;
+		}
+		
+		//查找项目目录和初始化项目
+		File rootFile = getThingsRootAndInitProject(file.getParentFile());
+		if(rootFile == null){
+			rootFile = file.getParentFile();
+			
+			//是没有项目的孤立事物，把事物所在的目录加入的事物管理器中
+			String tname = rootFile.getCanonicalPath();
+			World world = World.getInstance();
+			if(world.getThingManager(tname) == null){
+				World.getInstance().addThingManager(new FileThingManager(tname, rootFile, false));
+			}
+		}
+		
+		//返回事物的路径
+		return getThingPath(rootFile, file);
+	}
+	
+	/**
+	 * 通过项目路径和事物文件返回事物的真正路径。
+	 * 
+	 * @param projectDir 项目目录
+	 * @param thingFile 事物文件
+	 * 
+	 * @return 事物路径
+	 */
+	public static String getThingPath(File projectDir, File thingFile){
+		String path = thingFile.getAbsolutePath();
+		String prjPath =  null;
+		if(projectDir != null){
+			prjPath = projectDir.getAbsolutePath();
+		}else{
+			prjPath = null;
+		}
+		
+		if(prjPath != null){
+			path = path.substring(prjPath.length() + 1, path.length());
+		}else{
+			path = thingFile.getName();
+		}
+		
+		//过滤文件名后缀
+		for(ThingCoder coder : World.getInstance().getThingCoders()){
+			String type = coder.getType();
+			if(path.endsWith(type)){
+				path = path.substring(0, path.length() - type.length() - 1);
+				return path.replace(File.separatorChar, '.');
+			}
+		}
+		
+		return null;
+	}
+	
+	public static File getThingsRootAndInitProject(File dir) throws IOException{
+		File prj = new File(dir, ".dmlprj");
+		if(prj.exists()){
+			initProject(prj);
+			return dir;
+		}
+		
+		prj = new File(dir, "xworker.properties");
+		if(prj.exists()){
+			initProject(prj);
+			return new File(dir, "things");
+		}
+		
+		File parent = dir.getParentFile();
+		if(parent != null){
+			return getThingsRootAndInitProject(parent);
+		}
+		
+		return null;
+	}
+	
+	public static void initProject(File prjFile) throws IOException{
+		Properties p = new Properties();
+		try{
+			FileInputStream fin = new FileInputStream(prjFile);
+			p.load(fin);
+			fin.close();
+		}catch(Exception e){
+			throw new ActionException("Read project error, file=" + prjFile.getAbsolutePath(), e);
+		}
+		
+		String name = p.getProperty("projectName");
+		if(name == null || "".equals(name.trim())){
+			name = prjFile.getParentFile().getCanonicalPath();
+		}
+		
+		World world = World.getInstance();
+		if(world.getThingManager(name) != null){
+			logger.warn("Thing manager already exists, name=" + name);
+		}else{
+			if(".dmlprj".equals(prjFile.getName())){
+				world.addThingManager(new FileThingManager(name, prjFile.getParentFile(), false));
+			}else{
+				//xworker.properties
+				world.addThingManager(new FileThingManager(name, prjFile.getParentFile(), true));
+			}
+		}
 	}
 }
