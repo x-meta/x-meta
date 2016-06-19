@@ -137,6 +137,36 @@ public class UtilThing {
 	}
 	
 	/**
+	 * 返回引用的事物，如果安路就不存在，那么就找根事物下的子事物。如果是子事物，那么替换路径。
+	 * 
+	 * @param parent
+	 * @param attribute
+	 * @return
+	 */
+	public static Thing getQuoteThing(Thing thing, String attribute){
+		String path = thing.getStringBlankAsNull(attribute);
+		if(path == null){
+			return null;
+		}
+		
+		World world = World.getInstance();
+		Thing qthing = world.getThing(path);
+		if(qthing == null){			
+			int index = path.indexOf("/@");
+			if(index != -1){
+				Thing root = thing.getRoot();
+				path = root + path.substring(index, path.length());
+				qthing = world.getThing(path);
+				if(qthing != null){
+					thing.set(attribute, path);
+				}
+			}
+		}
+		
+		return qthing;
+	}
+	
+	/**
 	 * 改变一个事物的编码格式。
 	 * 
 	 * @param thing

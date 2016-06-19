@@ -49,6 +49,7 @@ import org.xmeta.util.ThingUtil;
 import org.xmeta.util.UtilData;
 import org.xmeta.util.UtilMap;
 import org.xmeta.util.UtilString;
+import org.xmeta.util.UtilThing;
 import org.xml.sax.SAXException;
 
 /**
@@ -2029,6 +2030,23 @@ public class Thing {
 		}else{
 			return null;
 		}
+	}
+	
+	/**
+	 * 返回属性所指向的引用的事物，如果不存在替换为根事物的路径当前的根事物开始寻找。
+	 * 
+	 * 有的时候一个属性的值是一个所引用的事物的路径，由于模型引擎总是使用全路径，
+	 * 这样如果引用时本事物根事物的某个字事物，并且根事物拷贝到了其它目录下或改名了，
+	 * 那么这个引用就会失效。
+	 * 
+	 * 通过使用此方法可以避免这个问题，并且属性的值会重设，如果引用的事物同属一个根
+	 * 事物的话。
+	 * 
+	 * @param attribute 属性名称
+	 * @return 所引用的事物
+	 */
+	public Thing getQuotedThing(String attribute){
+		return UtilThing.getQuoteThing(this, attribute);
 	}
 	
 	/**

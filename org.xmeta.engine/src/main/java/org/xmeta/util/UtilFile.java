@@ -369,7 +369,7 @@ public class UtilFile {
 		
 		World world = World.getInstance();
 		if(world.getThingManager(name) != null){
-			logger.warn("Thing manager already exists, name=" + name);
+			//logger.warn("Thing manager already exists, name=" + name);
 		}else{
 			if(".dmlprj".equals(prjFile.getName())){
 				world.addThingManager(new FileThingManager(name, prjFile.getParentFile(), false));
