@@ -338,6 +338,12 @@ public class UtilFile {
 			return dir;
 		}
 		
+		prj = new File(dir, "dml.prj");
+		if(prj.exists()){
+			initProject(prj);
+			return dir;
+		}
+		
 		prj = new File(dir, "xworker.properties");
 		if(prj.exists()){
 			initProject(prj);
@@ -371,7 +377,7 @@ public class UtilFile {
 		if(world.getThingManager(name) != null){
 			//logger.warn("Thing manager already exists, name=" + name);
 		}else{
-			if(".dmlprj".equals(prjFile.getName())){
+			if(".dmlprj".equals(prjFile.getName()) || "dml.prj".equals(prjFile.getName())){
 				world.addThingManager(new FileThingManager(name, prjFile.getParentFile(), false));
 			}else{
 				//xworker.properties
