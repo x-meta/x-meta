@@ -285,10 +285,11 @@ public class UtilFile {
 			rootFile = file.getParentFile();
 			
 			//是没有项目的孤立事物，把事物所在的目录加入的事物管理器中
-			String tname = rootFile.getCanonicalPath();
+			String tname = UtilFile.getThingManagerNameByDir(rootFile);
 			World world = World.getInstance();
 			if(world.getThingManager(tname) == null){
-				World.getInstance().addThingManager(new FileThingManager(tname, rootFile, false));
+				//把它加到事物管理器的开头
+				World.getInstance().addThingManagerFirst(new FileThingManager(tname, rootFile, false));
 			}
 		}
 		
@@ -370,7 +371,7 @@ public class UtilFile {
 		
 		String name = p.getProperty("projectName");
 		if(name == null || "".equals(name.trim())){
-			name = prjFile.getParentFile().getCanonicalPath();
+			name = getThingManagerNameByDir(prjFile.getParentFile());//.getCanonicalPath();
 		}
 		
 		World world = World.getInstance();
@@ -378,11 +379,32 @@ public class UtilFile {
 			//logger.warn("Thing manager already exists, name=" + name);
 		}else{
 			if(".dmlprj".equals(prjFile.getName()) || "dml.prj".equals(prjFile.getName())){
-				world.addThingManager(new FileThingManager(name, prjFile.getParentFile(), false));
+				world.addThingManagerFirst(new FileThingManager(name, prjFile.getParentFile(), false));
 			}else{
 				//xworker.properties
-				world.addThingManager(new FileThingManager(name, prjFile.getParentFile(), true));
+				world.addThingManagerFirst(new FileThingManager(name, prjFile.getParentFile(), true));
 			}
 		}
+	}
+	
+	/**
+	 * 从一个dir中获取事物管理器的名称。
+	 * 
+	 * @param dir
+	 * @return
+	 * @throws IOException 
+	 */
+	public static String getThingManagerNameByDir(File dir) throws IOException{
+		String name = dir.getCanonicalPath();
+		name = name.replace(':', '_');
+		name = name.replace('/', '_');
+		name = name.replace('\\', '_');
+		name = name.replace('.', '_');
+		
+		if(name.length() > 45){
+			name = name.substring(0, 20) + "_" + name.substring(name.length() - 20, name.length());
+		}
+		
+		return name;
 	}
 }

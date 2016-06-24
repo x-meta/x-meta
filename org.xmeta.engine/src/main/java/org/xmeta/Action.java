@@ -263,7 +263,14 @@ public class Action extends Semaphore{
 		if(parent == null){
 			parent = thing;
 		}
-		className = rootParent.getMetadata().getPath();
+		String fileManagerName = thing.getMetadata().getThingManager().getName();
+		if(fileManagerName == null){
+			fileManagerName = "null";
+		}else{
+			fileManagerName = UtilString.trimFileName(fileManagerName);
+		}
+		
+		className = fileManagerName + "." + rootParent.getMetadata().getPath();
 		if(rootParent != thing){
 			className = className + ".p" + thing.getMetadata().getPath().hashCode();
 			className = className.replace('-', '_');
@@ -286,14 +293,9 @@ public class Action extends Semaphore{
 		fileName = className.replace('.', '/');
 		//fileName += ".java";
 					
-		String fileManagerName = thing.getMetadata().getThingManager().getName();
-		if(fileManagerName == null){
-			fileManagerName = "null";
-		}else{
-			fileManagerName = UtilString.trimFileName(fileManagerName);
-		}
-		fileName = World.getInstance().getPath() + "/actionSources/" + fileManagerName + "/" + fileName;
-		classFileName = World.getInstance().getPath() + "/actionClasses/" + fileManagerName + "/" + className.replace('.', '/') + ".class";
+		
+		fileName = World.getInstance().getPath() + "/actionSources/" +  fileName;
+		classFileName = World.getInstance().getPath() + "/actionClasses/" + className.replace('.', '/') + ".class";
 		
 		//设置代码和方法名
 		code = thing.getString("code");

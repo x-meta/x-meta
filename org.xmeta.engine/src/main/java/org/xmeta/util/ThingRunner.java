@@ -153,7 +153,19 @@ public class ThingRunner {
 				isFile = true;
 			}else{
 				//打开的是事物的路径
-				addWorkingDirAsThingManager(world, new File("."));
+				File file = new File(".");
+				//查找项目目录和初始化项目
+				File rootFile = UtilFile.getThingsRootAndInitProject(file.getParentFile());
+				if(rootFile == null){
+					rootFile = file;
+					
+					//是没有项目的孤立事物，把事物所在的目录加入的事物管理器中
+					String tname = UtilFile.getThingManagerNameByDir(rootFile);
+					if(world.getThingManager(tname) == null){
+						//把它加到事物管理器的开头
+						World.getInstance().addThingManagerFirst(new FileThingManager(tname, rootFile, false));
+					}
+				}
 			}			
 			
 			if(isFile){
@@ -239,27 +251,6 @@ public class ThingRunner {
 		return true;
 	}
 	
-	public static void addWorkingDirAsThingManager(World world, File dir) throws IOException{
-		if(!dir.isDirectory()){
-			return;
-		}
-		
-		File worldDir = new File(world.getPath());
-		String path = dir.getCanonicalPath();
-		String worldPath = worldDir.getCanonicalPath();
-
-		if(path.equals(worldPath)){
-			//不能把world目录添加成事物管理器
-			return;
-		}
-
-		String name = "tempdir_" + dir.getName() + "_" + dir.getAbsolutePath().hashCode();
-		if(world.getThingManager(name) == null){
-			boolean things = new File(dir, "xworker.properties").exists();
-			FileThingManager working = new FileThingManager(name, dir, things);
-			world.addThingManagerFirst(working);
-		}
-	}	
 	
 	public static class WaiterForEnter extends Thread{
 		boolean ctrPressed = false;
