@@ -17,8 +17,6 @@ package org.xmeta.util;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -28,6 +26,8 @@ import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xmeta.ActionContext;
 import org.xmeta.Thing;
 import org.xmeta.World;
@@ -40,7 +40,7 @@ import org.xmeta.thingManagers.FileThingManager;
  * 
  */
 public class ThingRunner {
-	//private static final Logger logger = LoggerFactory.getLogger(ThingRunner.class);
+	private static final Logger logger = LoggerFactory.getLogger(ThingRunner.class);
 	
 	public static final String working_project = "working_directory";
 	public static void main(String args[]){
@@ -87,6 +87,7 @@ public class ThingRunner {
 			}
 			
 			//读取dml.ini的参数配置
+			/*
 			Properties p = new Properties();
 			File jarFile = null;
 			if("-jar".equals(thingPath)){
@@ -120,20 +121,27 @@ public class ThingRunner {
 					thingPath = p.getProperty("thingPath");
 				}				
 			}
+			*/
 			
 			if(actionName == null){
 				actionName = "run";
 			}
+			
+			if(thingPath == null){
+				System.out.println("Please input thing path or thing file");
+				System.exit(0);
+			}
 
-			System.out.println("world path : " + worldPath);
-			System.out.println("thing path : " + thingPath);
-			System.out.println("action name : " + actionName);
+			logger.info("world path : " + worldPath);
+			logger.info("thing path : " + thingPath);
+			logger.info("action name : " + actionName);
 			
 			World world = World.getInstance();
 			world.init(worldPath);
+			/*
 			if(jarFile != null && jarFile.exists()){
 				world.getClassLoader().addJarOrZip(jarFile);
-			}
+			}*/
 			
 			for(String arg : args){
 				if(arg.toLowerCase().equals("-verbose")){
@@ -143,19 +151,23 @@ public class ThingRunner {
 			
 			boolean isFile = false;
 			File thingFile = new File(thingPath);
+			if(!thingFile.exists()){
+				thingFile = new File("./" + thingPath);
+			}
 			if(thingFile.exists()){
 				//打开的事物是一个文件
 				thingPath = UtilFile.getThingPathByFile(thingFile);
 				
 				if(thingPath == null){
-					System.out.println("Cann't open, file is no a thing, file=" + thingPath);
+					logger.info("Cann't open, file is no a thing, file=" + thingPath);
+					return;
 				}
 				isFile = true;
 			}else{
 				//打开的是事物的路径
 				File file = new File(".");
 				//查找项目目录和初始化项目
-				File rootFile = UtilFile.getThingsRootAndInitProject(file.getParentFile());
+				File rootFile = UtilFile.getThingsRootAndInitProject(file);
 				if(rootFile == null){
 					rootFile = file;
 					

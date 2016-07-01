@@ -333,6 +333,10 @@ public class UtilFile {
 	}
 	
 	public static File getThingsRootAndInitProject(File dir) throws IOException{
+		if(dir == null){
+			return null;
+		}
+		
 		File prj = new File(dir, ".dmlprj");
 		if(prj.exists()){
 			initProject(prj);
