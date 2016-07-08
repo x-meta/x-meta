@@ -1334,4 +1334,27 @@ public class World {
 	public void setWebFileRoot(String webFileRoot) {
 		this.webFileRoot = webFileRoot;
 	}
+	
+	/**
+	 * 把一个目录当作文件事物管理器加入到事物管理器列表中，如果目录是world的home目录，那么过滤不生效。
+	 * 
+	 * @param name 事物管理器名称
+	 * @param dir 目录
+	 * @param hasThingDir 是否包含things子目录
+	 * @param first 是否添加到第一个事物管理器中
+	 * @throws IOException 
+	 */
+	public void addFileThingManager(String name, File dir, boolean hasThingDir, boolean first) throws IOException{
+		File worldDir = new File(this.getPath());
+		if(worldDir.getCanonicalFile().equals(dir.getCanonicalFile())){
+			return;
+		}
+		
+		ThingManager tm = new FileThingManager(name, dir, hasThingDir);
+		if(first){
+			this.addThingManagerFirst(tm);
+		}else{
+			this.addThingManager(tm);
+		}
+	}
 }

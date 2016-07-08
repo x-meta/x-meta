@@ -153,10 +153,12 @@ public class ThingRunner {
 			File thingFile = new File(thingPath);
 			if(!thingFile.exists()){
 				thingFile = new File("./" + thingPath);
+				logger.info("create temp thing");
 			}
 			if(thingFile.exists()){
 				//打开的事物是一个文件
-				thingPath = UtilFile.getThingPathByFile(thingFile);
+				//logger.info("thing is file :" + thingFile.getPath());
+				thingPath = UtilFile.getThingPathByFile(thingFile.getAbsoluteFile());
 				
 				if(thingPath == null){
 					logger.info("Cann't open, file is no a thing, file=" + thingPath);
@@ -175,7 +177,7 @@ public class ThingRunner {
 					String tname = UtilFile.getThingManagerNameByDir(rootFile);
 					if(world.getThingManager(tname) == null){
 						//把它加到事物管理器的开头
-						World.getInstance().addThingManagerFirst(new FileThingManager(tname, rootFile, false));
+						world.addFileThingManager(tname, rootFile, false, true);						
 					}
 				}
 			}			

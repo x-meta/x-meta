@@ -167,6 +167,49 @@ public class UtilThing {
 	}
 	
 	/**
+	 * 返回只会连接到同一个根事物下的子事物，用在只会在事物内部连接的情况。
+	 * 
+	 * @param thing 事物
+	 * @param attribute 改事物的属性名
+	 * 
+	 * @return 所连接的事物
+	 */
+	public static Thing getSelfQuoteThing(Thing thing, String attribute){
+		String path = thing.getStringBlankAsNull(attribute);
+		if(path == null){
+			return null;
+		}
+		
+		Thing root = thing.getRoot();
+		if("_root".equals(path)){
+			return root;
+		}
+		
+		if("_parent".equals(path)){
+			return thing.getParent();
+		}
+		
+		World world = World.getInstance();
+		if(path.startsWith(root.getMetadata().getPath() + "/@")){
+			//本身就是自己的连接
+			return world.getThing(path);
+		}else{
+			int index = path.indexOf("/@");
+			if(index == -1){
+				return root;
+			}else{
+				path = root.getMetadata().getPath() + path.substring(index, path.length());
+				Thing qthing = world.getThing(path);
+				if(qthing != null){
+					thing.set(attribute, path);
+				}
+				
+				return qthing;
+			}
+		}		
+	}
+	
+	/**
 	 * 改变一个事物的编码格式。
 	 * 
 	 * @param thing

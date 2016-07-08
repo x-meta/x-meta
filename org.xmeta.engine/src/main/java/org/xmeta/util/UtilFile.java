@@ -283,6 +283,9 @@ public class UtilFile {
 		File rootFile = getThingsRootAndInitProject(file.getParentFile());
 		if(rootFile == null){
 			rootFile = file.getParentFile();
+			if(rootFile == null){
+				return null;
+			}
 			
 			//是没有项目的孤立事物，把事物所在的目录加入的事物管理器中
 			String tname = UtilFile.getThingManagerNameByDir(rootFile);
@@ -383,10 +386,10 @@ public class UtilFile {
 			//logger.warn("Thing manager already exists, name=" + name);
 		}else{
 			if(".dmlprj".equals(prjFile.getName()) || "dml.prj".equals(prjFile.getName())){
-				world.addThingManagerFirst(new FileThingManager(name, prjFile.getParentFile(), false));
+				world.addFileThingManager(name, prjFile.getParentFile(), false, true);
 			}else{
 				//xworker.properties
-				world.addThingManagerFirst(new FileThingManager(name, prjFile.getParentFile(), true));
+				world.addFileThingManager(name, prjFile.getParentFile(), true, true);
 			}
 		}
 	}

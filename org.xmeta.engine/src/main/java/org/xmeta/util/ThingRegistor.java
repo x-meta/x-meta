@@ -46,6 +46,7 @@ public class ThingRegistor {
         
         ThingRegistor.regist("_xworker.swt_model", "xworker.swt.model.Model");
         ThingRegistor.regist("_xworker_globalConfig", "_local.xworker.config.GlobalConfig");
+        ThingRegistor.regist("_xworker_thing_attribute_editor_openDataListener", "xworker.ide.worldExplorer.swt.shareScript.ThingEditor/@scripts/@openDataListener");
 	}
 	
 	/**
