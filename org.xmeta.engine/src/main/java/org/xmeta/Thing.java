@@ -748,6 +748,7 @@ public class Thing {
 				bindings.put("self", this);
 				
 				try{
+					fireGlobalContextDoActionEvent(name, parameters, context);
 					return action.runMapParams(context, parameters, this, isSubAction);
 					//return action.run(context, parameters, this, isSubAction);
 				}finally{
@@ -755,7 +756,21 @@ public class Thing {
 					//log.info("run action time " + actionThing.getMetadata().getPath() + " : " + (System.currentTimeMillis() - start));
 				}
 			}else{
+				context.peek().setCaller(this, name);
+				fireGlobalContextDoActionEvent(name, parameters, context);
 				return action.runMapParams(context, parameters, this, isSubAction);
+			}
+		}
+	}
+	
+	public void fireGlobalContextDoActionEvent(String name, Map<String,Object> params, ActionContext actionContext){
+		World world = World.getInstance();
+		if(world.globalContexts != null && world.globalContexts.size() > 0){
+			for(ThingEntry contextEntry : world.globalContexts){
+				Thing context = contextEntry.getThing();				
+				if(context != null && context != this){
+					context.doAction("onDoAction", actionContext, "thing", this, "actionName", name, "params", params);					
+				}
 			}
 		}
 	}
@@ -2247,6 +2262,7 @@ public class Thing {
 	
 	/**
 	 * 根据指定的描述者来判断该事物是否是这个指定描述者的所描述的事物。
+	 * 类似Java的instanceof的作用。
 	 * 
 	 * @param descriptorPath 描述者的路径
 	 * @return 是否是描述者所描述的事物
@@ -2259,6 +2275,7 @@ public class Thing {
 	
 	/**
 	 * 根据指定的描述者来判断该事物是否这个指定描述者所描述的事物。
+	 * 类似Java的instanceof的作用。
 	 * 
 	 * @param descriptor 描述者
 	 * @return 是否这个描述者所描述的事物
@@ -2268,9 +2285,10 @@ public class Thing {
 		
 		return isThing(context, descriptor);
 	}
-	
+		
 	/**
 	 * 根据描述者的名称返回当前事物是否是指定的事物，此判定方法并非严格。
+	 * 类似Java的instanceof的作用。
 	 * 
 	 * @param descriptorName 描述者的名称
 	 * @return 是否是该事物

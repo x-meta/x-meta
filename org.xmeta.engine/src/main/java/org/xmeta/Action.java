@@ -476,7 +476,7 @@ public class Action extends Semaphore{
 			}			
 			
 			//非Java调用才初始化日志
-			logger = LoggerFactory.getLogger(this.className);
+			logger = LoggerFactory.getLogger(thing.getMetadata().getPath());//this.className);
 		}
 	}
 	
