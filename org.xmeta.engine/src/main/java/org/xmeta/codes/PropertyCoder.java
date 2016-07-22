@@ -1,3 +1,4 @@
+
 /*******************************************************************************
 * Copyright 2007-2013 See AUTHORS file.
  * 
@@ -37,8 +38,8 @@ import org.xmeta.Thing;
 import org.xmeta.ThingMetadata;
 import org.xmeta.util.UtilString;
 
-public class TxtCoder {
-	public static final char TYPE_LASTMODIFIED = '^';
+public class PropertyCoder {
+	public static final char TYPE_LASTMODIFIED = '%';
 	
 	public static final char TYPE_NODE = '@';
 	
@@ -87,6 +88,7 @@ public class TxtCoder {
 	public static void encode(Thing thing, PrintWriter out,	Map<Thing, String> context) throws IOException {
 		encode(thing, out, context, "");
 	}
+	
 	/**
 	 * 编码。
 	 * 
@@ -113,7 +115,7 @@ public class TxtCoder {
 		if(thing.getParent() == null){
 			//最后修改时间
 			out.print(ident);
-			out.println(TxtCoder.TYPE_LASTMODIFIED + String.valueOf(meta.getLastModified()));
+			out.println(PropertyCoder.TYPE_LASTMODIFIED + String.valueOf(meta.getLastModified()));
 		}
 		
 		//路径
@@ -173,7 +175,6 @@ public class TxtCoder {
 					//if(value != null && !("" + value).equals(anObject)
 
 					encodeName(out, name, TYPE_INT, ident);
-					out.print(ident);
 					out.println(value);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -184,7 +185,6 @@ public class TxtCoder {
 					//if(value != null && !("" + value).equals(anObject)
 
 					encodeName(out, name, TYPE_LONG, ident);
-					out.print(ident);
 					out.println(value);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -194,7 +194,6 @@ public class TxtCoder {
 					double value = thing.getDouble(name);
 
 					encodeName(out, name, TYPE_DOUBLE, ident);
-					out.print(ident);
 					out.println(value);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -204,7 +203,6 @@ public class TxtCoder {
 					float value = thing.getFloat(name);
 
 					encodeName(out, name, TYPE_FLOAT, ident);
-					out.print(ident);
 					out.println(value);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -216,7 +214,6 @@ public class TxtCoder {
 						continue;
 
 					encodeName(out, name, TYPE_BIGDECIMAL, ident);
-					out.print(ident);
 					out.println(value);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -228,7 +225,6 @@ public class TxtCoder {
 						continue;
 
 					encodeName(out, name, TYPE_BIGINTEGER, ident);
-					out.print(ident);
 					out.println(value);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -238,7 +234,6 @@ public class TxtCoder {
 					boolean value = thing.getBoolean(name);
 
 					encodeName(out, name, TYPE_BOOLEAN, ident);
-					out.print(ident);
 					out.println(value);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -248,7 +243,6 @@ public class TxtCoder {
 					byte value = thing.getByte(name);
 
 					encodeName(out, name, TYPE_BYTE, ident);
-					out.print(ident);
 					out.println(value);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -259,7 +253,6 @@ public class TxtCoder {
 
 					encodeName(out, name, TYPE_BYTES, ident);
 					if(value != null){
-						out.print(ident);
 						out.println(UtilString.toHexString(value));
 					}else{
 						out.println();
@@ -272,7 +265,6 @@ public class TxtCoder {
 					char value = thing.getChar(name);
 
 					encodeName(out, name, TYPE_CHAR, ident);
-					out.print(ident);
 					out.println(value);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -282,7 +274,6 @@ public class TxtCoder {
 					short value = thing.getShort(name);
 
 					encodeName(out, name, TYPE_SHORT, ident);
-					out.print(ident);
 					out.println(value);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -295,7 +286,6 @@ public class TxtCoder {
 
 					long dvalue = value.getTime();
 					encodeName(out, name, TYPE_DATE, ident);
-					out.print(ident);
 					out.println(dvalue);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -315,7 +305,6 @@ public class TxtCoder {
 
 						byte[] bs = bout.toByteArray();
 						encodeName(out, name, TYPE_OBJECT, ident);
-						out.print(ident);
 						out.println(UtilString.toHexString(bs));						
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -350,7 +339,7 @@ public class TxtCoder {
 				continue;
 			}
 			
-			TxtCoder.encode(child, out, context, ident + "  ");
+			encode(child, out, context, ident + "  ");
 		}
 		
 		out.flush();
@@ -361,7 +350,8 @@ public class TxtCoder {
 			throws IOException {
 		out.print(ident);
 		out.print(type);
-		out.println(name);
+		out.print(name);
+		out.print("=");
 	}
 
 	protected static void encodeString(String name, String value, PrintWriter out, String ident) throws IOException {
@@ -372,6 +362,7 @@ public class TxtCoder {
 		if(value.indexOf("\n") != -1){
 			//多行
 			encodeName(out, name, TYPE_STRINGS, ident);
+			out.println();
 			out.println(STRING_TAG); //文本起始符
 			ByteArrayInputStream bin = new ByteArrayInputStream(value.getBytes());
 			BufferedReader br = new BufferedReader(new InputStreamReader(bin));
@@ -388,7 +379,6 @@ public class TxtCoder {
 		}else{
 			//单行
 			encodeName(out, name, TYPE_STRING, ident);
-			out.print(ident);
 			out.println(value);
 		}
 	}
@@ -457,8 +447,8 @@ public class TxtCoder {
 				}
 				
 				char type = line.charAt(0);
-				String name = line.substring(1, line.length());
-				if(type == TxtCoder.TYPE_NODE){
+				String name = line.substring(1, line.length());				
+				if(type == PropertyCoder.TYPE_NODE){
 					if(!full){
 						break;
 					}
@@ -478,92 +468,96 @@ public class TxtCoder {
 						attributes = current.getAttributes();
 					}
 				}else{
+					int index = name.indexOf("=");				
+					String value = name.substring(index + 1, name.length());
+					name = name.substring(0, index);
+					
 					//其他都是属性
 					if (type == TYPE_INT) {						
 						try {
-							attributes.put(name, Integer.parseInt(br.readLine().trim()));
+							attributes.put(name, Integer.parseInt(value));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TYPE_LONG) {
 						try {
-							attributes.put(name, Long.parseLong(br.readLine().trim()));
+							attributes.put(name, Long.parseLong(value));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TYPE_DOUBLE) {
 						try {
-							attributes.put(name, Double.parseDouble(br.readLine().trim()));
+							attributes.put(name, Double.parseDouble(value));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TYPE_FLOAT) {
 						try {
-							attributes.put(name, Float.parseFloat(br.readLine().trim()));
+							attributes.put(name, Float.parseFloat(value));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-					} else if (type == TxtCoder.TYPE_BIGDECIMAL) {
+					} else if (type == PropertyCoder.TYPE_BIGDECIMAL) {
 						try {
-							attributes.put(name, new BigDecimal(br.readLine().trim()));
+							attributes.put(name, new BigDecimal(value));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-					} else if (type == TxtCoder.TYPE_BIGINTEGER) {
+					} else if (type == PropertyCoder.TYPE_BIGINTEGER) {
 						try {
-							attributes.put(name, new BigInteger(br.readLine().trim()));
+							attributes.put(name, new BigInteger(value));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-					} else if (type == TxtCoder.TYPE_BOOLEAN) {
+					} else if (type == PropertyCoder.TYPE_BOOLEAN) {
 						try {
-							attributes.put(name, Boolean.parseBoolean(br.readLine().trim()));
+							attributes.put(name, Boolean.parseBoolean(value));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TYPE_BYTE) {
 						try {
-							attributes.put(name, Byte.parseByte(br.readLine().trim()));
+							attributes.put(name, Byte.parseByte(value));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TYPE_BYTES) {
 						try {
-							byte[] value = UtilString.hexStringToByteArray(br.readLine().trim());
-							attributes.put(name, value);
+							byte[] values = UtilString.hexStringToByteArray(value);
+							attributes.put(name, values);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TYPE_CHAR) {
 						try {
-							attributes.put(name, (char) Integer.parseInt(br.readLine().trim()));
+							attributes.put(name, (char) Integer.parseInt(value));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TYPE_SHORT) {
 						try {
-							attributes.put(name, Short.parseShort(br.readLine().trim()));
+							attributes.put(name, Short.parseShort(value));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TYPE_DATE) {
 						try {
-							Date value = new Date(Long.parseLong(br.readLine().trim()));
-							attributes.put(name, value);
+							Date values = new Date(Long.parseLong(value));
+							attributes.put(name, values);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (type == TYPE_OBJECT) {
-						String hexstring = br.readLine();
-						if(hexstring == null || "".equals(hexstring.trim().trim())){
+						String hexstring = value;
+						if(hexstring == null || "".equals(hexstring.trim())){
 							
 						}else{
 							try {
 								byte[] bytes = UtilString.hexStringToByteArray(hexstring);
 								ByteArrayInputStream bin = new ByteArrayInputStream(bytes);
 								ObjectInputStream oin = new ObjectInputStream(bin);
-								Object value = oin.readObject();
-								attributes.put(name, value);
+								Object values = oin.readObject();
+								attributes.put(name, values);
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
@@ -572,7 +566,7 @@ public class TxtCoder {
 						//tag
 						br.readLine();
 						String l = null;
-						String value = null;
+						value = "";
 						while((l = br.readLine()) != null){
 							if(l.length() == 1 && '\r' == l.charAt(0)){
 								continue;
@@ -598,7 +592,7 @@ public class TxtCoder {
 						}
 						attributes.put(name, value);
 					} else if(type == TYPE_STRING){
-						attributes.put(name, br.readLine().trim());
+						attributes.put(name, value);
 					}
 				}
 			}

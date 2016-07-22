@@ -15,6 +15,8 @@
 ******************************************************************************/
 package org.xmeta.util;
 
+import java.util.List;
+
 import org.xmeta.Action;
 import org.xmeta.ActionContext;
 import org.xmeta.Bindings;

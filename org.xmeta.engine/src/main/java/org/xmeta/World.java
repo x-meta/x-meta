@@ -36,6 +36,7 @@ import org.xmeta.cache.ThingCache;
 import org.xmeta.cache.ThingEntry;
 import org.xmeta.codes.DmlThingCoder;
 import org.xmeta.codes.JsonThingCoder;
+import org.xmeta.codes.PropertyThingCoder;
 import org.xmeta.codes.TxtThingCoder;
 import org.xmeta.codes.XerThingCoder;
 import org.xmeta.codes.XmlThingCoder;
@@ -135,7 +136,8 @@ public class World {
 		//thingCoders.clear();		
 		ThingCoder txtThingCoder = new TxtThingCoder();
 		ThingCoder xmlThingCoder = new XmlThingCoder();
-		ThingCoder dmlThingCoder = new DmlThingCoder(xmlThingCoder, txtThingCoder);
+		ThingCoder propertyCoder = new PropertyThingCoder();
+		ThingCoder dmlThingCoder = new DmlThingCoder(xmlThingCoder, txtThingCoder, propertyCoder);
 		thingCoders.add(dmlThingCoder);
 		thingCoders.add(txtThingCoder);
 		thingCoders.add(xmlThingCoder);
@@ -1143,14 +1145,20 @@ public class World {
 			return null;
 		}
 		
+		boolean hasThingsDir = true;
 		Properties properties = new Properties();
 		if(rootPath.isDirectory()){
 			File configFile = new File(rootPath, "config.properties");
 			if(!configFile.exists()){
 				configFile = new File(rootPath, "xworker.properties");
 			}
-			if(configFile.exists()){
-				
+			if(!configFile.exists()){
+				configFile = new File(rootPath, "dml.prj");
+				if(configFile.exists()){
+					hasThingsDir = false;
+				}
+			}
+			if(configFile.exists()){				
 				FileInputStream fin = null; 
 				try{
 					fin = new FileInputStream(configFile);
@@ -1240,7 +1248,7 @@ public class World {
 					return null;
 				}
 			}else{
-				thingManager = new FileThingManager(name, rootPath);
+				thingManager = new FileThingManager(name, rootPath, hasThingsDir);
 			}
 			
 			try{
@@ -1356,5 +1364,14 @@ public class World {
 		}else{
 			this.addThingManager(tm);
 		}
+	}
+	
+	/**
+	 * 返回工作目录对应的事物管理器，用于XWorker之外项目获取自身的事物管理器。
+	 * 
+	 * @return 事物管理器，总是返回第一个事物管理
+	 */
+	public ThingManager getWorkDirThingManager(){
+		return thingManagers.get(0);
 	}
 }

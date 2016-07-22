@@ -26,6 +26,7 @@ import org.xmeta.Thing;
  *
  */
 public class GeneratedObjectEntry {
+	private static final String key = "__GeneratedObjectEntry__";
 	ThingEntry thingEntry;
 	String method;
 	String path;
@@ -57,5 +58,16 @@ public class GeneratedObjectEntry {
 		}
 		
 		return generatedThing;
+	}
+	
+	public static Object getObject(Thing thing, String method, ActionContext actionContext){
+		String key_ = key + "_" + method;
+		GeneratedObjectEntry entry = (GeneratedObjectEntry) thing.getData(key_);
+		if(entry == null){
+			entry = new GeneratedObjectEntry(thing, method);
+			thing.setData(key_, entry);
+		}
+		
+		return entry.getObject(actionContext);
 	}
 }

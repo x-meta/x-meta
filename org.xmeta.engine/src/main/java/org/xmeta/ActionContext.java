@@ -219,6 +219,23 @@ public class ActionContext implements Map<String, Object>{
 		threadStatus.set(status);
 	}
 
+	public void _break(){
+		setStatus(ActionContext.BREAK);
+	}
+	
+	public void _ontinue(){
+		setStatus(ActionContext.CONTINUE);
+	}
+	
+	public void _return(Object obj){
+		setStatus(ActionContext.RETURN);		
+	}
+		
+	public void _exception(Object throwedObject){
+		setStatus(ActionContext.EXCEPTION);
+		setThrowedObject(throwedObject);
+	}
+	
 	public Bindings push() {
 		return push(null);
 	}
@@ -338,6 +355,31 @@ public class ActionContext implements Map<String, Object>{
 	public Bindings l(){
 		return getScope();
 	}
+	
+	/**
+	 * 返回指定索引的局部变量集合，用于多个局部变量包含的情形，如Begin套Begin。
+	 * 
+	 * @param index 索引，从0开始，0是最近的那个局部变量范围
+	 * @return 局部变量集合
+	 */
+	public Bindings l(int index){
+		int c = 0;
+		Stack<Bindings> bindingsStack = getBindingStack();
+		for (int i = bindingsStack.size() - 1; i >= 0; i--) {
+			Bindings bindings = bindingsStack.get(i);
+			if(bindings.isVarScopeFlag()){
+				if(c == index){
+					return bindings;
+				}else{
+					c++;
+				}
+			}
+		}
+		
+		//如果没有返回null
+		return null;
+	}
+	
 	
 	/**
 	 * 获取当前堆栈信息。

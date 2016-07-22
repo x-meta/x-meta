@@ -80,7 +80,7 @@ public class FileThingManager extends AbstractThingManager{
 							category = thingName.substring(0, lastDotIndex);
 							thingFileName = thingName.substring(lastDotIndex + 1, thingName.length());
 						}
-						metadata.setCategory(getCategory(category));
+						metadata.setCategory(getCategory(category, true));
 						metadata.setCoderType(thingCoder.getType());
 						metadata.setReserve(thingFileName);
 						

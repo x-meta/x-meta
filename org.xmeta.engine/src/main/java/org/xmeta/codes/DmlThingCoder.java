@@ -21,20 +21,26 @@ import org.xmeta.ThingIndex;
 public class DmlThingCoder implements ThingCoder{
 	ThingCoder xmlThingCoder = null;
 	ThingCoder txtThingCoder = null;
+	ThingCoder propertyThingCoder = null;
 
 	private static String TYPE = "dml";
 	private static String TYPE_TXT = "dml_txt";
 	private static String TYPE_XML = "dml_xml";
+	private static String TYPE_PROPERTY = "dml_property";
 	
-	public DmlThingCoder(ThingCoder xmlThingCoder, ThingCoder txtThingCoder){
+	public DmlThingCoder(ThingCoder xmlThingCoder, ThingCoder txtThingCoder, ThingCoder propertyThingCoder){
 		this.xmlThingCoder = xmlThingCoder;
 		this.txtThingCoder = txtThingCoder;		
+		this.propertyThingCoder = propertyThingCoder;
+		
 	}
 	
 	@Override
 	public void encode(Thing thing, OutputStream out) {
 		if(TYPE_XML.equals(thing.getMetadata().getCoderType())){
 			xmlThingCoder.encode(thing, out);
+		}else if(TYPE_PROPERTY.equals(thing.getMetadata().getCoderType())){
+			propertyThingCoder.encode(thing, out);
 		}else{
 			txtThingCoder.encode(thing, out);
 		}
@@ -51,6 +57,9 @@ public class DmlThingCoder implements ThingCoder{
 			if(firstChar == '^'){
 				txtThingCoder.decode(thing, bin, lastModifyed);
 				thing.getMetadata().setCoderType(TYPE_TXT);
+			}else if(firstChar == PropertyCoder.TYPE_LASTMODIFIED){
+				propertyThingCoder.decode(thing, bin, lastModifyed);
+				thing.getMetadata().setCoderType(TYPE_PROPERTY);
 			}else{
 				xmlThingCoder.decode(thing, bin, lastModifyed);
 				thing.getMetadata().setCoderType(TYPE_XML);
@@ -75,12 +84,12 @@ public class DmlThingCoder implements ThingCoder{
 
 	@Override
 	public boolean acceptType(String type) {
-		return TYPE.equals(type) || TYPE_TXT.equals(type) || TYPE_XML.equals(type);
+		return TYPE.equals(type) || TYPE_TXT.equals(type) || TYPE_XML.equals(type) || TYPE_PROPERTY.equals(type);
 	}
 
 	@Override
 	public String[] getCodeTypes() {
-		return new String[]{TYPE_TXT, TYPE_XML};
+		return new String[]{TYPE_PROPERTY, TYPE_XML, TYPE_TXT};
 	}
 
 }

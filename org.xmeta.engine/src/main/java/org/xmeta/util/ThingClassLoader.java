@@ -196,7 +196,7 @@ public class ThingClassLoader extends URLClassLoader {
 	
 	public String getClassPath() {
 		Map<String, String> context = new HashMap<String, String>();
-		return getClassPathFormClassLoader(this, null, context);
+		return getClassPathFormClassLoader(this, "", context);
 	}
 	
 	/**
