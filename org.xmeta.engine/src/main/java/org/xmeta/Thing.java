@@ -1049,7 +1049,11 @@ public class Thing {
     			if(i < paths.length - 1){
     				return getNullReturn(path);
     			}else{
-    				return current.getAllChilds(ps[0]);
+    				if("".equals(ps[0])){
+    					return current.getChilds();
+    				}else{
+    					return current.getAllChilds(ps[0]);
+    				}
     			}
     		}else if(ps.length == 2){
     			//取子节点
@@ -2140,6 +2144,14 @@ public class Thing {
 	        			//这个代码应该会产生大量的空值，会占用内存
 	        			//attributes.put(name, null);
 	        		}
+	        	}
+	        }
+	        
+	        //设置默认的名字属性
+	        if(attributes.get(NAME) == null){
+	        	Thing descriptor = this.getDescriptor();
+	        	if(descriptor != null){
+	        		attributes.put(NAME, descriptor.get(NAME));
 	        	}
 	        }
     	}finally{

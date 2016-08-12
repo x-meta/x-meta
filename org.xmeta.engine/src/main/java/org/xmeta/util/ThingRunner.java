@@ -153,7 +153,7 @@ public class ThingRunner {
 			File thingFile = new File(thingPath);
 			if(!thingFile.exists()){
 				thingFile = new File("./" + thingPath);
-				logger.info("create temp thing");
+				//logger.info("create temp thing");
 			}
 			if(thingFile.exists()){
 				//打开的事物是一个文件

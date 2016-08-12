@@ -566,7 +566,7 @@ public class PropertyCoder {
 						//tag
 						br.readLine();
 						String l = null;
-						value = "";
+						value = null;
 						while((l = br.readLine()) != null){
 							if(l.length() == 1 && '\r' == l.charAt(0)){
 								continue;
