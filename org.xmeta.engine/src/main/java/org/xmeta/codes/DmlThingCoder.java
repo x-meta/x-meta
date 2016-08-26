@@ -47,10 +47,16 @@ public class DmlThingCoder implements ThingCoder{
 	}
 
 	@Override
-	public void decode(Thing thing, InputStream in, long lastModifyed)  {
-		BufferedInputStream bin = new BufferedInputStream(in);
-		bin.mark(10);
+	public void decode(Thing thing, InputStream in, long lastModifyed)  {				
 		try{
+			//允许空的文件为事物，这样编辑器中可以先创建文件
+			if(in.available() == 0){
+				return;
+			}
+			
+			BufferedInputStream bin = new BufferedInputStream(in);
+			bin.mark(10);
+		
 			int firstChar = bin.read();
 			bin.reset();
 			

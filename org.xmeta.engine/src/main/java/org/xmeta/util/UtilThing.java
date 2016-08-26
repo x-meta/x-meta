@@ -139,7 +139,7 @@ public class UtilThing {
 	/**
 	 * 返回引用的事物，如果安路就不存在，那么就找根事物下的子事物。如果是子事物，那么替换路径。
 	 * 
-	 * @param parent
+	 * @param thing
 	 * @param attribute
 	 * @return
 	 */

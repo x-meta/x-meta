@@ -31,6 +31,7 @@ public class ActionException extends RuntimeException{
 
 	/** XWorker自身的堆栈列表 */
 	private static List<Bindings> bindingList = new ArrayList<Bindings>();
+	private static String actionContextStack = null;
 	
 	public ActionException(){
         super();
@@ -51,12 +52,14 @@ public class ActionException extends RuntimeException{
     public ActionException(String message, ActionContext actionContext){
         super(message);
         
+        actionContextStack = actionContext.getStackTrace();
         initBindings(actionContext);
     }
 
     public ActionException(String message, Throwable cause, ActionContext actionContext){
         super(message, cause);        
         
+        actionContextStack = actionContext.getStackTrace();
         initBindings(actionContext);
     }
     
@@ -83,12 +86,19 @@ public class ActionException extends RuntimeException{
     }
     
 	@Override
-	public void printStackTrace() {
+	public void printStackTrace() {		
+		if(this.getMessage() != null){
+			System.err.println(this.getMessage());
+		}
 		Throwable cause = getCause();
 		if(cause != null){
 			cause.printStackTrace();
 		}else{
 			super.printStackTrace();
+		}
+		
+		if(actionContextStack != null){
+			System.err.print(actionContextStack);
 		}
 	}
 
@@ -100,6 +110,10 @@ public class ActionException extends RuntimeException{
 		}else{
 			super.printStackTrace(s);
 		}
+		
+		if(actionContextStack != null){
+			s.println(actionContextStack);
+		}
 	}
 
 	@Override
@@ -109,6 +123,10 @@ public class ActionException extends RuntimeException{
 			cause.printStackTrace(s);
 		}else{
 			super.printStackTrace(s);
+		}
+		
+		if(actionContextStack != null){
+			s.println(actionContextStack);
 		}
 	}
 

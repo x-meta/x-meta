@@ -15,7 +15,16 @@
 ******************************************************************************/
 package org.xmeta.util;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 public class ExceptionUtil {
+	private static final String[] CAUSE_METHOD_NAMES = { "getCause",
+			"getNextException", "getTargetException", "getException",
+			"getSourceException", "getRootCause", "getCausedByException",
+			"getNested", "getLinkedException", "getNestedException",
+			"getLinkedCause", "getThrowable", };
+    
 	/**
 	 * 获取第一个Cause的消息。
 	 * 
@@ -32,5 +41,62 @@ public class ExceptionUtil {
 		}
 		
 		return message;
+	}
+	
+	/**
+	 * 返回异常的根异常。
+	 * 
+	 * @param t 异常
+	 * @return 最初始的根异常
+	 */
+	public static Throwable getRootCause(Throwable t){
+		Throwable cause = t;
+		while(true){
+			Throwable c = getCause(cause);
+			if(c != null){
+				cause = c;
+			}else{
+				break;
+			}
+		}
+		
+		return cause;
+	}
+	
+	public static Throwable getCause(Throwable t){
+		for(String methodName : CAUSE_METHOD_NAMES){
+			Throwable th = getCauseUsingMethodName(t, methodName);
+			if(th != null){
+				return th;
+			}
+		}
+		
+		return null;
+	}
+
+	private static Throwable getCauseUsingMethodName(final Throwable throwable,
+			final String methodName) {
+		Method method = null;
+		try {
+			method = throwable.getClass().getMethod(methodName);
+		} catch (final NoSuchMethodException ignored) { // NOPMD
+			// exception ignored
+		} catch (final SecurityException ignored) { // NOPMD
+			// exception ignored
+		}
+
+		if (method != null
+				&& Throwable.class.isAssignableFrom(method.getReturnType())) {
+			try {
+				return (Throwable) method.invoke(throwable);
+			} catch (final IllegalAccessException ignored) { // NOPMD
+				// exception ignored
+			} catch (final IllegalArgumentException ignored) { // NOPMD
+				// exception ignored
+			} catch (final InvocationTargetException ignored) { // NOPMD
+				// exception ignored
+			}
+		}
+		return null;
 	}
 }

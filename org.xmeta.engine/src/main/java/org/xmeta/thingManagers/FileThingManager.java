@@ -41,6 +41,8 @@ public class FileThingManager extends AbstractThingManager{
 	/** 事物管理器的根目录 */
 	File rootFile = null;
 	
+	boolean hasThingsDir;
+	
 	public FileThingManager(String name, File rootFile){
 		this(name, rootFile, true);
 	}
@@ -48,6 +50,7 @@ public class FileThingManager extends AbstractThingManager{
 	public FileThingManager(String name, File rootFile, boolean hasThingsDir){
 		super(name);
 		
+		this.hasThingsDir = hasThingsDir;
 		this.rootFile = rootFile;
 		if(hasThingsDir){
 			this.thingRootFile = new File(rootFile, "things");
@@ -55,6 +58,10 @@ public class FileThingManager extends AbstractThingManager{
 			this.thingRootFile = rootFile;
 		}
 		rootCategory = new FileCategory(null, this , null);
+	}
+	
+	public boolean hasThingsDir(){
+		return hasThingsDir;
 	}
 	
 	@Override

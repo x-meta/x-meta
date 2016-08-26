@@ -474,6 +474,88 @@ public class World {
 	}
 
 	/**
+	 * 通过路径获取资源。
+	 * 
+	 * @param path 路径
+	 * @return 资源，没找到返回null
+	 * 
+	 * @throws IOException 异常
+	 */
+	public URL getResource(String path) throws IOException{
+		if(path == null){
+			return null;
+		}
+		
+		path = path.replace('\\', '/');
+		if(path.startsWith("world|")){
+			//相对于World的路径
+			path = World.getInstance().getPath() + "/" + path.substring(6, path.length());	
+			
+			File file = new File(path);
+			if(file.exists()){
+				return file.toURI().toURL();
+			}else{
+				return this.getClassLoader().getResource("/" + path.substring(6, path.length()));
+			}
+		}else if(path.startsWith("project|") || path.indexOf(":") != -1){
+			//基于项目的路径，旧的路径规则，已不再使用
+			int index = path.indexOf(":");
+			String projectName = null;
+			if(path.startsWith("project|")){
+				projectName = path.substring(8, index);
+			}else{
+				projectName = path.substring(0, index);
+			}
+			path = path.substring(index + 1, path.length());
+			path = "/" + projectName + "/" + path;
+			for(ThingManager thingManager : getThingManagers()){
+				URL in = thingManager.findResource(path);
+				if(in != null){
+					return in;
+				}
+			}
+			
+			return getClassLoader().getResource(path);
+		}else{
+			//直接从文件系统中找
+			File file = new File(path);
+			if(file.exists()){
+				return file.toURI().toURL();
+			}else{
+				//从webRoot中找
+				file = new File(getPath() + "/webroot/" + path);
+				if(file.exists()){
+					return file.toURI().toURL();
+				}
+				
+				//先从ThingManager中找
+				if(!path.startsWith("/")){
+					path = "/" + path;
+					
+				}
+				for(ThingManager thingManager : getThingManagers()){
+					URL in = thingManager.findResource(path);
+					if(in != null){
+						return in;
+					}
+				}
+				
+				URL in = getClassLoader().getResource(path);
+				if(in == null){
+					if(path.startsWith("/") || path.startsWith("\\")){
+						in = getClassLoader().getResource(path.substring(1, path.length()));
+					}else{
+						in = getClassLoader().getResource("/" + path);
+					}
+				}
+				
+				
+				return in;
+			}
+		}		
+	}
+	
+	/**
 	 * 以流的形式返回资源，如果没有返回null。首先从文件系统中找，其次从classpath下寻找资源。
 	 * 
 	 * @param path 路径

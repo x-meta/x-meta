@@ -390,29 +390,39 @@ public class ActionContext implements Map<String, Object>{
 		Stack<Bindings> bindingsStack = getBindingStack();
 		String content = "ActionContext stacktrace, thread=" + Thread.currentThread().getName() + ":";
 		for (int i = bindingsStack.size() - 1; i >= 0; i--) {
-			content = content + "\n    ";
+			String stack = "";			
 			Bindings bindings = bindingsStack.get(i);
 			if(bindings.getCaller() != null){
 				Object caller = bindings.getCaller();
 				if(caller instanceof Thing){
-					content = content + "caller: thing: " + ((Thing) caller).getMetadata().getPath();
+					stack = stack + "caller: thing: " + ((Thing) caller).getMetadata().getPath();
 				}else if(caller instanceof Action){
-					content = content + "caller: action: " + ((Action) caller).getThing().getMetadata().getPath();
+					stack = stack + "caller: action: " + ((Action) caller).getThing().getMetadata().getPath();
 				}else{
-					content = content + "caller: object: " + caller.getClass();
+					stack = stack + "caller: object: " + caller.getClass();
 				}
 			}else{
-				content = content + "caller: null";
+				//content = content + "caller: null";
 			}
 			
 			String method = bindings.getCallerMethod();
-			content = content + ", callerMethod: " + method;
+			if(method != null && !"".equals(method)){
+				stack = stack + ", callerMethod: " + method;
+			}
 			
 			if(bindings.getContexts() != null){
-				content = content + ", contexts: ";
+				String values = "";
 				for(Thing key : bindings.getContexts().keySet()){
-					content = content + key.getMetadata().getPath() + ",";
+					values = values + key.getMetadata().getPath() + ",";
 				}
+				
+				if(!"".equals(values)){
+					stack = stack + ", contexts: " + values;
+				}
+			}
+			
+			if(!"".equals(stack)){
+				content = content + "\n    " + stack;
 			}
 		}
 		return content;

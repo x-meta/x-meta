@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.xmeta.cache.ThingEntry;
 import org.xmeta.thingManagers.ClassThingManager;
 import org.xmeta.thingManagers.FileThingManager;
+import org.xmeta.util.ExceptionUtil;
 import org.xmeta.util.JavaCompiler15;
 import org.xmeta.util.JavaCompiler16;
 import org.xmeta.util.Semaphore;
@@ -193,7 +194,7 @@ public class Action extends Semaphore{
 		try{
 			init();
 		}catch(Exception e){
-			throw new ActionException("init action error, action=" + thing, e);
+			throw new ActionException("init action error, action=" + thing.getMetadata().getPath(), e);
 		}
 	}
 		
@@ -758,7 +759,11 @@ public class Action extends Semaphore{
 				}else{
 					Object throwedObject = context.getThrowedObject();
 					if(throwedObject != null){
-						throw new ActionException(throwedObject.toString());
+						if(throwedObject instanceof Throwable){
+							throw (Throwable) throwedObject;
+						}else{
+							throw new ActionException(throwedObject.toString());
+						}
 					}else{
 						throw new ActionException("action throw null");
 					}					
@@ -775,13 +780,16 @@ public class Action extends Semaphore{
 				return result;			
 			}else{
 				if(!throwException){
-					return "failure";
+					logHideenExceptionStackTrace(exception, context);
+					return null;
 				}else{
+					throw exception;
+					/*
 					if(exception instanceof RuntimeException){
 						throw (RuntimeException) exception;
 					}else{
 						throw new ActionException("", exception);
-					}
+					}*/
 				}
 			}
 		}catch(Throwable e){			
@@ -798,14 +806,17 @@ public class Action extends Semaphore{
 			}else{
 				//exception.printStackTrace();
 				if(!throwException){
-					log.warn("action exception is hidded : " + thing.getMetadata().getPath(), e);
-					return "failure";
+					logHideenExceptionStackTrace(e, context);
+					//log.warn("action exception is hidded : " + thing.getMetadata().getPath(), e);
+					return null;
 				}else{
+					throw wrapToActionException(exception, context);
+					/*
 					if(exception instanceof RuntimeException){
 						throw (RuntimeException) exception;
 					}else{
 						throw new ActionException(exception);
-					}
+					}*/
 				}
 			}			
 		}finally{
@@ -821,6 +832,32 @@ public class Action extends Semaphore{
 				this.finished();
 			}
 		}
+	}
+	
+	private ActionException wrapToActionException(Throwable t, ActionContext actionContext){
+		if(t instanceof  InvocationTargetException){
+			Throwable cause = t.getCause();
+			if(cause != null){
+				t = cause;
+			}
+		}
+		
+		if(t instanceof ActionException){
+			return (ActionException) t;
+		}
+		
+		return new ActionException("Action exception: " + thingEntry.getPath(), t,  actionContext);
+	}
+	
+	private void logHideenExceptionStackTrace(Throwable t, ActionContext actionContext){
+		log.warn("action ActionContext stacktrace:" + thingEntry.getPath());
+		log.warn(actionContext.getStackTrace());
+		
+		if(t instanceof InvocationTargetException){
+			log.warn("action hidden throwable", t.getCause());
+		}else{
+			log.warn("action hidden throwable", t);
+		}		
 	}
 	
 	public static Throwable doContextMethod(List<ThingEntry> contexts, ActionContext actionContext, String methodName, Throwable exception){
