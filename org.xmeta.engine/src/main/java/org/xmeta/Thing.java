@@ -2147,13 +2147,14 @@ public class Thing {
 	        	}
 	        }
 	        
-	        //设置默认的名字属性
+	        //设置默认的名字属性，不要在这里默认初始化名字属性，因为有些已存在的事物name允许为空
+	        /*
 	        if(attributes.get(NAME) == null){
 	        	Thing descriptor = this.getDescriptor();
 	        	if(descriptor != null){
 	        		attributes.put(NAME, descriptor.get(NAME));
 	        	}
-	        }
+	        }*/
     	}finally{
     		endModify(true);
     	}
@@ -2653,7 +2654,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 把自己按照指定的路径保存到指定的目录下。
+	 * 把自己按照指定的路径保存到指定的目录下，如果目标事物存在那么会替换目标事物。
 	 * 
 	 * @param thingManager 事物管理器
 	 * @param path 事物路径
@@ -2696,6 +2697,9 @@ public class Thing {
 			//替换属性路径
 			ThingUtil.replaceThing(thing, oldPath, path);
 			manager.save(thing);
+			
+			//清除已有的事物缓存，使事物重新加载
+			ThingCache.remove(path);
 		}else{
 			throw new XMetaException("Thing manager not exists, name=" + thingManager);
 		}

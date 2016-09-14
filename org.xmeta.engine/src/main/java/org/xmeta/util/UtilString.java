@@ -469,7 +469,13 @@ public class UtilString {
 			return World.getInstance().getPath() + "/" + path;
 		}else if(value.startsWith("var:")){
 			String path = value.substring(4, value.length());
-			return (String) actionContext.get(path);
+			Object obj = actionContext.get(path);
+			if(obj instanceof Thing){
+				return ((Thing) obj).getMetadata().getPath();
+			}else{
+				return String.valueOf(obj);
+			}
+			//return (String) actionContext.get(path);
 		}
 		
 		String v = value;
