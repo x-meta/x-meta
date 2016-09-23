@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.xmeta.cache.ThingEntry;
 import org.xmeta.thingManagers.ClassThingManager;
 import org.xmeta.thingManagers.FileThingManager;
-import org.xmeta.util.ExceptionUtil;
 import org.xmeta.util.JavaCompiler15;
 import org.xmeta.util.JavaCompiler16;
 import org.xmeta.util.Semaphore;
@@ -181,6 +180,9 @@ public class Action extends Semaphore{
 	
 	/** 是否要创建本地变量范围  */
 	boolean isCreateLocalVarScope;
+	
+	/** 子动作的定义 */
+	Map<String, Action> actionsDefiend = null;
 		
 	//----------构造函数和其他方法------------
 	/**
@@ -253,6 +255,19 @@ public class Action extends Semaphore{
 		disableGlobalContext = thing.getBoolean("disableGlobalContext");
 		
 		isSelfInterpretationType = "Self".equals(thing.getString("interpretationType"));
+		
+		//动作定义
+		List<Thing> actionsThingList = thing.getChilds("ActionDefined");
+		if(actionsThingList.size() > 0){
+			actionsDefiend = new HashMap<String, Action>();
+			for(Thing actionsThing : actionsThingList){
+				for(Thing actionThing : actionsThing.getChilds()){
+					actionsDefiend.put(actionThing.getMetadata().getName(), actionThing.getAction());
+				}
+			}
+		}else{
+			actionsDefiend = null;
+		}
 		
 		//返回值
 		returnVarName = thing.getString("returnVarName");
@@ -644,10 +659,13 @@ public class Action extends Semaphore{
 		}
 		context.pushAction(this);
 				
-		//总是输入一些常量，以后要取消
+		//总是输入一些常量
 		bindings.put("world", world);
 		if(logger != null){
 			bindings.put("log", logger);
+		}
+		if(actionsDefiend != null){
+			bindings.putAll(actionsDefiend);
 		}
 				
 		Object result = null;

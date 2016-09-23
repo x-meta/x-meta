@@ -403,7 +403,9 @@ public class UtilData {
     	}else if(v instanceof Date){
     		return (Date) v;
     	}else if(v instanceof String){
-    		SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");    		
+    		String dateStr = (String) v;    		
+    		SimpleDateFormat sf = getSimpleDateFormat(dateStr);    		
+    		    		
     		try {
 				return sf.parse((String) v);
 			} catch (ParseException e) {
@@ -480,18 +482,42 @@ public class UtilData {
     	}else if(v instanceof Date){
     		return (Date) v;
     	}else if(v instanceof String){
+    		SimpleDateFormat sf = null;
+    		String value = v.toString().replace("T"," ");
     		if(pattern == null || pattern.equals(VALUE_BLANK)){
-    			pattern = "yyyy-MM-dd";
+    			sf = getSimpleDateFormat(value);   
+    		}else{
+    			sf = new SimpleDateFormat(pattern);
     		}
-    		SimpleDateFormat sf = new SimpleDateFormat(pattern);    		
+    		    	  	
     		try {
-				return sf.parse((String) v.toString().replace("T"," "));
+				return sf.parse(value);
 			} catch (ParseException e) {
 			}
     	}
     	
     	return defaultValue;
     }
+	
+	public static SimpleDateFormat getSimpleDateFormat(String dateStr){
+		if(dateStr.length() == 10){
+			return new SimpleDateFormat("yyyy-MM-dd");
+		}else if(dateStr.length() == 19){
+			return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		}else if(dateStr.length() == 23){
+			return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		}else if(dateStr.length() == 12){
+			return new SimpleDateFormat("HH:mm:ss.SSS");
+		}else if(dateStr.length() == 8){
+			return new SimpleDateFormat("HH:mm:ss");
+		}else if(dateStr.length() == 5){
+			return new SimpleDateFormat("HH:mm");
+		}if(dateStr.length() == 7){
+			return new SimpleDateFormat("yyyy-MM");
+		}else{
+			return null;
+		}
+	}
 	
 	public static double getDouble(Object v, double defaultValue){    	
     	if(v == null || VALUE_BLANK.equals(v)){
