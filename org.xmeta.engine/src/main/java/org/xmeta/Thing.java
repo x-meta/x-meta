@@ -296,7 +296,7 @@ public class Thing {
 				}
 			}
 		}finally{
-			endModify(true);
+			endModify(changeParent);
 		}		
 	}
 	
