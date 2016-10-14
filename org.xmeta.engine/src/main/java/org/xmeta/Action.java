@@ -538,35 +538,35 @@ public class Action extends Semaphore{
 		return method;
 	}
 	
-	public Object run(){
+	public <T> T  run(){
 		return runArrayParams(new ActionContext(), (Object[]) null, null, false);
 	}
 	
-	public Object run(ActionContext context){
+	public <T> T  run(ActionContext context){
 		return runMapParams(context, null, null, false);
 	}
 	
-	public Object exec(Object... params){
+	public <T> T  exec(Object... params){
 		return runArrayParams(null, params, null, false);
 	}
 	
-	public Object exec(ActionContext context, Object... params){
+	public <T> T  exec(ActionContext context, Object... params){
 		return runArrayParams(context, params, null, false);
 	}
 	
-	public Object run(ActionContext context, Map<String, Object> parameters){
+	public <T> T  run(ActionContext context, Map<String, Object> parameters){
 		return runMapParams( context, parameters, null, false);
 	}
 	
-	public Object run(ActionContext context, Map<String, Object> parameters, boolean isSubAction){
+	public <T> T  run(ActionContext context, Map<String, Object> parameters, boolean isSubAction){
 		return runMapParams(context, parameters, null, isSubAction);
 	}
 	
-	public Object run(ActionContext context, Map<String, Object> parameters, Object caller, boolean isSubAction) {
+	public <T> T  run(ActionContext context, Map<String, Object> parameters, Object caller, boolean isSubAction) {
 		return runMapParams(context, parameters, caller, isSubAction);
 	}
 	
-	public Object runArrayParams(ActionContext context, Object[] params_, Object caller,  boolean isSubAction){
+	public <T> T runArrayParams(ActionContext context, Object[] params_, Object caller,  boolean isSubAction){
 		if(context == null){
 			context = new ActionContext();
 		}
@@ -587,7 +587,7 @@ public class Action extends Semaphore{
 		return this.dorun(context, bindings, bindings, caller, isSubAction);
 	}
 	
-	public Object runMapParams(ActionContext context, Map<String, Object> parameters, Object caller, boolean isSubAction) {
+	public <T> T runMapParams(ActionContext context, Map<String, Object> parameters, Object caller, boolean isSubAction) {
 		if(context == null){
 			context = new ActionContext();
 		}
@@ -611,7 +611,8 @@ public class Action extends Semaphore{
 	 * @throws IOException 
 	 * @throws ClassNotFoundException 
 	 */
-	private Object dorun(ActionContext context, Bindings bindings, Map<String, Object> parameters, Object caller, boolean isSubAction) {
+	@SuppressWarnings("unchecked")
+	private <T> T dorun(ActionContext context, Bindings bindings, Map<String, Object> parameters, Object caller, boolean isSubAction) {
 		//long start = System.nanoTime();
 		//是否禁止全局上下文具有继承的性质
 		if(context.peek().disableGloableContext ||  this.disableGlobalContext){
@@ -795,7 +796,7 @@ public class Action extends Semaphore{
 			}
 			Throwable exception = doContextMethod(allContexts, context, contxtMethod, null);
 			if(exception == null){				
-				return result;			
+				return (T) result;			
 			}else{
 				if(!throwException){
 					logHideenExceptionStackTrace(exception, context);
@@ -820,7 +821,7 @@ public class Action extends Semaphore{
 				}
 			}
 			if(exception == null){
-				return "success";
+				return null;
 			}else{
 				//exception.printStackTrace();
 				if(!throwException){

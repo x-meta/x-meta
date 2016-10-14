@@ -671,8 +671,9 @@ public class Thing {
 	 * @param actionContext 变量容器
 	 * @return 执行后的返回结果
 	 */
-	public Object doAction(String name, ActionContext actionContext){
-		return run(name, actionContext, (Map<String, Object>) null, false, true);
+	@SuppressWarnings("unchecked")
+	public <T> T doAction(String name, ActionContext actionContext){
+		return (T) run(name, actionContext, (Map<String, Object>) null, false, true);
 	}
 	
 	/**
@@ -714,7 +715,7 @@ public class Thing {
 	 * @param includeSelf 是否包含自己
 	 * @return 执行结果
 	 */
-	public Object run(String name, ActionContext context, Map<String, Object> parameters, boolean isSubAction, boolean includeSelf){
+	public <T> T run(String name, ActionContext context, Map<String, Object> parameters, boolean isSubAction, boolean includeSelf){
 		Thing actionThing = getActionThing(name);
 		//System.out.println("Thing 515 get action time : " + (System.currentTimeMillis() - start));
 		Action action = null;
@@ -775,19 +776,19 @@ public class Thing {
 		}
 	}
 	
-	public Object exec(String name, ActionContext context, Object... params){
+	public <T> T  exec(String name, ActionContext context, Object... params){
 		return run(name, context, params, false, false);		
 	}
 	
-	public Object exec(String name, Object... params){
+	public <T> T  exec(String name, Object... params){
 		return run(name, null, params, false, false);	
 	}
 	
-	public Object doExec(String name, ActionContext context, Object... params){
+	public <T> T  doExec(String name, ActionContext context, Object... params){
 		return run(name, context, params, false, true);		
 	}
 	
-	public Object doExec(String name, Object... params){
+	public <T> T  doExec(String name, Object... params){
 		return run(name, null, params, false, true);	
 	}
 	
@@ -801,7 +802,7 @@ public class Thing {
 	 * @param includeSelf 是否包含自己
 	 * @return 执行结果
 	 */
-	public Object run(String name, ActionContext context, Object[] parameters, boolean isSubAction, boolean includeSelf){
+	public <T> T  run(String name, ActionContext context, Object[] parameters, boolean isSubAction, boolean includeSelf){
 		Thing actionThing = getActionThing(name);
 		//System.out.println("Thing 515 get action time : " + (System.currentTimeMillis() - start));
 		Action action = null;
@@ -845,7 +846,7 @@ public class Thing {
 	 * @param isSubAction 是否是子动作
 	 * @return 执行结果
 	 */
-	public Object run(String name, ActionContext context, Map<String, Object> parameters, boolean isSubAction){
+	public <T> T  run(String name, ActionContext context, Map<String, Object> parameters, boolean isSubAction){
 		return run(name, context, parameters, isSubAction, false);
 	}
 	
@@ -856,7 +857,7 @@ public class Thing {
 	 * @param parameters 参数
 	 * @return 执行结果
 	 */
-	public Object run(String name, ActionContext context, Map<String, Object> parameters){
+	public <T> T  run(String name, ActionContext context, Map<String, Object> parameters){
 		return run(name, context, parameters, false, false);
 	}
 	
@@ -867,7 +868,7 @@ public class Thing {
 	 * @param context 变量上下文
 	 * @return 执行结果
 	 */
-	public Object run(String name, ActionContext context){
+	public <T> T  run(String name, ActionContext context){
 		return run(name, context, (Object[]) null, false, false);
 	}
 	
@@ -878,7 +879,7 @@ public class Thing {
 	 * @param parameters 参数
 	 * @return 执行结果
 	 */
-	public Object run(String name, Map<String, Object> parameters){
+	public <T> T  run(String name, Map<String, Object> parameters){
 		return run(name, null, parameters, false, false);
 	}
 	
@@ -888,7 +889,7 @@ public class Thing {
 	 * @param name 动作名
 	 * @return 执行结果
 	 */
-	public Object run(String name){
+	public <T> T  run(String name){
 		return run(name, null, (Object[]) null, false, false);
 	}
 	
