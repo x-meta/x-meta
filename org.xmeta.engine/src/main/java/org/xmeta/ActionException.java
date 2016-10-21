@@ -87,6 +87,10 @@ public class ActionException extends RuntimeException{
     
 	@Override
 	public void printStackTrace() {		
+		if(actionContextStack != null){
+			System.err.print(actionContextStack);
+		}
+		
 		if(this.getMessage() != null){
 			System.err.println(this.getMessage());
 		}
@@ -96,37 +100,33 @@ public class ActionException extends RuntimeException{
 		}else{
 			super.printStackTrace();
 		}
-		
-		if(actionContextStack != null){
-			System.err.print(actionContextStack);
-		}
 	}
 
 	@Override
 	public void printStackTrace(PrintStream s) {
+		if(actionContextStack != null){
+			s.println(actionContextStack);
+		}
+		
 		Throwable cause = getCause();
 		if(cause != null){
 			cause.printStackTrace(s);
 		}else{
 			super.printStackTrace(s);
-		}
-		
-		if(actionContextStack != null){
-			s.println(actionContextStack);
 		}
 	}
 
 	@Override
 	public void printStackTrace(PrintWriter s) {
+		if(actionContextStack != null){
+			s.println(actionContextStack);
+		}
+		
 		Throwable cause = getCause();
 		if(cause != null){
 			cause.printStackTrace(s);
 		}else{
 			super.printStackTrace(s);
-		}
-		
-		if(actionContextStack != null){
-			s.println(actionContextStack);
 		}
 	}
 
