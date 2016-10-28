@@ -2898,4 +2898,35 @@ public class Thing {
 	public <T> T getObject(String key){
 		return (T) get(key);
 	}
+	
+	/**
+	 * 返回指定索引位置的子节点，如果超出范围返回null。
+	 * 
+	 * @param index
+	 * @return 如果超出子节点的范围，返回null，否则返回对应的子节点。
+	 */
+	public Thing getChildAt(int index){
+		if(index < 0 || index >= childs.size()){
+			return null;
+		}else{
+			return childs.get(index);
+		}
+	}
+	
+	/**
+	 * 获取参考子节点的相对位置的子节点，首先找到参考子节点的位置索引，然后和目标index相加获得最终的索引位置。
+	 * 所以如果index小于0，是指获取参考节点的索引更小的子节点，如果index大于0，则是获取后面的节点。
+	 * 
+	 * @param refChild
+	 * @param index
+	 * @return 如果超出子节点的范围或参考子节点不是当前事物的子节点返回null，否则返回对应的子节点。
+	 */
+	public Thing getChildBy(Thing refChild, int index){
+		int rindex = childs.indexOf(refChild);
+		if(rindex == -1){
+			return null;
+		}else{
+			return getChildAt(index + rindex);
+		}
+	}
 }

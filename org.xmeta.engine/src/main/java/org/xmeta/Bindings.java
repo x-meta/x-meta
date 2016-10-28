@@ -38,6 +38,9 @@ public class Bindings extends HashMap<String, Object>{
 
 	/** 事物动作上下文的动作上下文 */
 	private Map<Thing, ActionContext> contexts = null;//new HashMap<Thing, ActionContext>();
+	
+	/** Bindings可以设置动作的上下文，2016-10-26 */
+	private Thing contextThing = null;
 		
 	public World world = World.getInstance();
 	
@@ -104,5 +107,25 @@ public class Bindings extends HashMap<String, Object>{
         	}
         }
         return h;
+	}
+	
+	public void setContextThing(Thing contextThing){
+		this.contextThing = contextThing;
+	}
+	
+	public Thing getContextThing(){
+		return this.contextThing;
+	}
+		
+	public String toString(){
+		return super.toString();
+		/*
+		String str = "";
+		if(caller != null){
+			str = str + caller.getClass().getSimpleName() + ": " + (callerMethod != null ? callerMethod : "") + ", ";
+		}
+		
+		str = str + "变量个数：" + this.size();
+		return str;*/
 	}
 }

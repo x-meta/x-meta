@@ -670,13 +670,16 @@ public class Action extends Semaphore{
 		}
 				
 		Object result = null;
+		//动作上下文事物
+		List<Thing> allContexts = getContextThings(context);
+		/*
 		List<ThingEntry> allContexts = new ArrayList<ThingEntry>();
 		if(!disableGlobalContext){
 			allContexts.addAll(world.globalContexts);
 		}
 		if(contexts.size() > 0){
 			allContexts.addAll(contexts);
-		}
+		}*/
 		
 		//初始化脚本内的上下文
 		bindings.setCaller(this, null);
@@ -685,8 +688,8 @@ public class Action extends Semaphore{
 		try{
 			//首先是全局上下文		
 			if(allContexts.size() > 0){
-				for(ThingEntry thingContext : allContexts){
-					initContext(thingContext.getThing(), context);
+				for(Thing contextThing : allContexts){
+					initContext(this, contextThing, context);
 				}
 			}
 			
@@ -853,6 +856,33 @@ public class Action extends Semaphore{
 		}
 	}
 	
+	private List<Thing> getContextThings(ActionContext actionContext){
+		List<Thing> allContexts = new ArrayList<Thing>();
+		if(!disableGlobalContext){
+			for(ThingEntry entry : world.globalContexts){
+				addContextThing(allContexts, entry.getThing());
+			}		
+		}
+		if(contexts.size() > 0){
+			for(ThingEntry entry : contexts){
+				addContextThing(allContexts, entry.getThing());
+			}
+		}
+		
+		for(Bindings bindings : actionContext.getScopes()){
+			addContextThing(allContexts, bindings.getContextThing());
+		}
+		
+		return allContexts;
+	}
+	
+	private void addContextThing(List<Thing> contexts, Thing contextThing){
+		if(contextThing == null){
+			return;
+		}
+		
+		contexts.add(contextThing);
+	}
 	private ActionException wrapToActionException(Throwable t, ActionContext actionContext){
 		if(t instanceof  InvocationTargetException){
 			Throwable cause = t.getCause();
@@ -879,10 +909,10 @@ public class Action extends Semaphore{
 		}		
 	}
 	
-	public static Throwable doContextMethod(List<ThingEntry> contexts, ActionContext actionContext, String methodName, Throwable exception){
+	private static Throwable doContextMethod(List<Thing> contexts, ActionContext actionContext, String methodName, Throwable exception){
 		List<Thing> thingList = new ArrayList<Thing>();
-		for(ThingEntry entry : contexts){
-			thingList.add(entry.getThing());
+		for(Thing thing : contexts){
+			thingList.add(thing);
 		}
 		
 		return doThingContextMethod(thingList, actionContext, methodName, exception);
@@ -953,14 +983,17 @@ public class Action extends Semaphore{
 	 * @param context 上下文事物
 	 * @param actionContext 变量上下文
 	 */
-	public static void initContext(Thing context, ActionContext actionContext){
+	public static void initContext(Action action, Thing context, ActionContext actionContext){
 		if(context == null || context.getBoolean("disable")){
 			return;
 		}
 		
 		Bindings bindings = actionContext.peek();
 		ActionContext acContext = new ActionContext();
-		acContext.peek().put("acContext", actionContext);
+		acContext.put("acContext", actionContext);
+		acContext.put("parentContext", actionContext);
+		acContext.put("action", action);
+		acContext.put("actionThing", action.getThing());
 		acContext.getScope(0).setCaller(context, "init");
 		
 		//查看是否继承，如果继承那么使用上级的脚本
