@@ -26,6 +26,7 @@ import org.xmeta.World;
 public class WorkingSetIndex extends Index{
 	String thingPath;
 	Index parent = null;
+	Thing thing = null;
 	
 	/** 
 	 * 子索引列表。
@@ -35,6 +36,7 @@ public class WorkingSetIndex extends Index{
 	public WorkingSetIndex(Index parent, Thing thing){
 		this.parent = parent;
 		thingPath = thing.getMetadata().getPath();
+		this.thing = thing;
 	}
 	
 	@Override
@@ -43,7 +45,12 @@ public class WorkingSetIndex extends Index{
 	}
 	
 	public Thing getThing(){
-		return World.getInstance().getThing(thingPath);
+		Thing t = World.getInstance().getThing(thingPath);
+		if(t == null){
+			return thing;
+		}else{
+			return t;
+		}
 	}
 
 	@Override
@@ -71,7 +78,7 @@ public class WorkingSetIndex extends Index{
 	}
 
 	@Override
-	public String getName() {
+	public String getName() {		
 		return getThing().getMetadata().getName();
 	}
 
@@ -115,6 +122,11 @@ public class WorkingSetIndex extends Index{
 		}
 		IndexFactory.addOrRemoveChilds(this, childs, tlist,	IndexFactory.thingManagerIndexFactory, Index.TYPE_THINGMANAGER);
 		
+		for(Index child : childs){
+			if(child.getType().equals(WorkingSetIndex.TYPE_WORKING_SET)){
+				child.refresh();
+			}
+		}
 		WorldIndex.sort(childs);
 		return true;
 	}

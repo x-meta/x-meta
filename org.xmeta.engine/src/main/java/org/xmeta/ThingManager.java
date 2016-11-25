@@ -15,6 +15,7 @@
 ******************************************************************************/
 package org.xmeta;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Iterator;
@@ -239,4 +240,18 @@ public interface ThingManager {
 	 * @param properties 参数
 	 */
 	public void init(Properties properties);
+	
+	/**
+	 * 设置项目的所在根目录。
+	 * 
+	 * @param root
+	 */
+	public void setRootDir(File root);
+	
+	/**
+	 * 返回项目所在的根目录。
+	 * 
+	 * @return
+	 */
+	public File getRootDir();
 }

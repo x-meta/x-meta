@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.xmeta.ActionContext;
 import org.xmeta.Thing;
 import org.xmeta.World;
-import org.xmeta.thingManagers.FileThingManager;
 
 /**
  * 执行指定事物的run方法。
@@ -68,8 +67,35 @@ public class ThingRunner {
 		}
 	}
 	
+	public static void initProjects(){
+		World world = World.getInstance();
+		
+		File projectsDir = new File("./projects/");
+		if(projectsDir.exists() && projectsDir.isDirectory()){
+			for(File prjDir : projectsDir.listFiles()){
+				if(prjDir.isDirectory() && isProject(prjDir)){
+					world.initThingManager(prjDir);
+				}
+			}
+		}		
+	}
+	
+	public static boolean isProject(File dir){
+		return new File(dir, "config.properties").exists() || new File(dir, "xworker.properties").exists() ||
+				new File(dir, "dml.prj").exists();		
+	}
+	
 	public static void run(String args[]) {
 		try {
+			try{
+				//为了事物管理器里的控制台能够输入log4j的日志等，以后应该想办法解决这个不优雅的方式
+				//System.out.println("load SystemIoRedirector");
+				Class<?> cls = Class.forName("xworker.io.SystemIoRedirector");
+				cls.getMethod("init", new Class<?>[]{}).invoke(null, new Object[]{});
+				//System.out.println("loaded SystemIoRedirector");
+			}catch(Exception e){			
+			}
+			
 			//运行参数
 			String worldPath = null;
 			String thingPath = null;
@@ -138,6 +164,10 @@ public class ThingRunner {
 			
 			World world = World.getInstance();
 			world.init(worldPath);
+			
+			//初始化项目，如果当前目录存在projects目录的话
+			initProjects();
+			
 			/*
 			if(jarFile != null && jarFile.exists()){
 				world.getClassLoader().addJarOrZip(jarFile);

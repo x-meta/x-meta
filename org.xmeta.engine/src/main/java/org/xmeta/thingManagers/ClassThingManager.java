@@ -15,6 +15,7 @@
 ******************************************************************************/
 package org.xmeta.thingManagers;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -168,6 +169,15 @@ public class ClassThingManager implements ThingManager{
 	@Override
 	public boolean isSaveable() {
 		return false;
+	}
+
+	@Override
+	public void setRootDir(File root) {
+	}
+
+	@Override
+	public File getRootDir() {
+		return null;
 	}
 
 }

@@ -15,7 +15,9 @@
 ******************************************************************************/
 package org.xmeta.thingManagers;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -45,6 +47,8 @@ public abstract class AbstractThingManager implements ThingManager{
 	
 	/** 包列表 */
 	protected List<Package> packages = new ArrayList<Package>();
+	
+	protected File rootDir;
 	
 	/**
 	 * 抽象事物管理者的构造方法。
@@ -201,6 +205,10 @@ public abstract class AbstractThingManager implements ThingManager{
 	 */
 	public Iterator<Thing> iterator(final String categoryName, final String descriptorPath, final boolean includeChildCategory) {
 		Category category = getCategory(categoryName);
+		if(category == null){
+			return Collections.emptyIterator();
+		}
+		
 		return category.iterator(descriptorPath, includeChildCategory);		
 	}
 
@@ -313,4 +321,14 @@ public abstract class AbstractThingManager implements ThingManager{
 	 * @return 是否保存成功
 	 */
 	public abstract boolean doSaveThing(Thing thing);
+	
+	@Override
+	public void setRootDir(File root){
+		this.rootDir = root;
+	}
+	
+	@Override
+	public File getRootDir(){
+		return rootDir;
+	}
 }

@@ -53,8 +53,7 @@ public abstract class Index {
 	 * 
 	 * @return 索引实例
 	 */
-	public static Index getInstance(){
-		return index;
+	public static Index getInstance(){		return index;
 	}
 	
 	/**

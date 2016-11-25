@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.xmeta.cache.ThingCache;
 import org.xmeta.cache.ThingEntry;
 import org.xmeta.codes.DmlThingCoder;
+import org.xmeta.codes.DmwThingCoder;
 import org.xmeta.codes.JsonThingCoder;
 import org.xmeta.codes.PropertyThingCoder;
 import org.xmeta.codes.TxtThingCoder;
@@ -75,7 +76,8 @@ public class World {
 	private ClassThingManager classThingManager = new ClassThingManager();
 		
 	/** 元事物 */
-	public Thing metaThing = null;// new MetaThing();
+	//public Thing metaThing = null;// new MetaThing();
+	public Thing baseClass = null;//new MetaThing();
 
 	/** 全局上下文 */
 	protected List<ThingEntry> globalContexts = new CopyOnWriteArrayList<ThingEntry>();
@@ -138,7 +140,9 @@ public class World {
 		ThingCoder xmlThingCoder = new XmlThingCoder();
 		ThingCoder propertyCoder = new PropertyThingCoder();
 		ThingCoder dmlThingCoder = new DmlThingCoder(xmlThingCoder, txtThingCoder, propertyCoder);
+		ThingCoder dmwThingCoder = new DmwThingCoder(xmlThingCoder, txtThingCoder, propertyCoder);
 		thingCoders.add(dmlThingCoder);
+		thingCoders.add(dmwThingCoder);
 		thingCoders.add(txtThingCoder);
 		thingCoders.add(xmlThingCoder);
 		thingCoders.add(new XerThingCoder());
@@ -313,7 +317,7 @@ public class World {
 		if(thing == null){
 			if("MetaThing".equals(path.getPath())){
 				//MetaThing这个名字永远分配给元事物
-				thing = metaThing;
+				thing = baseClass;
 			}else{
 				//先从目录缓存中读取，然后再遍历每一个事物管理器
 				String categoryPath = path.getPath();
@@ -862,6 +866,55 @@ public class World {
 		}
 	}
 	
+	public String getHome(String name){
+		name = name.toUpperCase();
+		String home = getHomeFromSystem(name);
+		if(home == null){
+			home = getHomeFromSystem(name.toLowerCase());
+		}
+
+		return home;
+	}
+	
+	public String getHomeFromSystem(String name){
+		String home = System.getProperty(name);
+		if(home == null){
+			home = System.getenv(name);
+		}
+		
+		return home;
+	}
+	
+	public String testFileHome(String filePath){
+		if(new File(filePath).exists()){
+			return filePath;
+		}else{
+			return null;
+		}
+	}
+	
+	public String getHomeFormSytsem(){
+		//尝试从系统变量中获取
+		String home = getHome("XMETA_HOME");
+		if(home == null){
+			home =  getHome("XWORKER_HOME");
+		}
+		if(home == null){
+			home = System.getenv("xmeta_home");
+		}
+		if(home == null){
+			home = System.getenv("XMETA_HOME");
+		}
+		if(home == null){
+			home = testFileHome("/usr/local/xworker/");
+		}
+		if(home == null){
+			home = ".";
+		}
+		
+		return home;
+	}
+	
 	/**
 	 * 通过给定事物的存放路径来初始化世界。
 	 * 
@@ -872,21 +925,7 @@ public class World {
 		// 设置事物的路径
 		if(worldPath == null){
 			//尝试从系统变量中获取
-			String home = System.getProperty("xmeta_home");
-			if(home == null){
-				home = System.getProperty("XMETA_HOME");
-			}
-			if(home == null){
-				home = System.getenv("xmeta_home");
-			}
-			if(home == null){
-				home = System.getenv("XMETA_HOME");
-			}
-			if(home == null){
-				worldPath = ".";
-			}else{
-				worldPath = home;
-			}
+			worldPath = getHomeFormSytsem();
 			
 		}
 		ThingCache.clear();
@@ -905,7 +944,7 @@ public class World {
 		initLibraryPath();
 		
 		// 初始化项目等
-		metaThing = new MetaThing();
+		baseClass = new MetaThing();
 		
 		//添加World目录下的事物管理器
 		thingManagers.clear();
@@ -927,13 +966,13 @@ public class World {
 		getClassLoader().initLibs();
 		
         //重新设置元事物如果存在, 2015-03-18加入，因为一些事物已经使用这个xworker.lang.MetaThing
-        Thing metaThing = getThing("xworker.lang.MetaThing");
-        if(metaThing != null){
-        	metaThing = metaThing.detach();
+        Thing baseClass = getThing("xworker.lang.MetaThing");
+        if(baseClass != null){
+        	baseClass = baseClass.detach();
 	        //保留元事物的路径
-	        metaThing.getMetadata().setPath("xworker.lang.MetaThing");
-	        metaThing.initChildPath();
-	        this.metaThing = metaThing;
+        	baseClass.getMetadata().setPath("xworker.lang.MetaThing");
+        	baseClass.initChildPath();
+	        this.baseClass = baseClass;
         }
         
 		//设置状态为已初始化，避免其他地方重复初始化
@@ -1199,13 +1238,24 @@ public class World {
 	}
 
 	public void removeThingManager(ThingManager thingManager, boolean deleteRes){
-		thingManagers.remove(thingManager);
+		for(int i=0; i<thingManagers.size(); i++){
+			ThingManager tm = thingManagers.get(i);
+			if(tm == thingManager || tm.getName().equals(thingManager.getName())){
+				thingManagers.remove(i);
+				break;
+			}
+			
+		}
 		
+		if(deleteRes && thingManager.getRootDir() != null){
+			UtilFile.delete(thingManager.getRootDir());
+		}
+		/*
 		if(deleteRes && thingManager instanceof FileThingManager){
 			//同时删除目录
 			FileThingManager fm = (FileThingManager) thingManager;
-			UtilFile.delete(new File(fm.getFilePath()));
-		}
+			UtilFile.delete(fm.getRootFile());
+		}*/
 	}
 	
 	public String getOS(){
@@ -1297,6 +1347,7 @@ public class World {
 					getClassLoader().addJarOrZip(new File(rootPath, "lib"));
 					getClassLoader().addJarOrZip(new File(rootPath, "lib_" + OS));
 					getClassLoader().addJarOrZip(new File(rootPath, "lib_" + OS + "_" + PROCESSOR_ARCHITECTURE));
+					thingManager.setRootDir(rootPath);
 					return thingManager;
 				}else{
 					ThingManager thingManager = new FileThingManager(name, linkFile);
@@ -1306,6 +1357,7 @@ public class World {
 					getClassLoader().addJarOrZip(new File(linkFile, "lib"));
 					getClassLoader().addJarOrZip(new File(linkFile, "lib_" + OS));
 					getClassLoader().addJarOrZip(new File(linkFile, "lib_" + OS + "_" + PROCESSOR_ARCHITECTURE));
+					thingManager.setRootDir(rootPath);
 					return thingManager;
 				}
 			}
@@ -1346,6 +1398,7 @@ public class World {
 			getClassLoader().addJarOrZip(new File(rootPath, "lib"));
 			getClassLoader().addJarOrZip(new File(rootPath, "lib_" + OS));
 			getClassLoader().addJarOrZip(new File(rootPath, "lib_" + OS + "_" + PROCESSOR_ARCHITECTURE));
+			thingManager.setRootDir(rootPath);
 			return thingManager;
 		}else{
 			return null;

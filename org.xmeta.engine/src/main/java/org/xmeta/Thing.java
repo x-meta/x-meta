@@ -516,7 +516,7 @@ public class Thing {
 			List<Thing> descriptors = thing.getDescriptors();
 			for(Thing descriptor : descriptors){
 				//元事物的描述者不添加
-				if(descriptor != World.getInstance().metaThing && !descriptor.getMetadata().getPath().equals("metaThing")){
+				if(descriptor != World.getInstance().baseClass && !descriptor.getMetadata().getPath().equals("metaThing")){
 					addDescriptor(-1, descriptor);
 				}			
 			}
@@ -1748,8 +1748,8 @@ public class Thing {
 			}
 		}
 		
-		if(world.metaThing != null){
-			descriptors.add(world.metaThing);
+		if(world.baseClass != null){
+			descriptors.add(world.baseClass);
 		}
 		
 		return descriptors;
@@ -1795,9 +1795,9 @@ public class Thing {
 			descriptors.add(desc);
 		}
 		
-		if(caches.get(World.getInstance().metaThing) == null){
+		if(caches.get(World.getInstance().baseClass) == null){
 			//元事物是每个事物的描述者
-			descriptors.add(World.getInstance().metaThing);
+			descriptors.add(World.getInstance().baseClass);
 		}
 		
 		return descriptors;

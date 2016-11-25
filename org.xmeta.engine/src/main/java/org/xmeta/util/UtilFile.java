@@ -268,13 +268,22 @@ public class UtilFile {
 		
 		//是否是模型
 		String name = file.getName();
+		String ext = null;
+		int index = name.lastIndexOf(".");
+		if(index != -1){
+			ext = name.substring(index + 1, name.length());
+		}else{
+			return null;
+		}		
 		boolean isModel = false;
-		for(ThingCoder coder : World.getInstance().getThingCoders()){
-			if(name.endsWith("." + coder.getType())){
+		for(ThingCoder coder : World.getInstance().getThingCoders()){			
+			if(coder.acceptType(ext)){
+			//if(name.endsWith("." + coder.getType())){
 				isModel = true;
 				break;
 			}
 		}
+		//System.out.println("isModel=" + isModel);
 		if(!isModel){
 			return null;
 		}
@@ -413,5 +422,21 @@ public class UtilFile {
 		}
 		
 		return name;
+	}
+	
+	/**
+	 * 判断childFile是否是parentFile的一个子文件，包括更深的子目录等。
+	 * 
+	 * @param parentFile
+	 * @param childFile
+	 * @return
+	 * @throws IOException 
+	 */
+	public static boolean isParent(File parentFile, File childFile) throws IOException{
+		if(parentFile == null || childFile == null){
+			return false;
+		}
+		
+		return childFile.getCanonicalPath().startsWith(parentFile.getCanonicalPath());
 	}
 }

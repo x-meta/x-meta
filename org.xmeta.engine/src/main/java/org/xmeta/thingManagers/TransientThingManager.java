@@ -15,6 +15,7 @@
 ******************************************************************************/
 package org.xmeta.thingManagers;
 
+import java.io.File;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.net.URL;
@@ -384,5 +385,14 @@ public class TransientThingManager implements ThingManager{
 	@Override
 	public boolean isSaveable() {
 		return true;
+	}
+
+	@Override
+	public void setRootDir(File root) {
+	}
+
+	@Override
+	public File getRootDir() {
+		return null;
 	}
 }

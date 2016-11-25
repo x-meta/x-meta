@@ -201,7 +201,7 @@ public class FileThingManager extends AbstractThingManager{
 
 	@Override
 	public boolean remove() {
-		UtilFile.delete(thingRootFile);
+		UtilFile.delete(rootFile);
 		
 		return true;
 	}
@@ -227,6 +227,10 @@ public class FileThingManager extends AbstractThingManager{
 
 	public String getFilePath(){
 		return thingRootFile.getAbsolutePath();
+	}
+	
+	public File getRootFile(){
+		return rootFile;
 	}
 
 	@Override

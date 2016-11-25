@@ -546,6 +546,10 @@ public class Action extends Semaphore{
 		return runMapParams(context, null, null, false);
 	}
 	
+	public <T> T  run(ActionContext context, Object... params){
+		return runArrayParams(context, params, null, false);
+	}
+	
 	public <T> T  exec(Object... params){
 		return runArrayParams(null, params, null, false);
 	}
@@ -708,7 +712,8 @@ public class Action extends Semaphore{
 					if(method != null){
 						result = method.invoke(actionClass, new Object[]{context});
 					}else{
-						logger.info("Java action method is null, " + getThing().getMetadata().getPath());
+						throw new ActionException("Java action method not setted");
+						//logger.info("Java action method is null, " + getThing().getMetadata().getPath());
 					}
 				}
 			}else{
