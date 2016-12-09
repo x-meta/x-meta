@@ -1385,8 +1385,16 @@ public class Thing {
 		
 		//取本事物的描述者列表
 		List<Thing> selfDescriptors = getDescriptors();
+		Map<String, String> context = new HashMap<String, String>(); //过滤重复名字的上下文
 		for(Thing descriptor : selfDescriptors){
-			UtilData.addToSource(attributesDescriptors, descriptor.getAllChilds("attribute"), false);
+			for(Thing attr : descriptor.getAllChilds("attribute")){
+				String name = attr.getMetadata().getName();
+				if(context.get(name) == null){
+					context.put(name, name);
+					attributesDescriptors.add(attr);
+				}
+			}
+			//UtilData.addToSource(attributesDescriptors, descriptor.getAllChilds("attribute"), false);
 		}
 		
 		return attributesDescriptors;

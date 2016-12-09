@@ -168,7 +168,7 @@ public class XmlCoder {
 		
 		//name和id
 		String name = thing.getMetadata().getName(); //总是先写入name属性
-		if(!name.equals(thingName)){
+		if(!name.equals(thingName) || thing.getChilds().size() == 0){ // 叶子节点必须要有一个name属性，否则会被解析为上一个节点的属性
 			writer.writeAttribute("name", name);
 		}
 		attrContext.put("name", name);

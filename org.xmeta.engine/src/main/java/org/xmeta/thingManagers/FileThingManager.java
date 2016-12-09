@@ -229,6 +229,10 @@ public class FileThingManager extends AbstractThingManager{
 		return thingRootFile.getAbsolutePath();
 	}
 	
+	public File getThingRootFile(){
+		return thingRootFile;
+	}
+	
 	public File getRootFile(){
 		return rootFile;
 	}

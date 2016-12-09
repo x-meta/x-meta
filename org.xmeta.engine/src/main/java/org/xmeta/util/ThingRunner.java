@@ -17,6 +17,7 @@ package org.xmeta.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -71,10 +72,24 @@ public class ThingRunner {
 		World world = World.getInstance();
 		
 		File projectsDir = new File("./projects/");
+		File worldPrjDir = new File(world.getPath() + "/projects/");
+		try {
+			//如果是XWorker字段的项目，不要初始化
+			if(projectsDir.getCanonicalPath().equals(worldPrjDir.getCanonicalPath())){
+				return;
+			}
+		} catch (IOException e1) {
+			return;
+		}
+		
 		if(projectsDir.exists() && projectsDir.isDirectory()){
 			for(File prjDir : projectsDir.listFiles()){
 				if(prjDir.isDirectory() && isProject(prjDir)){
-					world.initThingManager(prjDir);
+					try{
+						world.initThingManager(prjDir);
+					}catch(Exception e){
+						logger.warn("init project error", e);
+					}
 				}
 			}
 		}		
