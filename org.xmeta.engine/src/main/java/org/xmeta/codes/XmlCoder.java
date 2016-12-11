@@ -65,6 +65,7 @@ public class XmlCoder {
 			encode(thing, bout);
 			return new String(bout.toByteArray());
 		}catch(Exception e){
+			System.out.println(bout.toString());
 			throw new ThingCoderException(e);
 		}finally{
 			try {
@@ -87,6 +88,7 @@ public class XmlCoder {
 		//element.a
 		XMLOutputFactory factory = XMLOutputFactory.newInstance();
 		XMLStreamWriter writer = factory.createXMLStreamWriter(out, "utf-8");
+		//OutputKeys.
 		try{			
 			writer.writeStartDocument("utf-8", "1.0");
 			writer.writeCharacters("\n");
@@ -199,7 +201,9 @@ public class XmlCoder {
 		//其他属性
 		List<Thing> attributes = thing.getAllAttributesDescriptors();
 		List<Thing> cDataAttributes = new ArrayList<Thing>();
-		SimpleDateFormat dateFormater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");		
+		SimpleDateFormat dateFormater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		//int lineStartIndex = ident.length() + thingName.length() + 2;
+		//int lineWidth = lineStartIndex;
 		for(Thing attribute : attributes){
 			String attrname = attribute.getMetadata().getName();
 			if(attrContext.get(attrname) != null){
@@ -282,13 +286,22 @@ public class XmlCoder {
 				if(strValue != null){				
 					if(includeDefaultValue || !CoderUtils.isDefault(attribute, strValue)){
 						//XML不保存和默认值相同的值
+						//System.out.println(attrname + "=" + strValue);
 						writer.writeAttribute(attrname, strValue);
+						//lineWidth = lineWidth + attrname.length() + strValue.length() + 3;
 					}
 				}else if(defaultValue != null && !"".equals(defaultValue)){
 					//如果默认值不为空但是属性值为空，写入一个空字符串，避免读取xml时重赋值为默认值
 					writer.writeAttribute(attrname, "");
+					//lineWidth = lineWidth + attrname.length() + 3;
 				}
 			}
+			
+			/*
+			if(lineWidth > 80){
+				writer.writeCharacters("\n" + "    ");
+				lineWidth = lineStartIndex;
+			}*/
 
 		}
 		
