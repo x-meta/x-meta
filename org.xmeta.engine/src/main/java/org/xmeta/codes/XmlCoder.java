@@ -92,7 +92,7 @@ public class XmlCoder {
 		try{			
 			writer.writeStartDocument("utf-8", "1.0");
 			writer.writeCharacters("\n");
-			encode(thing, null, writer, "", false);
+			encode(thing, null, writer, "", false, out);
 			writer.writeEndDocument();
 		}finally{
 			writer.close();
@@ -138,7 +138,7 @@ public class XmlCoder {
 		try{			
 			writer.writeStartDocument("utf-8", "1.0");
 			writer.writeCharacters("\n");
-			encode(thing, null, writer, "", includeDefaultValue);
+			encode(thing, null, writer, "", includeDefaultValue, out);
 			writer.writeEndDocument();
 		}finally{
 			writer.close();
@@ -159,24 +159,29 @@ public class XmlCoder {
 	 * @throws XMLStreamException XML异常
 	 * @throws IOException IO异常
 	 */
-	private static void encode(Thing thing, Thing parentDescriptors, XMLStreamWriter writer, String ident, boolean includeDefaultValue) throws XMLStreamException, IOException{
+	private static void encode(Thing thing, Thing parentDescriptors, XMLStreamWriter writer, String ident, boolean includeDefaultValue, OutputStream out) throws XMLStreamException, IOException{
 		writer.writeCharacters("\n" + ident);
-		
+				
 		//属性缓存，避免写入重复的属性
 		Map<String, String> attrContext = new HashMap<String, String>();
 		//节点名
 		String thingName = thing.getThingName();
 		writer.writeStartElement(thingName);				
 		
+		int lineStartIndex = ident.length() + 4;
+		int lineWidth = lineStartIndex;
+				
 		//name和id
 		String name = thing.getMetadata().getName(); //总是先写入name属性
 		if(!name.equals(thingName) || thing.getChilds().size() == 0){ // 叶子节点必须要有一个name属性，否则会被解析为上一个节点的属性
 			writer.writeAttribute("name", name);
+			lineWidth = lineWidth + name.length() + 8;
 		}
 		attrContext.put("name", name);
 		String id = thing.getMetadata().getId(); //写入meta中的id属性 
 		if(includeDefaultValue== false && id != null && !"".equals(id) && !id.equals(name)){ //如果id和name不同，写入
 			writer.writeAttribute("_xmeta_id_", id);
+			lineWidth = lineWidth + id.length() + 15;
 		}
 		
 		//描述者，descriptors
@@ -186,15 +191,20 @@ public class XmlCoder {
 		//如果描述者只有一个且是父描述者的子节点，那么不用写入描述者
 		if(parentDescriptors != null && descriptors != null && descriptors.split("[,]").length == 1){
 			for(Thing parentDescriptor : parentDescriptors.getAllChilds("thing")){
-				if(parentDescriptor.getMetadata().getName().equals(thingName) && 
-						descriptor.getMetadata().getPath().equals(parentDescriptor.getMetadata().getPath())){
-					writeDescriptor = false;
-					break;
+				if(parentDescriptor.getMetadata().getName().equals(thingName)){
+					if(descriptor.getMetadata().getPath().equals(parentDescriptor.getMetadata().getPath())){
+						writeDescriptor = false;
+						break;
+					}else{
+						break;
+					}
 				}
 			}
 		}
+		
 		if(writeDescriptor && descriptors != null){
-			writer.writeAttribute("descriptors", descriptors);			
+			writer.writeAttribute("descriptors", descriptors);		
+			lineWidth = lineWidth + descriptors.length() + 15;
 		}
 		attrContext.put("descriptors", descriptors);
 		
@@ -202,8 +212,8 @@ public class XmlCoder {
 		List<Thing> attributes = thing.getAllAttributesDescriptors();
 		List<Thing> cDataAttributes = new ArrayList<Thing>();
 		SimpleDateFormat dateFormater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		//int lineStartIndex = ident.length() + thingName.length() + 2;
-		//int lineWidth = lineStartIndex;
+		
+		
 		for(Thing attribute : attributes){
 			String attrname = attribute.getMetadata().getName();
 			if(attrContext.get(attrname) != null){
@@ -282,27 +292,38 @@ public class XmlCoder {
 				}
 			}
 			
-			if(!isCdata){//cdata另外保存				
+			if(!isCdata){//cdata另外保存	
 				if(strValue != null){				
 					if(includeDefaultValue || !CoderUtils.isDefault(attribute, strValue)){
+						//处理行的最大宽度
+						if(lineWidth > 80){
+							writer.flush();
+							out.write("\n".getBytes());
+							out.write((ident + "    ").getBytes());
+							//writer.writeCharacters("\n" + "    ");
+							lineWidth = lineStartIndex;
+						}
+						
 						//XML不保存和默认值相同的值
 						//System.out.println(attrname + "=" + strValue);
 						writer.writeAttribute(attrname, strValue);
-						//lineWidth = lineWidth + attrname.length() + strValue.length() + 3;
+						lineWidth = lineWidth + attrname.length() + strValue.length() + 3;
 					}
 				}else if(defaultValue != null && !"".equals(defaultValue)){
+					//处理行的最大宽度
+					if(lineWidth > 80){
+						writer.flush();
+						out.write("\n".getBytes());
+						out.write((ident + "    ").getBytes());
+						//writer.writeCharacters("\n" + "    ");
+						lineWidth = lineStartIndex;
+					}
+					
 					//如果默认值不为空但是属性值为空，写入一个空字符串，避免读取xml时重赋值为默认值
 					writer.writeAttribute(attrname, "");
-					//lineWidth = lineWidth + attrname.length() + 3;
+					lineWidth = lineWidth + attrname.length() + 3;
 				}
 			}
-			
-			/*
-			if(lineWidth > 80){
-				writer.writeCharacters("\n" + "    ");
-				lineWidth = lineStartIndex;
-			}*/
-
 		}
 		
 		//写入schema的引用，如果存在话
@@ -330,7 +351,7 @@ public class XmlCoder {
 		
 		//子节点
 		for(Thing child : thing.getChilds()){
-			encode(child, descriptor, writer, ident + "    ", includeDefaultValue);
+			encode(child, descriptor, writer, ident + "    ", includeDefaultValue, out);
 		}
 		
 		//节点结束
@@ -340,6 +361,7 @@ public class XmlCoder {
 		
 		writer.writeEndElement();
 	}
+
 	
 	/**
 	 * 分析XML字符串并返回事物。

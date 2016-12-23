@@ -1,5 +1,7 @@
 package org.xmeta.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -116,6 +118,19 @@ public class ActionContainer {
 		}else{
 			return child;
 		}
+	}
+	
+	public List<Thing> getActionThings(){
+		List<Thing> list = new ArrayList<Thing>();
+		for (Thing child : actions.getAllChilds()) {
+			list.add(child);
+		}
+		
+		for(Thing ac : actions.getActionsThings()){
+			list.add(ac);
+		}
+		
+		return list;
 	}
 
 	public ActionContext getActionContext() {
