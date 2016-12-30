@@ -15,14 +15,21 @@ public class CoderUtils {
 		String type = attribute.getString("type");
 		String inputtype = attribute.getString("inputtype");
 		
-		if(defaultValue == null){
-			//布尔值的默认值都是false
-			if("boolean".equals(type) || "truefalse".equals(inputtype) || "truefalseselect".equals(inputtype)){
-				if("false".equals(value)){
-					return true;
-				}
+		//布尔值的默认值都是false
+		if("boolean".equals(type) || "truefalse".equals(inputtype) || "truefalseselect".equals(inputtype)){
+			if(defaultValue == null){
+				defaultValue = "false";
 			}
-			
+			if(defaultValue.equals(value)){
+				return true;
+			}else if(defaultValue.equals("false") && (value == null || "".equals(value))){
+				return true;
+			}else{
+				return false;
+			}
+		}
+		
+		if(defaultValue == null && value != null && !"".equals(value)){
 			return false;
 		}else{
 			return defaultValue.equals(value);

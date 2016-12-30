@@ -33,10 +33,12 @@ package org.xmeta;
  *
  */
 public class MetaThing extends Thing{
-	public MetaThing(){
+	public MetaThing(){				
 		super();
 		
+		//long start = System.currentTimeMillis();		
 		init();
+		//System.out.println("metathing init: " + (System.currentTimeMillis() - start));
 	}
 	
 	/**
@@ -64,6 +66,7 @@ public class MetaThing extends Thing{
 	 * </thing>
 	 */
 	private void init(){
+		//long start = System.currentTimeMillis();
 		this.beginModify();
 		
         //<thing name="thing"/>
@@ -76,7 +79,7 @@ public class MetaThing extends Thing{
 		addChild(createAttribute("descriptors"));
 		//<attribute name="extends"/>
 		addChild(createAttribute("extends"));
-		
+		//System.out.println("metathing addchild: " + (System.currentTimeMillis() - start));
 		//<thing name="attribute">
 		//    <attribute name="name"/>
 		//</thing>
@@ -84,11 +87,14 @@ public class MetaThing extends Thing{
 		attribute.addChild(createAttribute("name"));
 		addChild(attribute);
 		
+		//System.out.println("metathing addchild attribute : " + (System.currentTimeMillis() - start));
+		
 		//<thing name="thing" extends="_root"/>子节点
 		Thing childThing = createThing("thing");
 		childThing.getAttributes().put("extends", "_root");
 		addChild(childThing);
 		
+		//System.out.println("metathing addchild thing : " + (System.currentTimeMillis() - start));
 		//<thing name="actions"> 原生动作JavaAction定义
 		//    <thing name="JavaAction"/>
 		//             <attribute name="name"/>
@@ -114,15 +120,20 @@ public class MetaThing extends Thing{
 		javaAction.addChild(createAttribute("otherActionPath"));
 		actions.addChild(javaAction);
 		addChild(actions);
+		//System.out.println("metathing addchild actions : " + (System.currentTimeMillis() - start));
 		
 		this.endModify(true);
 	}
 	
 	public Thing createThing(String name){
-		return new Thing(name, null, "MetaThing", false);
+		Thing thing = new Thing(name, null, null, false);
+		thing.getAttributes().put("descriptors", "MetaThing");
+		return thing;
 	}
 	
 	public Thing createAttribute(String name){
-		return new Thing(name, null, "MetaThing/@attribute", false);
+		Thing thing =  new Thing(name, null, null, false);
+		thing.getAttributes().put("descriptors", "MetaThing/@attribute");
+		return thing;
 	}
 }

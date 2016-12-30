@@ -98,7 +98,7 @@ public class Action extends Semaphore{
 	private boolean isSynchronized;
 	
 	/** 最后一次修改时间，用来判断是否事物已经更新 */
-	public long lastModified;
+	public long lastModified = 0;
 	
 	/** 是否使用其他事物定义的动作 */
 	private boolean useOtherAction;
@@ -205,13 +205,14 @@ public class Action extends Semaphore{
 	 */
 	public void checkChanged(){
 		if(lastModified != thingEntry.getThing().getMetadata().getLastModified()){
+			if(lastModified != 0){
+				changed = true;
+			}
 			try{
 				init();
 			}catch(Exception e){
 				throw new ActionException("", e);
-			}
-			
-			changed = true;
+			}	
 		}
 	}
 	
@@ -506,13 +507,14 @@ public class Action extends Semaphore{
 	public Class getActionClass(ActionContext actionContext){
 		Thing thing = thingEntry.getThing();
 		if(lastModified != thing.getMetadata().getLastModified()){
+			if(lastModified != 0){
+				changed = true;
+			}
 			try{
 				init();
 			}catch(Exception e){
 				throw new ActionException("", e);
 			}
-			
-			changed = true;
 		}
 		
 		if(isJava){
@@ -618,6 +620,7 @@ public class Action extends Semaphore{
 	@SuppressWarnings("unchecked")
 	private <T> T dorun(ActionContext context, Bindings bindings, Map<String, Object> parameters, Object caller, boolean isSubAction) {
 		//long start = System.nanoTime();
+		//log.info("dorun started");
 		//是否禁止全局上下文具有继承的性质
 		if(context.peek().disableGloableContext ||  this.disableGlobalContext){
 			bindings.disableGloableContext = this.disableGlobalContext;
@@ -636,13 +639,15 @@ public class Action extends Semaphore{
 		//判断事物是否已经是否变更，如果变更了那么重新初始化
 		Thing thing = thingEntry.getThing();
 		if(lastModified != thing.getMetadata().getLastModified()){
+			if(lastModified != 0){
+				changed = true;
+			}
+			
 			try{
 				init();
 			}catch(Exception e){
 				throw new ActionException("", e);
 			}
-			
-			changed = true;
 		}
 		
 		//如果需要同步
@@ -858,6 +863,8 @@ public class Action extends Semaphore{
 			if(thisIsSynchronized){
 				this.finished();
 			}
+			
+			//log.info("dorun ended");
 		}
 	}
 	

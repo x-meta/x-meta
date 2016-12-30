@@ -14,18 +14,25 @@ import org.xmeta.XMetaException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsonThingCoder implements ThingCoder{
-	private static  ObjectMapper mapper = new ObjectMapper();
+	private static  ObjectMapper mapper = null;
 	private static String codeType = "xer.js";
 
 	@Override
 	public void encode(Thing thing, OutputStream out) {
 		throw new ActionException("JsonThingCoder doese not supper encode method, code is edit by hand");
 	}
+	
+	private synchronized void initMapper(){
+		if(mapper == null){
+			mapper = new ObjectMapper();
+		}
+	}
 
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	public void decode(Thing thing, InputStream in, long lastModifyed) {
 		try{
+			initMapper();
 			Map<String, Object> values = mapper.readValue(in, Map.class);
 			
 			Map<String, String> importContext = new HashMap<String, String>();
@@ -49,7 +56,7 @@ public class JsonThingCoder implements ThingCoder{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void decode(Thing thing, String thingName, Object value, Map<String, String> imports, long lastModifyed, boolean decodeIndex){
+	private void decode(Thing thing, String thingName, Object value, Map<String, String> imports, long lastModifyed, boolean decodeIndex){
 		//解析描述者
 		Map<String, Object> attributes = thing.getAttributes();
 		if(!(value instanceof Map)){
@@ -137,6 +144,8 @@ public class JsonThingCoder implements ThingCoder{
 	public void decodeIndex(ThingIndex thingIndex, InputStream in,
 			long lastModifyed) {
 		try{
+			
+			initMapper();
 			Map<String, Object> values = mapper.readValue(in, Map.class);
 			
 			Map<String, String> importContext = new HashMap<String, String>();

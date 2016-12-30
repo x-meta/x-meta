@@ -79,13 +79,15 @@ public class XmlThingCoder implements ThingCoder{
 	        		}
 	        	}
 	        }
-	        XmlCoder.parse(thing, null, root, lastModified);	        
-	        thing.getMetadata().setLastModified(lastModified);
+	        XmlCoder.parse(thing, null, root, lastModified);
+	        XmlCoder.setLastModified(thing, lastModified);
+	        //thing.getMetadata().setLastModified(lastModified);
 		}catch(Exception e){
 			throw new ThingCoderException(e);
 		}
 	}
 
+	
 	@Override
 	public void decodeIndex(ThingIndex thingIndex, InputStream in, long lastModified) {
 		try{

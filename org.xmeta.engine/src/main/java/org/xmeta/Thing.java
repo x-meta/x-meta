@@ -177,26 +177,31 @@ public class Thing {
 	 * @param descriptorPath 事物的描述者
 	 * @param isTransient 是否是瞬态的
 	 */
-	public Thing(String name, String label, String descriptorPath, boolean isTransient){		
-		this.put(Thing.NAME, name);
-		this.put(Thing.LABEL, label);
-		this.put(Thing.DESCRIPTORS, descriptorPath);
-		
-		if(descriptorPath != null){
-			this.initDefaultValue();
-		}
-		
-		if(isTransient){
-			TransientThingManager manager = World.getInstance().getTransientThingManager();
-			String id = "" + manager.getNextId();
-			metadata.setId(id);
-			metadata.setPath("_transient.p" + id);
-			metadata.setCategory(manager.getCategory("_transient"));			
+	public Thing(String name, String label, String descriptorPath, boolean isTransient){	
+		this.beginModify();
+		try{
+			this.put(Thing.NAME, name);
+			this.put(Thing.LABEL, label);
+			this.put(Thing.DESCRIPTORS, descriptorPath);
 			
-			this.isTransient = true;
-			this.save();
-		}else{
-			this.isTransient = false;
+			if(descriptorPath != null){
+				this.initDefaultValue();
+			}
+			
+			if(isTransient){
+				TransientThingManager manager = World.getInstance().getTransientThingManager();
+				String id = "" + manager.getNextId();
+				metadata.setId(id);
+				metadata.setPath("_transient.p" + id);
+				metadata.setCategory(manager.getCategory("_transient"));			
+				
+				this.isTransient = true;
+				this.save();
+			}else{
+				this.isTransient = false;
+			}
+		}finally{
+			this.endModify(true);
 		}
 	}
 	

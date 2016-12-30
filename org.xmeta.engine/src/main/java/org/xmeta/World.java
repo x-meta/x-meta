@@ -133,7 +133,8 @@ public class World {
 	 * 私有构造方法，目前系统中只允许存在一个世界。
 	 * 
 	 */
-	private World() {		
+	private World() {
+		//long start = System.currentTimeMillis();
 		//默认事物编码
 		//thingCoders.clear();		
 		ThingCoder txtThingCoder = new TxtThingCoder();
@@ -146,17 +147,23 @@ public class World {
 		thingCoders.add(txtThingCoder);
 		thingCoders.add(xmlThingCoder);
 		thingCoders.add(new XerThingCoder());
-		
 		try{
 			thingCoders.add(new JsonThingCoder());
 		}catch(Throwable e){
 			log.debug("JsonThingCoder init error, if need json, need Jackson, " + e.getMessage());
 		}
+		//System.out.println("newworld init coders: " + (System.currentTimeMillis() - start));
 		
-		try{
-			ThingOgnlAccessor.init();
-		}catch(Exception e){			
-		}		
+		new Thread(new Runnable(){
+			public void run(){
+				try{
+					ThingOgnlAccessor.init();
+				}catch(Exception e){			
+				}
+			}
+		}).start();
+						
+		//System.out.println("newworld init ognl: " + (System.currentTimeMillis() - start));
 	}
 
 	/**
@@ -860,7 +867,7 @@ public class World {
 					PROCESSOR_ARCHITECTURE = value;
 				}
 			}			
-			log.info("OS=" + OS + ", sun.arch.data.model=" + PROCESSOR_ARCHITECTURE);
+			log.debug("OS=" + OS + ", sun.arch.data.model=" + PROCESSOR_ARCHITECTURE);
 		}catch(Exception e){
 			log.error("init os info error", e);
 		}
@@ -922,6 +929,7 @@ public class World {
 	 *            世界的路径
 	 */
 	public void init(String worldPath) {
+		//long start = System.currentTimeMillis();
 		// 设置事物的路径
 		if(worldPath == null){
 			//尝试从系统变量中获取
@@ -930,25 +938,31 @@ public class World {
 		}
 		ThingCache.clear();
 		
+		//System.out.println("world clear cache: " + (System.currentTimeMillis() - start));
 		File f = new File(worldPath);
 		this.worldPath = f.getAbsolutePath();
 
 		//os和架构等变量的初始化
 		initOsProperites();
 		
+		//System.out.println("world initOsProperites: " + (System.currentTimeMillis() - start));
 		//初始化类库路径
 		// 设置类装载器
 		worldClassLoader = new ThingClassLoader(Thread.currentThread().getContextClassLoader());
 		
+		//System.out.println("world worldClassLoader: " + (System.currentTimeMillis() - start));
 		// 设置library path
 		initLibraryPath();
 		
+		//System.out.println("world initLibraryPath: " + (System.currentTimeMillis() - start));
 		// 初始化项目等
 		baseClass = new MetaThing();
-		
+		//System.out.println("world init metathing: " + (System.currentTimeMillis() - start));
 		//添加World目录下的事物管理器
 		thingManagers.clear();
 		refresh();
+		
+		//System.out.println("world refresh: " + (System.currentTimeMillis() - start));
 		thingManagers.add(transientThingManager);
 		//thingManagers.add(classThingManager);
 		
@@ -965,6 +979,8 @@ public class World {
 		//初始化通过.lib文件自定义的类库
 		getClassLoader().initLibs();
 		
+		//System.out.println("world initLibs: " + (System.currentTimeMillis() - start));
+		
         //重新设置元事物如果存在, 2015-03-18加入，因为一些事物已经使用这个xworker.lang.MetaThing
         Thing baseClass = getThing("xworker.lang.MetaThing");
         if(baseClass != null){
@@ -974,6 +990,8 @@ public class World {
         	baseClass.initChildPath();
 	        this.baseClass = baseClass;
         }
+        
+       // System.out.println("world init metathing: " + (System.currentTimeMillis() - start));
         
 		//设置状态为已初始化，避免其他地方重复初始化
 		inited = true;
@@ -1013,6 +1031,8 @@ public class World {
 	 * 
 	 */
 	public void refresh() {
+		//long start = System.currentTimeMillis();
+		
 		Map<String, String> context = new HashMap<String, String>();
 		for(ThingManager manager : thingManagers){
 			context.put(manager.getName(), manager.getName());
@@ -1020,10 +1040,12 @@ public class World {
 		
 		File projectsFiles = new File(worldPath, "projects");
 		if(projectsFiles.exists()){
+			
 			for(File projectFile : projectsFiles.listFiles()){
 				if(projectFile.isFile()){
 					continue;
 				}
+				
 				
 				String name = projectFile.getName();
 				if(context.get(name) != null){
@@ -1032,7 +1054,10 @@ public class World {
 					this.initThingManager(projectFile);
 					context.put(name, name);
 				}
+				
+				//System.out.println("Init thing manager " + name + ": " + (System.currentTimeMillis() - start));
 			}
+			//System.out.println("Init thing manager all : " + (System.currentTimeMillis() - start));
 		}
 	}
 

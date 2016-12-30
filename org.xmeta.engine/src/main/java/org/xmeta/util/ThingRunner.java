@@ -102,6 +102,7 @@ public class ThingRunner {
 	
 	public static void run(String args[]) {
 		try {
+			//long start = System.currentTimeMillis();
 			try{
 				//为了事物管理器里的控制台能够输入log4j的日志等，以后应该想办法解决这个不优雅的方式
 				//System.out.println("load SystemIoRedirector");
@@ -173,16 +174,18 @@ public class ThingRunner {
 				System.exit(0);
 			}
 
-			logger.info("world path : " + worldPath);
-			logger.info("thing path : " + thingPath);
-			logger.info("action name : " + actionName);
+			logger.debug("world path : " + worldPath);
+			logger.debug("thing path : " + thingPath);
+			logger.debug("action name : " + actionName);
 			
+			//System.out.println("before init world： " + (System.currentTimeMillis() - start));
 			World world = World.getInstance();
+			//System.out.println("before init world1： " + (System.currentTimeMillis() - start));
 			world.init(worldPath);
-			
+			//System.out.println("init world： " + (System.currentTimeMillis() - start));
 			//初始化项目，如果当前目录存在projects目录的话
 			initProjects();
-			
+			//System.out.println("init projects： " + (System.currentTimeMillis() - start));
 			/*
 			if(jarFile != null && jarFile.exists()){
 				world.getClassLoader().addJarOrZip(jarFile);
@@ -248,8 +251,12 @@ public class ThingRunner {
 				thingPath = "XWorker"; //
 			}
 
+			//System.out.println("init thing path： " + (System.currentTimeMillis() - start));
+			
 			//执行事物
 			Thing thing = world.getThing(thingPath);
+			
+			//System.out.println("get thing： " + (System.currentTimeMillis() - start));
 			if (thing == null) {
 				System.out.println("thing not exists : " + thingPath);
 				System.exit(0);
@@ -258,6 +265,7 @@ public class ThingRunner {
 				actionContext.put("args", args);
 				thing.doAction(actionName, actionContext);
 			}			
+			//System.out.println("executed： " + (System.currentTimeMillis() - start));
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
