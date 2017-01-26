@@ -654,7 +654,7 @@ public class Thing {
 	 * 
 	 * @return 执行后的返回结果
 	 */
-	public Object doAction(String name){
+	public <T> T doAction(String name){
 		return run(name, new ActionContext(), (Object[]) null, false, true);
 	}
 	
@@ -665,7 +665,7 @@ public class Thing {
 	 * @param parameters 参数
 	 * @return 执行结果
 	 */
-	public Object doAction(String name, Map<String, Object> parameters){
+	public <T> T doAction(String name, Map<String, Object> parameters){
 		return run(name, new ActionContext(), parameters, false, true);
 	}
 	
@@ -689,11 +689,11 @@ public class Thing {
 	 * @param parameters 参数
 	 * @return 执行后的返回结果
 	 */
-	public Object doAction(String name, ActionContext actionContext, Map<String, Object> parameters){
+	public <T> T doAction(String name, ActionContext actionContext, Map<String, Object> parameters){
 		return run(name, actionContext, parameters, false, true);
 	}
 	
-	public Object doAction(String name, ActionContext actionContext, Object ... parameters){
+	public <T> T doAction(String name, ActionContext actionContext, Object ... parameters){
 		return doAction(name, actionContext, UtilMap.toMap(parameters));
 	}
 		
@@ -706,7 +706,7 @@ public class Thing {
 	 * @param isSubAction 是否是子动作
 	 * @return 执行结果
 	 */
-	public Object doAction(String name, ActionContext actionContext, Map<String, Object> parameters, boolean isSubAction){
+	public <T> T doAction(String name, ActionContext actionContext, Map<String, Object> parameters, boolean isSubAction){
 		return run(name, actionContext, parameters, isSubAction, true);
 	}
 	

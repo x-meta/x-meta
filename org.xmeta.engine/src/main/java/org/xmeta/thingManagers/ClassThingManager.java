@@ -180,4 +180,7 @@ public class ClassThingManager implements ThingManager{
 		return null;
 	}
 
+	@Override
+	public void setName(String name) {
+	}
 }

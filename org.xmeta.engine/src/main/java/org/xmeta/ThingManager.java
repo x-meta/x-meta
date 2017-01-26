@@ -77,6 +77,13 @@ public interface ThingManager {
 	public String getName();
 	
 	/**
+	 * 设置事物管理器的名称。
+	 * 
+	 * @param name 事物管理器的名称
+	 */
+	public void setName(String name);	
+	
+	/**
 	 * 通过事物的名称取得事物。
 	 * 
 	 * 比方法一般是World调用的，应用中取事物请通过World，World负责缓存。

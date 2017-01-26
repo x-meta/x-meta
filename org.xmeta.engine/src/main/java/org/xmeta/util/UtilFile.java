@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.xmeta.ActionContext;
 import org.xmeta.ActionException;
 import org.xmeta.ThingCoder;
+import org.xmeta.ThingManager;
 import org.xmeta.World;
 import org.xmeta.thingManagers.FileThingManager;
 
@@ -394,12 +395,14 @@ public class UtilFile {
 		if(world.getThingManager(name) != null){
 			//logger.warn("Thing manager already exists, name=" + name);
 		}else{
+			world.initThingManager(prjFile.getParentFile(), name);			
+			/*
 			if(".dmlprj".equals(prjFile.getName()) || "dml.prj".equals(prjFile.getName())){
 				world.addFileThingManager(name, prjFile.getParentFile(), false, true);
 			}else{
 				//xworker.properties
 				world.addFileThingManager(name, prjFile.getParentFile(), true, true);
-			}
+			}*/
 		}
 	}
 	

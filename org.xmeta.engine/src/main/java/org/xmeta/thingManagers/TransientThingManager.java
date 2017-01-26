@@ -395,4 +395,8 @@ public class TransientThingManager implements ThingManager{
 	public File getRootDir() {
 		return null;
 	}
+	
+	@Override
+	public void setName(String name) {		
+	}
 }

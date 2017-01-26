@@ -560,6 +560,14 @@ public class Action extends Semaphore{
 		return runArrayParams(context, params, null, false);
 	}
 	
+	public <T> T call(ActionContext actionContext, Object ... params){
+		return runArrayParams(actionContext, params, null, false);
+	}
+	
+	public <T> T  call(ActionContext context, Map<String, Object> parameters){
+		return runMapParams( context, parameters, null, false);
+	}
+	
 	public <T> T  run(ActionContext context, Map<String, Object> parameters){
 		return runMapParams( context, parameters, null, false);
 	}
@@ -578,6 +586,13 @@ public class Action extends Semaphore{
 		}
 		
 		Bindings bindings = new Bindings();
+		if(params_ != null){
+			for(int i=0; i<params_.length - 1; i++){
+				bindings.put((String) params_[i], params_[i + 1]);
+				i++;
+			}
+		}
+		/*
 		if(params != null){
 			List<Thing> ps = params.getChilds();
 			for(int i=0; i<ps.size(); i++){
@@ -588,7 +603,7 @@ public class Action extends Semaphore{
 					bindings.put(p.getString("name"), null);
 				}
 			}			
-		}
+		}*/
 		
 		return this.dorun(context, bindings, bindings, caller, isSubAction);
 	}

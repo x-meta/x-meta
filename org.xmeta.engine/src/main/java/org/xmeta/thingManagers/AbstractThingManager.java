@@ -331,4 +331,9 @@ public abstract class AbstractThingManager implements ThingManager{
 	public File getRootDir(){
 		return rootDir;
 	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
 }

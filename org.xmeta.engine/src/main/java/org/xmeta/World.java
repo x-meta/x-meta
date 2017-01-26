@@ -1291,10 +1291,15 @@ public class World {
 		return PROCESSOR_ARCHITECTURE;
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ThingManager initThingManager(File rootPath){
-		String thingManagerClass = null;
 		String name = rootPath.getName();
+		return initThingManager(rootPath, name);
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public ThingManager initThingManager(File rootPath, String name){
+		String thingManagerClass = null;
+		
 		String link = null;
 		
 		//如果是加载失败的不重复加载
@@ -1329,7 +1334,7 @@ public class World {
 					
 					//link是指链接到其他目录
 					link = properties.getProperty("link");
-					if(link != null && link.trim().equals("")){
+					if((link != null && link.trim().equals("")) || "null".equals(link)){
 						link = null;
 					}
 					

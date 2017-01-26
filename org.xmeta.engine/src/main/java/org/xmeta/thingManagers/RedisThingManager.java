@@ -54,7 +54,7 @@ public class RedisThingManager extends AbstractThingManager{
 	 * @param jedis jedis
 	 */
 	public void releaseJedis(Jedis jedis){
-		jedisPool.returnResource(jedis);
+		jedis.close();
 	}
 	
 	@Override
@@ -65,7 +65,7 @@ public class RedisThingManager extends AbstractThingManager{
 			
 			this.refreshParentCategory(categoryName);
 		}finally{
-			jedisPool.returnResource(jedis);
+			jedis.close();
 		}
 		return true;
 	}
@@ -106,7 +106,7 @@ public class RedisThingManager extends AbstractThingManager{
 			
 			this.refreshParentCategory(categoryName);
 		}finally{
-			jedisPool.returnResource(jedis);
+			jedis.close();
 		}
 		return true;
 	}
@@ -140,7 +140,7 @@ public class RedisThingManager extends AbstractThingManager{
 		//创建并测试Jedis连接池
 		jedisPool = new JedisPool(new JedisPoolConfig(), host, port, 5000, password);
 		Jedis jedis = jedisPool.getResource();
-		jedisPool.returnResource(jedis);
+		jedis.close();
 		
 		rootCategory = new RedisCategory(null, this, null);
 	}
@@ -171,7 +171,7 @@ public class RedisThingManager extends AbstractThingManager{
 				return null;
 			}
 		}finally{
-			jedisPool.returnResource(jedis);
+			jedis.close();			
 		}
 	}
 
@@ -181,7 +181,7 @@ public class RedisThingManager extends AbstractThingManager{
 		try{
 			jedis.del("thing|" + thing.getMetadata().getPath());
 		}finally{
-			jedisPool.returnResource(jedis);
+			jedis.close();
 		}
 		return true;
 	}
@@ -199,7 +199,7 @@ public class RedisThingManager extends AbstractThingManager{
 			} catch (IOException e) {
 			}
 		}finally{
-			jedisPool.returnResource(jedis);
+			jedis.close();
 		}
 		return true;
 	}

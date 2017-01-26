@@ -895,12 +895,14 @@ public class UtilData {
 				}else{
 					return null;
 				}
-			}else{
+			}else{				
 				if("".equals(str)){
 					return null;
+				}else{
+					return UtilString.getString(str, actionContext);
 				}
 				
-				return str;
+				//return str;
 			}
 		}
 		

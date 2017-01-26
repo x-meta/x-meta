@@ -480,6 +480,7 @@ public class UtilString {
 		
 		String v = value;
 		//boolean constant = false;
+		/*2017-01-25 取消了以下内容
 		if(v.startsWith("\"")){
 			//按常量处理
 			//constant = true;
@@ -490,7 +491,7 @@ public class UtilString {
 		if(v.endsWith("\"")){
 			//去最后一个"
 			v = v.substring(0, v.length() - 1);
-		}
+		}*/
 		
 		return v;
 		/*

@@ -1,15 +1,12 @@
 package org.xmeta.thingManagers;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.xmeta.Category;
-import org.xmeta.ThingCoder;
 import org.xmeta.ThingIndex;
 import org.xmeta.ThingManager;
-import org.xmeta.World;
 
 import redis.clients.jedis.Jedis;
 

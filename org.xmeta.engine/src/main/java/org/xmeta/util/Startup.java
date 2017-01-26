@@ -117,7 +117,7 @@ public class Startup {
 				args = new String[dmlCfg.size()];
 				dmlCfg.toArray(args);
 			}else{
-				System.out.println("XWorker home is: " + args[0]);
+				//System.out.println("XWorker home is: " + args[0]);
 			}
 			
 			//过滤参数中的引号
@@ -151,7 +151,7 @@ public class Startup {
 					PROCESSOR_ARCHITECTURE = value;
 				}
 			}			
-			System.out.println("OS=" + OS + ", sun.arch.data.model=" + PROCESSOR_ARCHITECTURE);
+			//System.out.println("OS=" + OS + ", sun.arch.data.model=" + PROCESSOR_ARCHITECTURE);
 			
 			//首先默认加载扥地
 			File localConfig = new File("./config/");
@@ -174,13 +174,14 @@ public class Startup {
 			//URLClassLoader classLoader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
 			URLClassLoader classLoader = new URLClassLoader(urls);
 			
+			/*
 			System.out.println("------------------class path-------------------");
 			System.out.println(System.getProperty("java.class.path"));
 			for(URL url : classLoader.getURLs()){
 				System.out.println(url);
 			}
 			System.out.println("------------------class path-------------------");
-			
+			*/
 			Thread.currentThread().setContextClassLoader(classLoader);
 			Class trCls = classLoader.loadClass("org.xmeta.util.ThingRunner");
 			Method method = trCls.getDeclaredMethod("run", new Class[]{String[].class});
