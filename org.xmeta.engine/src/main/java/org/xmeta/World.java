@@ -1307,7 +1307,7 @@ public class World {
 			return null;
 		}
 		
-		boolean hasThingsDir = true;
+		boolean hasThingsDir = false;
 		Properties properties = new Properties();
 		if(rootPath.isDirectory()){
 			File configFile = new File(rootPath, "config.properties");
@@ -1316,9 +1316,8 @@ public class World {
 			}
 			if(!configFile.exists()){
 				configFile = new File(rootPath, "dml.prj");
-				if(configFile.exists()){
-					hasThingsDir = false;
-				}
+			}else{
+				hasThingsDir = true;
 			}
 			if(configFile.exists()){				
 				FileInputStream fin = null; 

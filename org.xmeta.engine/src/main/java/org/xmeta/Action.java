@@ -84,6 +84,11 @@ public class Action extends Semaphore{
 		"void", "volatile", "while", "#"	
 	};
 		
+	public final static String str_acContext = "acContext";
+	public final static String str_parentContext = "parentContext";
+	public final static String str_action = "action";
+	public final static String str_actionThing = "actionThing";
+	
 	//------------公共动作的属性 -----------------
 	/** 定义动作的事物 */
 	public ThingEntry thingEntry;
@@ -822,7 +827,7 @@ public class Action extends Semaphore{
 			if("failure".equals(result)){
 				contxtMethod = "failure";
 			}
-			Throwable exception = doContextMethod(allContexts, context, contxtMethod, null);
+			Throwable exception = doContextMethod(allContexts, context, contxtMethod, null, result);
 			if(exception == null){				
 				return (T) result;			
 			}else{
@@ -840,7 +845,7 @@ public class Action extends Semaphore{
 				}
 			}
 		}catch(Throwable e){			
-			Throwable exception = doContextMethod(allContexts, context, "exception", e);
+			Throwable exception = doContextMethod(allContexts, context, "exception", e, null);
 			
 			if(throwableRecordCount > 0){
 				throwables.add(new ThrowableRecord(exception, context));
@@ -936,13 +941,13 @@ public class Action extends Semaphore{
 		}		
 	}
 	
-	private static Throwable doContextMethod(List<Thing> contexts, ActionContext actionContext, String methodName, Throwable exception){
+	private static Throwable doContextMethod(List<Thing> contexts, ActionContext actionContext, String methodName, Throwable exception, Object result){
 		List<Thing> thingList = new ArrayList<Thing>();
 		for(Thing thing : contexts){
 			thingList.add(thing);
 		}
 		
-		return doThingContextMethod(thingList, actionContext, methodName, exception);
+		return doThingContextMethod(thingList, actionContext, methodName, exception, result);
 	}
 	
 	/**
@@ -955,7 +960,7 @@ public class Action extends Semaphore{
 	 * 
 	 * @return 如果动作可以抛出异常则抛出异常
 	 */
-	public static Throwable doThingContextMethod(List<Thing> contexts, ActionContext actionContext, String methodName, Throwable exception){
+	public static Throwable doThingContextMethod(List<Thing> contexts, ActionContext actionContext, String methodName, Throwable exception, Object result){
 		if(contexts.size() == 0){
 			return exception;
 		}
@@ -963,7 +968,8 @@ public class Action extends Semaphore{
 		String tempMethodName = methodName;
 		
 		Bindings bindings = actionContext.peek();
-		bindings.put("exception", exception);
+		bindings.put("action-exception", exception);
+		bindings.put("action-result", result);
 		//按照从后往前的顺序执行
 		for(int i=contexts.size() - 1; i>=0; i--){
 			Thing contextObj = contexts.get(i);
@@ -1017,10 +1023,10 @@ public class Action extends Semaphore{
 		
 		Bindings bindings = actionContext.peek();
 		ActionContext acContext = new ActionContext();
-		acContext.put("acContext", actionContext);
-		acContext.put("parentContext", actionContext);
-		acContext.put("action", action);
-		acContext.put("actionThing", action.getThing());
+		acContext.put(str_acContext, actionContext);
+		acContext.put(str_parentContext, actionContext);
+		acContext.put(str_action, action);
+		acContext.put(str_actionThing, action.getThing());
 		acContext.getScope(0).setCaller(context, "init");
 		
 		//查看是否继承，如果继承那么使用上级的脚本

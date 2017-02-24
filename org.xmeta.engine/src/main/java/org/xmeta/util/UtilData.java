@@ -923,7 +923,8 @@ public class UtilData {
 				return null;
 			}
 			
-			return str;
+			return UtilString.getString(str, actionContext);
+			//return str;
 		}
 	}
 	
