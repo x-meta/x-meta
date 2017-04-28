@@ -15,8 +15,11 @@
 ******************************************************************************/
 package org.xmeta.util;
 
+import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import org.xmeta.Thing;
 
 public class ExceptionUtil {
 	private static final String[] CAUSE_METHOD_NAMES = { "getCause",
@@ -98,5 +101,29 @@ public class ExceptionUtil {
 			}
 		}
 		return null;
+	}
+	
+	public static String toString(Throwable t){
+		StringBuffer text = new StringBuffer();
+		toString(t, text);
+		return text.toString();
+	}
+	
+	private static void toString(Throwable t, StringBuffer text){
+		text.append(t.toString());
+		text.append("\n");
+		for(StackTraceElement st : t.getStackTrace()){			
+			text.append("\tat ");
+			String line = st.getClassName() + "." + st.getMethodName() + "(";
+			line = line + st.getFileName() + ":" + st.getLineNumber();
+			text.append(line);
+			
+            text.append(")\n");
+		}
+
+		Throwable cause = t.getCause();
+		if(cause != null){
+			toString(cause, text);
+		}
 	}
 }

@@ -110,7 +110,7 @@ public class World {
 	/** 打印verbose的缓存，相同的不需要再次打印 */
 	private Map<String, String> verboseThingCache = null;
 	/** 事物管理器列表 */
-	private List<ThingManager> thingManagers = new ArrayList<ThingManager>();
+	private List<ThingManager> thingManagers = new CopyOnWriteArrayList<ThingManager>();
 	/** 事物编码器 */
 	private List<ThingCoder> thingCoders = new ArrayList<ThingCoder>();
 	/** 目录缓存 */

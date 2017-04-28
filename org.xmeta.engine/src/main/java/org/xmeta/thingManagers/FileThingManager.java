@@ -159,7 +159,7 @@ public class FileThingManager extends AbstractThingManager{
 				}
 			}
 		}catch(Exception e){
-			throw new XMetaException("save thing by FileThingManager error, managePath=" + thingRootFile + ",thing=" + thing, e);
+			throw new XMetaException("save thing by FileThingManager error, managePath=" + thingRootFile + ",thing=" + thing.getMetadata().getPath(), e);
 		}
 	}
 

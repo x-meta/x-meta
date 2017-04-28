@@ -480,79 +480,79 @@ public class TxtCoder {
 				}else{
 					//其他都是属性
 					if (type == TYPE_INT) {						
-						try {
+						//try {
 							attributes.put(name, Integer.parseInt(br.readLine().trim()));
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						//} catch (Exception e) {
+						//	e.printStackTrace();
+						//}
 					} else if (type == TYPE_LONG) {
-						try {
+						//try {
 							attributes.put(name, Long.parseLong(br.readLine().trim()));
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						//} catch (Exception e) {
+						//	e.printStackTrace();
+						//}
 					} else if (type == TYPE_DOUBLE) {
-						try {
+						//try {
 							attributes.put(name, Double.parseDouble(br.readLine().trim()));
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						//} catch (Exception e) {
+						//	e.printStackTrace();
+						//}
 					} else if (type == TYPE_FLOAT) {
-						try {
+						//try {
 							attributes.put(name, Float.parseFloat(br.readLine().trim()));
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						//} catch (Exception e) {
+						//	e.printStackTrace();
+						//}
 					} else if (type == TxtCoder.TYPE_BIGDECIMAL) {
-						try {
+						//try {
 							attributes.put(name, new BigDecimal(br.readLine().trim()));
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						//} catch (Exception e) {
+						//	e.printStackTrace();
+						//}
 					} else if (type == TxtCoder.TYPE_BIGINTEGER) {
-						try {
+						//try {
 							attributes.put(name, new BigInteger(br.readLine().trim()));
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						//} catch (Exception e) {
+						//	e.printStackTrace();
+						//}
 					} else if (type == TxtCoder.TYPE_BOOLEAN) {
-						try {
+						//try {
 							attributes.put(name, Boolean.parseBoolean(br.readLine().trim()));
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						//} catch (Exception e) {
+						//	e.printStackTrace();
+						//}
 					} else if (type == TYPE_BYTE) {
-						try {
+						//try {
 							attributes.put(name, Byte.parseByte(br.readLine().trim()));
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						//} catch (Exception e) {
+						//	e.printStackTrace();
+						//}
 					} else if (type == TYPE_BYTES) {
-						try {
+						//try {
 							byte[] value = UtilString.hexStringToByteArray(br.readLine().trim());
 							attributes.put(name, value);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						//} catch (Exception e) {
+						//	e.printStackTrace();
+						//}
 					} else if (type == TYPE_CHAR) {
-						try {
+						//try {
 							attributes.put(name, (char) Integer.parseInt(br.readLine().trim()));
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						//} catch (Exception e) {
+						//	e.printStackTrace();
+						//}
 					} else if (type == TYPE_SHORT) {
-						try {
+						//try {
 							attributes.put(name, Short.parseShort(br.readLine().trim()));
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						//} catch (Exception e) {
+						//	e.printStackTrace();
+						//}
 					} else if (type == TYPE_DATE) {
-						try {
+						//try {
 							Date value = new Date(Long.parseLong(br.readLine().trim()));
 							attributes.put(name, value);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						//} catch (Exception e) {
+						//	e.printStackTrace();
+						//}
 					} else if (type == TYPE_OBJECT) {
 						String hexstring = br.readLine();
 						if(hexstring == null || "".equals(hexstring.trim().trim())){

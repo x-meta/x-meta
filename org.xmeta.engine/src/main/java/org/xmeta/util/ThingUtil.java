@@ -16,7 +16,10 @@
 package org.xmeta.util;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -137,4 +140,27 @@ public class ThingUtil {
 
 		return world.getThing(thingPath);
 	}
+	
+	public static List<Thing> getAllDescriptorsAndExtends(Thing thing){
+		List<Thing> list = new ArrayList<Thing>();
+		Map<String, String> context = new HashMap<String, String>();
+		for(Thing des : thing.getAllDescriptors()){
+			String path = des.getMetadata().getPath();
+			if(context.get(path) == null){
+				list.add(des);
+				context.put(path, path);
+			}
+		}
+		
+		for(Thing ext : thing.getExtends()){
+			String path = ext.getMetadata().getPath();
+			if(context.get(path) == null){
+				list.add(ext);
+				context.put(path, path);
+			}
+		}
+		
+		return list;
+	}
+	
 }
