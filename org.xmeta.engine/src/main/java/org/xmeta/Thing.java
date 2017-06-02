@@ -185,8 +185,14 @@ public class Thing {
 			this.put(Thing.DESCRIPTORS, descriptorPath);
 			
 			if(descriptorPath != null){
-				this.initDefaultValue();
+				this.initDefaultValue(true);
+				
+				//如果默认值修改了描述者，那么重新初始化描述者
+				if(!descriptorPath.equals(this.get(Thing.DESCRIPTORS))){
+					initDescriptors();
+				}
 			}
+			
 			
 			if(isTransient){
 				TransientThingManager manager = World.getInstance().getTransientThingManager();
@@ -2134,10 +2140,21 @@ public class Thing {
 	}
 	
 	/**
-     * 初始化默认值。
+     * 初始化事物属性的默认值。
      *
      */
-    public void initDefaultValue(){   	
+	
+	public void initDefaultValue(){
+		initDefaultValue(false);
+	}
+	
+	/**
+     * 初始化事物属性的默认值。
+     * 
+     * @param forece 如果为ture，那么即使事物的属性已经设置过了，也会被默认值代替，如果描述者设置了默认值。
+     *
+     */
+    public void initDefaultValue(boolean forece){   	
     	beginModify();
     	try{
 	        List<Thing> fields = this.getAllAttributesDescriptors();        
@@ -2145,7 +2162,7 @@ public class Thing {
 	        	Thing field = iter.next();
 	        	String name = field.getMetadata().getName();
         		Object value = this.getAttribute(name);
-        		if(value == null || "".equals(value)){
+        		if(forece || value == null || "".equals(value)){
         			String defaultValue = field.getString("default");
         			if(defaultValue != null && !"".equals(defaultValue)){	        			        		
 	        			attributes.put(name, defaultValue);

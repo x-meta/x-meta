@@ -100,6 +100,11 @@ public class ActionContext implements Map<String, Object>{
 	 */
 	private ThreadLocal<Stack<Action>> actionStacks = new ThreadLocal<Stack<Action>>();
 	
+	/**
+	 * 变量上下文的标签，辅助用途，用于表示这个变量上下文是干什么的。
+	 */
+	private String label = null;
+	
 	/** 变量绑定 */
 	// Bindings bindings;
 	/**
@@ -868,5 +873,13 @@ public class ActionContext implements Map<String, Object>{
 	@Override
 	public int hashCode() {
 		return super.hashCode();
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
 	}
 }
