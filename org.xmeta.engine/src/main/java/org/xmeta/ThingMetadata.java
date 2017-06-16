@@ -30,7 +30,7 @@ import org.xmeta.ui.session.SessionManager;
  *
  */
 public class ThingMetadata {
-	private static Logger logger = LoggerFactory.getLogger(ThingMetadata.class);
+	//private static Logger logger = LoggerFactory.getLogger(ThingMetadata.class);
 	
 	/** 事物的标识 */
 	String id;
