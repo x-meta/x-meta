@@ -299,6 +299,7 @@ public class Thing {
 				}
 				childThing.parent = this;
 				initChildMetadata(childThing);
+				childThing.setTransient(this.isTransient);
 			}else if(childThing != null){
 				childs.add(childThing);
 

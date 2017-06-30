@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -221,6 +222,16 @@ public class Action extends Semaphore{
 		}
 	}
 	
+	public String getClassTargetDirectory(){
+		String fileManagerName = thingEntry.getThing().getMetadata().getThingManager().getName();
+		if(fileManagerName == null){
+			fileManagerName = "null";
+		}else{
+			fileManagerName = UtilString.trimFileName(fileManagerName);
+		}
+		return World.getInstance().getPath() + "/actionClasses/" +  fileManagerName; 
+	}
+	
 	/**
 	 * @throws ClassNotFoundException
 	 * @throws IOException
@@ -292,7 +303,7 @@ public class Action extends Semaphore{
 			fileManagerName = UtilString.trimFileName(fileManagerName);
 		}
 		
-		className = fileManagerName + "." + rootParent.getMetadata().getPath();
+		className = rootParent.getMetadata().getPath();
 		if(rootParent != thing){
 			className = className + ".p" + thing.getMetadata().getPath().hashCode();
 			className = className.replace('-', '_');
@@ -312,12 +323,12 @@ public class Action extends Semaphore{
 			packageName = className.substring(0, dotIndex);
 		}
 		
-		fileName = className.replace('.', '/');
+		fileName = fileManagerName + "/" + className.replace('.', '/');
 		//fileName += ".java";
 					
 		
 		fileName = World.getInstance().getPath() + "/actionSources/" +  fileName;
-		classFileName = World.getInstance().getPath() + "/actionClasses/" + className.replace('.', '/') + ".class";
+		classFileName = World.getInstance().getPath() + "/actionClasses/" +  fileManagerName + "/" + className.replace('.', '/') + ".class";
 		
 		//设置代码和方法名
 		code = thing.getString("code");
@@ -350,7 +361,11 @@ public class Action extends Semaphore{
 		if(world.getMode() == World.MODE_WORKING){
 			classLoader = pclssLoader;
 		}else{
-			classLoader = new ActionClassLoader(pclssLoader);
+			File classDir = new File(world.getPath() + "/actionClasses/" + fileManagerName);
+			if(classDir.exists() == false){
+				classDir.mkdirs();
+			}
+			classLoader = new ActionClassLoader(new URL[]{classDir.toURI().toURL()}, pclssLoader);
 		}
 		
 		results = new ArrayList<ActionResult>();
@@ -417,10 +432,10 @@ public class Action extends Semaphore{
 								}
 								
 								if(use16){
-									compiled = JavaCompiler16.compile(compleClassPath, sourcePath, codeFile);
+									compiled = JavaCompiler16.compile(compleClassPath, sourcePath, codeFile, getClassTargetDirectory());
 								}							
 								if(!compiled){
-									JavaCompiler15.compile(compleClassPath, sourcePath, codeFile.getAbsolutePath());								
+									JavaCompiler15.compile(compleClassPath, sourcePath, codeFile.getAbsolutePath(), getClassTargetDirectory());								
 								}	
 							}else{
 								throw new ActionException("useInnerJava is only fit for FileThingManager, actionThing=" + thing.getMetadata().getPath());
@@ -455,10 +470,10 @@ public class Action extends Semaphore{
 							}
 							
 							if(use16){
-								compiled = JavaCompiler16.compile(compleClassPath, null, codeFile);
+								compiled = JavaCompiler16.compile(compleClassPath, null, codeFile, getClassTargetDirectory());
 							}							
 							if(!compiled){
-								JavaCompiler15.compile(compleClassPath, null, fileName);								
+								JavaCompiler15.compile(compleClassPath, null, fileName, getClassTargetDirectory());								
 							}	
 						}
 						

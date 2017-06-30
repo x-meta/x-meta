@@ -23,15 +23,15 @@ import org.xmeta.World;
 public class JavaCompiler15 {
 	static World world = World.getInstance();
 	
-	@SuppressWarnings("unchecked")
-	public static void compile(String classPath, String sourcePath, String fileName) throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException{
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static void compile(String classPath, String sourcePath, String fileName, String targetDir) throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException{
 		Class mainClass = Class.forName("com.sun.tools.javac.Main");
 		Method compileMethod = mainClass.getDeclaredMethod("compile", new Class[]{String[].class});
 		if(sourcePath != null && !"".equals(sourcePath)){
 			compileMethod.invoke(mainClass, new Object[]{new String[]{
 					"-cp", classPath,
 					"-sourcepath", sourcePath, 
-					"-d", world.getPath() + "/actionClasses",
+					"-d", targetDir,
 					fileName + ".java"
 			}});
 		}else{

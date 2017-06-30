@@ -922,13 +922,17 @@ public class World {
 		return home;
 	}
 	
+	public void init(String worldPath){
+		init(worldPath, Thread.currentThread().getContextClassLoader());
+	}
+	
 	/**
 	 * 通过给定事物的存放路径来初始化世界。
 	 * 
 	 * @param worldPath
 	 *            世界的路径
 	 */
-	public void init(String worldPath) {
+	public void init(String worldPath, ClassLoader classLoader) {
 		//long start = System.currentTimeMillis();
 		// 设置事物的路径
 		if(worldPath == null){
@@ -948,7 +952,7 @@ public class World {
 		//System.out.println("world initOsProperites: " + (System.currentTimeMillis() - start));
 		//初始化类库路径
 		// 设置类装载器
-		worldClassLoader = new ThingClassLoader(Thread.currentThread().getContextClassLoader());
+		worldClassLoader = new ThingClassLoader(classLoader);
 		
 		//System.out.println("world worldClassLoader: " + (System.currentTimeMillis() - start));
 		// 设置library path

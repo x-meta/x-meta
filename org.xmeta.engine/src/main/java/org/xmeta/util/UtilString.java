@@ -20,6 +20,7 @@ import java.net.URLDecoder;
 import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import ognl.Ognl;
@@ -342,9 +343,22 @@ public class UtilString {
 			return Collections.emptyMap();
 		}
 		
-		Map<String, String> paras = new HashMap<String, String>();
+		Map<String, String> paras = new HashMap<String, String>();		
 		String[] ps = str.split("[" + splitStr + "]");
+		//&amp;的转义符处理
+		if("&".equals(splitStr)){
+			for(int i=0; i<ps.length -1 ; i++){
+				if(ps[i + 1].startsWith("amp;")){
+					ps[i] = ps[i] + "&" + ps[i + 1].substring(4, ps[i + 1].length());
+					ps[i + 1] =null;
+				}
+			}
+		}
 		for(int i=0; i<ps.length; i++){
+			if(ps[i] == null){
+				continue;
+			}
+			
 			int index = ps[i].indexOf("=");
 			if(index != -1 && index != 0 && index != ps[i].length()){
 				String name = ps[i].substring(0, index);
@@ -476,6 +490,24 @@ public class UtilString {
 				return String.valueOf(obj);
 			}
 			//return (String) actionContext.get(path);
+		}else if(value.startsWith("\":")){
+			value = value.substring(2, value.length());
+			if(value.length() > 1){
+				value = value.substring(0, value.length() - 1);
+			}
+		}else if(value.startsWith("lang:")){
+			value = value.substring(5, value.length());
+			Map<String, String> params = UtilString.getParams(value);
+			Session session = SessionManager.getSession(null);
+			Locale locale = session.getLocale();
+			String language = locale.getLanguage();
+			value = params.get(language);
+			if(value == null){
+				value = params.get("d");
+			}
+			if(value == null){
+				value = params.get("default");
+			}			
 		}
 		
 		String v = value;

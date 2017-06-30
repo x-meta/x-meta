@@ -15,8 +15,6 @@
 ******************************************************************************/
 package org.xmeta;
 
-import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -27,18 +25,7 @@ import java.net.URLClassLoader;
  *
  */
 public class ActionClassLoader extends URLClassLoader {
-	public ActionClassLoader(ClassLoader parent) {		
-		super(new URL[] {}, parent);
-		
-		File classPath = new File(World.getInstance().getPath() + "/actionClasses/");
-		try {
-			if(!classPath.exists()){
-				classPath.mkdirs();
-			}
-			
-			super.addURL(classPath.toURI().toURL());
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
+	public ActionClassLoader(URL[] urls, ClassLoader parent) {		
+		super(urls, parent);		
 	}
 }

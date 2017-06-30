@@ -29,7 +29,7 @@ import org.xmeta.World;
 public class JavaCompiler16 {
 	static World world = World.getInstance();
 		
-	public static boolean compile(String classPath, String sourcePath, File codeFile){
+	public static boolean compile(String classPath, String sourcePath, File codeFile, String targetDir){
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if(compiler != null){
 			StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
@@ -41,7 +41,7 @@ public class JavaCompiler16 {
 			if(sourcePath != null && !"".equals(sourcePath)){
 				options = Arrays.asList("-cp", classPath, "-sourcepath", sourcePath, "-d", world.getPath() + "/actionClasses");
 			}else{
-				options = Arrays.asList("-cp", classPath, "-d", world.getPath() + "/actionClasses");
+				options = Arrays.asList("-cp", classPath, "-d", targetDir);
 			}
 			compiler.getTask(null, fileManager, null, options, null, compilationUnits1).call();
 			

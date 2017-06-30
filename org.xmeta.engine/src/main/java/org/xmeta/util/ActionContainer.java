@@ -34,7 +34,7 @@ public class ActionContainer {
 		return actions;
 	}
 
-	public Object doAction(String name) {
+	public <T> T doAction(String name) {
 		try {
 			Thing actionThing = getActionThing(name);
 			if (actionThing != null) {
@@ -50,7 +50,7 @@ public class ActionContainer {
 		}
 	}
 
-	public Object doAction(String name, ActionContext context) {
+	public <T> T doAction(String name, ActionContext context) {
 		try {
 			Thing actionThing = getActionThing(name);
 			if (actionThing != null) {
@@ -66,7 +66,7 @@ public class ActionContainer {
 		}
 	}
 
-	public Object doAction(String name, Map<String, Object> parameters) {
+	public <T> T doAction(String name, Map<String, Object> parameters) {
 		try {
 			Thing actionThing = getActionThing(name);
 			if (actionThing != null) {
@@ -82,7 +82,7 @@ public class ActionContainer {
 		}
 	}
 
-	public Object doAction(String name, ActionContext context,
+	public <T> T doAction(String name, ActionContext context,
 			Map<String, Object> parameters) {
 		try {
 			Thing actionThing = getActionThing(name);
@@ -99,7 +99,7 @@ public class ActionContainer {
 		}
 	}
 	
-	public Object doAction(String name, ActionContext context, Object ...parameters) {
+	public <T> T doAction(String name, ActionContext context, Object ...parameters) {
 		return doAction(name, context, UtilMap.toMap(parameters));
 	}
 
@@ -135,5 +135,30 @@ public class ActionContainer {
 
 	public ActionContext getActionContext() {
 		return actionContext;
+	}
+
+	@Override
+	public String toString() {
+		String str = "ActionContainer: path=" + actions.getMetadata().getPath() + "\n    actions=";
+		for(Thing ac : getActionThings()){
+			str = str + ac.getMetadata().getName() + ",";
+		}
+		return str;
+	}
+	
+	public <T> T execute(String name, Object ... parameters){
+		try {
+			Thing actionThing = getActionThing(name);
+			if (actionThing != null) {
+				Action action = world.getAction(actionThing.getMetadata()
+						.getPath());
+				return action.run(actionContext, parameters);
+			} else {
+				return null;
+			}
+		} catch (Throwable e) {
+			log.error("Container do action [" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);
+			return null;
+		}
 	}
 }
