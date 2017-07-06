@@ -227,7 +227,7 @@ public class Thing {
 	
 	public synchronized void addChild(Thing childThing, boolean changeParen){
 		addChild(childThing, childs.size(), changeParen);
-	}
+	}		
 	
 	/** 
 	 * 在指定的索引位置添加一个子事物。
@@ -2600,6 +2600,18 @@ public class Thing {
 		childs.remove(child);			
 		updateLastModified();
 	}	
+	
+	public void removeChild(int index){
+		if(index >= childs.size() || index < 0){
+			return;
+		}
+		
+		Thing child = childs.remove(index);
+		child.getMetadata().setRemoved(true);
+
+		child.setParent(null);
+		updateLastModified();
+	}
 	
 	/**
 	 * 删除调用自身的事物管理者删除自己，设置自身的状态为已删除。
