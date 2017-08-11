@@ -73,6 +73,9 @@ public class ActionContext implements Map<String, Object>{
 	public final static String RUNTYPE_RANDOM_SUCCESS = "RANDOM_SUCCESS";
 	public final static String RUNTYPE_RANDOM_RATE = "RANDOM_RATE";
 
+	/** 保存父变量上下文的约定的名称 */
+	public final static String PARENT_CONTEXT = "parentContext";
+	
 	/** 方法调用的变量堆栈每个线程使用各自的，除了初始化时公共的全局变量 */
 	private ThreadLocal<Stack<Bindings>> threadStacks = new ThreadLocal<Stack<Bindings>>();
 	
