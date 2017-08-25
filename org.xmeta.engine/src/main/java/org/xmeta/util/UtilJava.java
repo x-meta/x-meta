@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.xmeta.ActionContext;
@@ -38,27 +39,32 @@ public class UtilJava {
 	 * @return 可遍历对象
 	 */
 	@SuppressWarnings("unchecked")
-	public static Iterable<Object> getIterable(Object collection){
+	public static <T> Iterable<T> getIterable(Object collection){
 		if(collection == null){
 			//空返回一个空列表
 			return Collections.emptyList();
 		}else if(collection.getClass().isArray()){
 			//数组转列表
-			List<Object> list = new ArrayList<Object>();
+			List<T> list = new ArrayList<T>();
 			int length = Array.getLength(collection); 
 			for(int i=0; i<length; i++){
-				list.add(Array.get(collection, i));
+				list.add((T) Array.get(collection, i));
 			}
 			return list;
 		}else if(collection instanceof Iterable){
 			//本身就是Iterable
-			return (Iterable<Object>) collection; 
+			return (Iterable<T>) collection; 
 		}else{
 			//构造一个Iterable
-			List<Object> list = new ArrayList<Object>();
-			list.add(collection);
+			List<T> list = new ArrayList<T>();
+			list.add((T) collection);
 			return list;
 		}
+	}
+	
+	public static <T> Iterator<T> getIterator(Object collection){
+		Iterable<T> it = getIterable(collection);
+		return it.iterator();
 	}
 	
 	/**

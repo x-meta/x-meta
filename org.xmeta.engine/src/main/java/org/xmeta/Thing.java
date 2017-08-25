@@ -2771,8 +2771,7 @@ public class Thing {
 			thing.getMetadata().initPath();
 			thing.getMetadata().setCoderType(root.getMetadata().getCoderType());
 			thing.initChildPath();
-			
-			
+			thing.setTransient(false);			
 			manager.save(thing);
 			return thing;
 		}else{

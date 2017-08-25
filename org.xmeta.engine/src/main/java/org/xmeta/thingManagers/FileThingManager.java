@@ -213,6 +213,9 @@ public class FileThingManager extends AbstractThingManager{
 			return false;
 		}else{
 			Category category = getCategory(categoryName);
+			if(category == null) {
+				return true;
+			}
 			Category parent = category.getParent();
 			File dir = new File(thingRootFile + "/" + categoryName.replace('.', '/'));
 			UtilFile.delete(dir);

@@ -209,8 +209,13 @@ public class RefactorUtil {
 				}
 			}
 			
-			for(Index child : index.getChilds()){
-				count += getThingCount(child, context);
+			if(index.getChilds() == null) {
+				index.refresh();
+			}
+			if(index.getChilds() != null) {
+				for(Index child : index.getChilds()){
+					count += getThingCount(child, context);
+				}
 			}
 		}
 		
