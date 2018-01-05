@@ -263,6 +263,7 @@ public class ThingRunner {
 			} else {
 				ActionContext actionContext = new ActionContext();
 				actionContext.put("args", args);
+				actionContext.put("_args_", args);
 				thing.doAction(actionName, actionContext);
 			}			
 			//System.out.println("executed： " + (System.currentTimeMillis() - start));

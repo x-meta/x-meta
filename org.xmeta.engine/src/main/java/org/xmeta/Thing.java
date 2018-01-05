@@ -1750,9 +1750,7 @@ public class Thing {
 		World world = World.getInstance();
 		List<Thing> descriptors = new ArrayList<Thing>();
 		
-		if(descriptorsCaches == null || descriptorsCaches.length == 0){
-			initDescriptors();
-		}
+		checkDescriptors();
 		
 		for(int i=0; i<descriptorsCaches.length; i++){
 			ThingEntry entry = descriptorsCaches[i];
@@ -1760,7 +1758,7 @@ public class Thing {
 				Thing thing = entry.getThing();
 				
 				if(thing == null){
-					removeDescriptorsCache(i);
+					//removeDescriptorsCache(i);
 				}else{
 					//UtilData.addToSource(descriptors, thing, true);
 					descriptors.add(thing);
@@ -1790,16 +1788,14 @@ public class Thing {
 		Map<Thing, Object> caches = new HashMap<Thing, Object>();
 		Map<Thing, Object> context = new HashMap<Thing, Object>();
 		
-		if(descriptorsCaches == null || descriptorsCaches.length == 0){
-			this.initDescriptors();
-		}
+		checkDescriptors();
 		
 		for(int i=0; i<descriptorsCaches.length; i++){
 			ThingEntry entry = descriptorsCaches[i];	
 				if(entry != null){
 				Thing thing = entry.getThing();
 				if(thing == null){
-					removeDescriptorsCache(i);
+					//removeDescriptorsCache(i);
 				}else{
 					descriptors.add(thing);
 					
@@ -2110,6 +2106,27 @@ public class Thing {
 		}
 		
 		return thingNames;
+	}
+	
+	/**
+	 * 检查描述者的列表是否有变更，如果有变更那么重新初始化。
+	 */
+	private void checkDescriptors() {
+		if(descriptorsCaches == null || descriptorsCaches.length == 0) {
+			initDescriptors();
+		}else {
+			boolean changed = false;
+			for(int i=0;i<descriptorsCaches.length; i++) {
+				if(descriptorsCaches[i] == null || descriptorsCaches[i].isChanged()) {
+					changed = true;
+					break;
+				}
+			}
+			
+			if(changed) {
+				initDescriptors();
+			}
+		}
 	}
 	
 	private synchronized void initDescriptors(){
