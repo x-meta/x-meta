@@ -40,7 +40,7 @@ import org.xmeta.World;
  * 
  */
 public class ThingRunner {
-	private static final Logger logger = LoggerFactory.getLogger(ThingRunner.class);
+	//private static final Logger logger = LoggerFactory.getLogger(ThingRunner.class);
 	
 	public static final String working_project = "working_directory";
 	public static void main(String args[]){
@@ -88,7 +88,7 @@ public class ThingRunner {
 					try{
 						world.initThingManager(prjDir);
 					}catch(Exception e){
-						logger.warn("init project error", e);
+						System.out.println("init project error, " + e);
 					}
 				}
 			}
@@ -174,9 +174,12 @@ public class ThingRunner {
 				System.exit(0);
 			}
 
-			logger.debug("world path : " + worldPath);
-			logger.debug("thing path : " + thingPath);
-			logger.debug("action name : " + actionName);
+			//logger.debug("world path : " + worldPath);
+			//logger.debug("thing path : " + thingPath);
+			//logger.debug("action name : " + actionName);
+			
+			System.setProperty("XWORKER_HOME", worldPath);
+			System.setProperty("MODEL", getThingPathAsModelForLog(thingPath));
 			
 			//System.out.println("before init world： " + (System.currentTimeMillis() - start));
 			World world = World.getInstance();
@@ -209,7 +212,7 @@ public class ThingRunner {
 				thingPath = UtilFile.getThingPathByFile(thingFile.getAbsoluteFile());
 				
 				if(thingPath == null){
-					logger.info("Cann't open, file is no a thing, file=" + thingPath);
+					System.out.println("Cann't open, file is no a thing, file=" + thingPath);
 					return;
 				}
 				isFile = true;
@@ -357,5 +360,18 @@ public class ThingRunner {
 			
 			stoped = true;
 		}
+	}
+	
+	public static String getThingPathAsModelForLog(String name) {
+		name = name.replace(':', '_');
+		name = name.replace('/', '_');
+		name = name.replace('\\', '_');
+		//name = name.replace('.', '_');
+		
+		if(name.length() > 128){
+			name = name.substring(0, 64) + "_" + name.substring(name.length() - 64, name.length());
+		}
+		
+		return name;
 	}
 }
