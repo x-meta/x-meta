@@ -606,6 +606,7 @@ public class Action extends Semaphore{
 		}
 		
 		Bindings bindings = new Bindings();
+		bindings.setParameterScope(true);
 		if(params_ != null){
 			for(int i=0; i<params_.length - 1; i++){
 				bindings.put((String) params_[i], params_[i + 1]);
@@ -634,6 +635,7 @@ public class Action extends Semaphore{
 		}
 		
 		Bindings bindings = new Bindings();
+		bindings.setParameterScope(true);
 		if(parameters != null){
 			bindings.putAll(parameters);
 		}

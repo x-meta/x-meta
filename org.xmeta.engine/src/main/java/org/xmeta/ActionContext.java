@@ -614,6 +614,41 @@ public class ActionContext implements Map<String, Object>{
 		return value;
 	}
 
+	/**
+	 * 获取参数Bindings栈中的变量的值。
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public Object getParameter(Object key) {
+		if(key == null || "".equals(key)){
+			//所有空的key返回null
+			return null;
+		}
+		
+		Object value = null;
+		Stack<Bindings> bindingsStack = getBindingStack();
+		for (int i = bindingsStack.size() - 1; i >= 0; i--) {
+			while (i >= bindingsStack.size())
+				i--;
+
+			if(bindingsStack.get(i).isParameterScope() == false) {
+				continue;
+			}
+			
+			Map<String, Object> map = bindingsStack.get(i);
+			value = map.get(key);
+
+			if (value != null) {
+				break;
+			} else if (map.containsKey(key)) {
+				break;
+			}
+		}
+
+		return value;
+	}
+	
 	public Object get(Object key, String scopeThingPath) {
 		Stack<Bindings> bindingsStack = getBindingStack();
 		for (int i = bindingsStack.size() - 1; i >= 0; i--) {

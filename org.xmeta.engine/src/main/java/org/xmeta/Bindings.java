@@ -18,7 +18,6 @@ package org.xmeta;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * 动作上下文中栈点保存的就是Bindings，Bindings是一个Map，用于保存变量和一些函数调用相关的数据。
@@ -54,6 +53,11 @@ public class Bindings extends HashMap<String, Object>{
 	 * 为了实现类似其他语言如java的变量范围的设置。
 	 */
 	private boolean isVarScopeFlag = false;
+	
+	/**
+	 * 是否是参数Bindings。
+	 */
+	private boolean parameterScope = false;
 	
 	/**
 	 * 构造一个空的StackMap。
@@ -128,4 +132,14 @@ public class Bindings extends HashMap<String, Object>{
 		str = str + "变量个数：" + this.size();
 		return str;*/
 	}
+
+	public boolean isParameterScope() {
+		return parameterScope;
+	}
+
+	public void setParameterScope(boolean parameterScope) {
+		this.parameterScope = parameterScope;
+	}
+	
+	
 }
