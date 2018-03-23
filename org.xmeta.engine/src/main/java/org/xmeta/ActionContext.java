@@ -108,6 +108,11 @@ public class ActionContext implements Map<String, Object>{
 	 */
 	private String label = null;
 	
+	/**
+	 * 是否禁止全局变量上下文。如果是动作上下文执行时通常会把它设置成true，防止执行全局变量上下文的相关动作。
+	 */
+	private boolean disableGloableContext = false;
+	
 	/** 变量绑定 */
 	// Bindings bindings;
 	/**
@@ -920,4 +925,14 @@ public class ActionContext implements Map<String, Object>{
 	public void setLabel(String label) {
 		this.label = label;
 	}
+
+	public boolean isDisableGloableContext() {
+		return disableGloableContext;
+	}
+
+	public void setDisableGloableContext(boolean disableGloableContext) {
+		this.disableGloableContext = disableGloableContext;
+	}
+	
+	
 }

@@ -776,7 +776,11 @@ public class Thing {
 		}
 	}
 	
-	public void fireGlobalContextDoActionEvent(String name, Map<String,Object> params, ActionContext actionContext){
+	private void fireGlobalContextDoActionEvent(String name, Map<String,Object> params, ActionContext actionContext){
+		if(actionContext.isDisableGloableContext()) {
+			return;
+		}
+		
 		World world = World.getInstance();
 		if(world.globalContexts != null && world.globalContexts.size() > 0){
 			for(ThingEntry contextEntry : world.globalContexts){

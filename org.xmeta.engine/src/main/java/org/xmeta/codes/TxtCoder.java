@@ -457,7 +457,7 @@ public class TxtCoder {
 				}
 				
 				char type = line.charAt(0);
-				String name = line.substring(1, line.length());
+				String name = line.substring(1, line.length()).intern();
 				if(type == TxtCoder.TYPE_NODE){
 					if(!full){
 						break;

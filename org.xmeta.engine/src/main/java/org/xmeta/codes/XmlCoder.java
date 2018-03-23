@@ -488,7 +488,7 @@ public class XmlCoder {
 						
 						Node childNode = node.getFirstChild();
 						if(childNode.getNodeType() == Node.TEXT_NODE || childNode.getNodeType() == Node.CDATA_SECTION_NODE){
-							attributes.put(node.getNodeName(), childNode.getNodeValue());
+							attributes.put(node.getNodeName().intern(), childNode.getNodeValue());
 						}
 					}else{				
 						Thing child = new Thing(null, null, null, false);

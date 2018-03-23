@@ -43,7 +43,7 @@ public class Bindings extends HashMap<String, Object>{
 		
 	public World world = World.getInstance();
 	
-	/** 是否关闭全局事物动作上下文，如果关闭子函数也都关闭 */
+	/** 是否关闭全局事物动作监听器，如果关闭子函数也都关闭 */
 	public boolean disableGloableContext = false;
 	
 	/** 
@@ -113,6 +113,11 @@ public class Bindings extends HashMap<String, Object>{
         return h;
 	}
 	
+	/**
+	 * 设置上下文事物，上下文事物会在执行动作时加入到动作上下文中，动作上下文会在动作执行前和执行后执行相关动作。
+	 * 
+	 * @param contextThing
+	 */
 	public void setContextThing(Thing contextThing){
 		this.contextThing = contextThing;
 	}

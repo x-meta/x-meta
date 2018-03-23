@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,6 +36,8 @@ import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xmeta.annotation.ActionAnnotationHelper;
+import org.xmeta.annotation.ActionParams;
 import org.xmeta.cache.ThingEntry;
 import org.xmeta.thingManagers.ClassThingManager;
 import org.xmeta.thingManagers.FileThingManager;
@@ -158,7 +161,7 @@ public class Action extends Semaphore{
 	public boolean changed = false;
 	
 	/** 禁止全局上下文 */
-	private boolean disableGlobalContext = false;
+	//private boolean disableGlobalContext = false;
 	
 	/** 外部动作，如果有引用*/
 	public Action outerAction = null;
@@ -189,6 +192,9 @@ public class Action extends Semaphore{
 	
 	/** 子动作的定义 */
 	Map<String, Action> actionsDefiend = null;
+	
+	/** Class注解，对JavaAction生效 */
+	private ActionAnnotationHelper annotationHelper;
 		
 	//----------构造函数和其他方法------------
 	/**
@@ -214,6 +220,7 @@ public class Action extends Semaphore{
 			if(lastModified != 0){
 				changed = true;
 			}
+			
 			try{
 				init();
 			}catch(Exception e){
@@ -269,7 +276,7 @@ public class Action extends Semaphore{
 		
 		useOtherAction = thing.getBoolean("useOtherAction");
 		otherActionPath = thing.getString("otherActionPath");		
-		disableGlobalContext = thing.getBoolean("disableGlobalContext");
+		//disableGlobalContext = thing.getBoolean("disableGlobalContext");
 		
 		isSelfInterpretationType = "Self".equals(thing.getString("interpretationType"));
 		
@@ -489,7 +496,11 @@ public class Action extends Semaphore{
 				java.lang.Compiler.compileClass(actionClass);
 				try{	
 					if(methodName != null && !"".equals(methodName)){
-						method = actionClass.getDeclaredMethod(methodName, new Class[]{ActionContext.class});
+						method = getDeclaredMethod(actionClass, methodName);//actionClass.getDeclaredMethod(methodName, new Class[]{ActionContext.class});
+						if(method == null) {
+							throw new NoSuchMethodException(methodName);
+						}
+						annotationHelper = ActionAnnotationHelper.parse(method);
 					}
 				}catch(Throwable e){		
 					throw new ActionException("load method error, class=" + actionClass.getName() 
@@ -498,7 +509,11 @@ public class Action extends Semaphore{
 			}else if(method == null){
 				try{	
 					if(methodName != null && !"".equals(methodName)){
-						method = actionClass.getDeclaredMethod(methodName, new Class[]{ActionContext.class});
+						method = getDeclaredMethod(actionClass, methodName);//actionClass.getDeclaredMethod(methodName, new Class[]{ActionContext.class});
+						if(method == null) {
+							throw new NoSuchMethodException(methodName);
+						}
+						annotationHelper = ActionAnnotationHelper.parse(method);
 					}
 				}catch(Exception e){		
 					throw new ActionException("", e);
@@ -513,8 +528,31 @@ public class Action extends Semaphore{
 			}			
 			
 			//非Java调用才初始化日志
-			logger = LoggerFactory.getLogger(thing.getMetadata().getPath());//this.className);
+			logger = LoggerFactory.getLogger(this.className);
 		}
+	}
+	
+	private Method getDeclaredMethod(Class<?> cls, String methodName) throws Exception{
+		Exception exception = null;
+		try {
+			Method method_ = cls.getDeclaredMethod(methodName, ActionContext.class);
+			if(method_ != null) {
+				return method_;
+			}
+		}catch(Exception e) {
+			exception = e;
+		}
+				
+		for(Method method : cls.getMethods()) {
+			if(method.getName().equals(methodName) ) {
+				return method;
+			}
+		}
+		
+		if(exception != null) {
+			throw exception;
+		}
+		return null;
 	}
 	
 	/**
@@ -659,12 +697,12 @@ public class Action extends Semaphore{
 		//long start = System.nanoTime();
 		//log.info("dorun started");
 		//是否禁止全局上下文具有继承的性质
-		if(context.peek().disableGloableContext ||  this.disableGlobalContext){
-			bindings.disableGloableContext = this.disableGlobalContext;
-		}
+		//if(context.peek().disableGloableContext ||  this.disableGlobalContext){
+		//	bindings.disableGloableContext = this.disableGlobalContext;
+		//}
 		
 		//动作记录
-		if(!bindings.disableGloableContext && world.isHaveActionListener()){
+		if(!context.isDisableGloableContext() && world.isHaveActionListener()){
 			ActionListener listener = world.getActionListener();
 			try{
 				listener.actionExecuted(this, caller, context, parameters, -1, true);
@@ -752,7 +790,27 @@ public class Action extends Semaphore{
 				//如果动作时原生动作，即Java动作，那么通过反射机制调用 
 				if(actionClass != null){
 					if(method != null){
-						result = method.invoke(actionClass, new Object[]{context});
+						Object classInstance = null;
+						Object[] paramValues = null;
+						if(annotationHelper != null) {
+							classInstance = annotationHelper.createObject(context);
+							paramValues = annotationHelper.getParamValues(context);
+						}
+						
+						//如果不是静态方法，实例化一个对象
+						if(classInstance == null && ((method.getModifiers() & Modifier.STATIC) != Modifier.STATIC)){							
+							classInstance = actionClass.newInstance();
+						}
+						
+						if(paramValues == null) {
+							if(method.getParameterCount() > 0) {
+								paramValues = new Object[]{context};
+							}else {
+								paramValues = new Object[0];
+							}
+						}
+						
+						result = method.invoke(classInstance, paramValues);
 					}else{
 						throw new ActionException("Java action method not setted");
 						//logger.info("Java action method is null, " + getThing().getMetadata().getPath());
@@ -907,7 +965,8 @@ public class Action extends Semaphore{
 	
 	private List<Thing> getContextThings(ActionContext actionContext){
 		List<Thing> allContexts = new ArrayList<Thing>();
-		if(!disableGlobalContext){
+		//是否禁止全局变量上下文
+		if(!actionContext.isDisableGloableContext()){
 			for(ThingEntry entry : world.globalContexts){
 				addContextThing(allContexts, entry.getThing());
 			}		
@@ -987,6 +1046,7 @@ public class Action extends Semaphore{
 		Bindings bindings = actionContext.peek();
 		bindings.put("action-exception", exception);
 		bindings.put("action-result", result);
+		bindings.put("contexts", contexts);
 		//按照从后往前的顺序执行
 		for(int i=contexts.size() - 1; i>=0; i--){
 			Thing contextObj = contexts.get(i);
@@ -1028,7 +1088,7 @@ public class Action extends Semaphore{
 	}		
 	
 	/**
-	 * 初始化上下文。
+	 * 执行动作上下文的inherit或init方法。
 	 * 
 	 * @param context 上下文事物
 	 * @param actionContext 变量上下文
@@ -1040,6 +1100,8 @@ public class Action extends Semaphore{
 		
 		Bindings bindings = actionContext.peek();
 		ActionContext acContext = new ActionContext();
+		//在这里里禁止全局动作上下文，以防止递归的出现
+		acContext.setDisableGloableContext(true);
 		acContext.put(str_acContext, actionContext);
 		acContext.put(str_parentContext, actionContext);
 		acContext.put(str_action, action);
@@ -1051,6 +1113,7 @@ public class Action extends Semaphore{
 		boolean needInherit = context.getBoolean("inherit");
 		if(needInherit){
 			inheritObj = context.doAction("inherit", acContext);
+			
 		}
 		
 		if(inheritObj != null && inheritObj instanceof ActionContext){
@@ -1058,8 +1121,8 @@ public class Action extends Semaphore{
 			bindings.getContexts().put(context, (ActionContext) inheritObj);
 		}else{
 			//使用新的上下文
-			context.doAction("init", acContext);
 			bindings.getContexts().put(context, acContext);
+			context.doAction("init", acContext);			
 		}		
 	}	
 	

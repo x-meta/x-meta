@@ -248,25 +248,46 @@ public class World {
 	}
 
 	/**
-	 * 添加全局上下文。
+	 * 添加全局上下文。动作上下文已改名为动作监听器，使用addGlobalActionListener。
 	 * 
 	 * @param contextThing 事物
 	 * @param index 位置
+	 * 
+	 * @deprecated
 	 */
 	public void addGlobalContext(Thing contextThing, int index) {
+		addGlobalActionListener(contextThing, index);
+	}
+
+	/**
+	 * 添加全局动作监听器。全局动作监听器可以监听除了全局监听器的动作之外的所有动作的执行。
+	 * 
+	 * @param listener 监听器
+	 */
+	public void addGlobalActionListener(Thing listener) {
+		addGlobalActionListener(listener, -1);
+	}
+			
+	/**
+	 * 添加全局动作监听器。全局动作监听器可以监听除了全局监听器的动作之外的所有动作的执行。
+	 * 
+	 * @param listener 监听器
+	 * @param index 位置
+	 */
+	public void addGlobalActionListener(Thing listener, int index) {
 		boolean have = false;
 		for (ThingEntry entry : globalContexts) {
 			Thing thing = entry.getThing();
 			if (thing != null
 					&& thing.getMetadata().getPath().equals(
-							contextThing.getMetadata().getPath())) {
+							listener.getMetadata().getPath())) {
 				have = true;
 				break;
 			}
 		}
 
 		if (!have) {
-			ThingEntry entry = new ThingEntry(contextThing);
+			ThingEntry entry = new ThingEntry(listener);
 			if (index == -1) {
 				globalContexts.add(entry);
 			} else {
@@ -274,19 +295,30 @@ public class World {
 			}
 		}
 	}
-
+	
 	/**
 	 * 移除一个全局上下文。
 	 * 
 	 * @param contextThing 事物
+	 * 
+	 * @deprecated
 	 */
 	public void removeGlobalContext(Thing contextThing) {
+		removeGlobalActionListener(contextThing);
+	}
+
+	/**
+	 * 移除一个全局动作监听器。
+	 * 
+	 * @param listener
+	 */
+	public void removeGlobalActionListener(Thing listener) {
 		ThingEntry forRemoved = null;
 		for (ThingEntry entry : globalContexts) {
 			Thing thing = entry.getThing();
 			if (thing != null
 					&& thing.getMetadata().getPath().equals(
-							contextThing.getMetadata().getPath())) {
+							listener.getMetadata().getPath())) {
 				forRemoved = entry;
 				break;
 			}
@@ -296,7 +328,7 @@ public class World {
 			globalContexts.remove(forRemoved);
 		}
 	}
-
+	
 	/**
 	 * 通过路径来获得事物，可能会返回项目、事物管理者、目录、事物或者事物的列表。
 	 * 

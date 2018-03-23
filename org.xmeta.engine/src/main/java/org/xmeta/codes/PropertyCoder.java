@@ -447,7 +447,7 @@ public class PropertyCoder {
 				}
 				
 				char type = line.charAt(0);
-				String name = line.substring(1, line.length());				
+				String name = line.substring(1, line.length()).intern();				
 				if(type == PropertyCoder.TYPE_NODE){
 					if(!full){
 						break;
