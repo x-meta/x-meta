@@ -114,7 +114,7 @@ public class World {
 	/** 事物编码器 */
 	private List<ThingCoder> thingCoders = new ArrayList<ThingCoder>();
 	/** 目录缓存 */
-	private Map<String, CategoryCache> categoryCaches = new HashMap<String, CategoryCache>();
+	//private Map<String, CategoryCache> categoryCaches = new HashMap<String, CategoryCache>();
 	/** 初始化发送生错的事物管理器会放在这里，避免重复初始化  */
 	private List<String> failureThingManangers = new ArrayList<String>();
 
@@ -359,22 +359,23 @@ public class World {
 				thing = baseClass;
 			}else{
 				//先从目录缓存中读取，然后再遍历每一个事物管理器
+				/*
 				String categoryPath = path.getPath();
-				String thingName;
+				//String thingName;
 				int index = categoryPath.lastIndexOf(".");
 				if(index != -1){
-					thingName = categoryPath.substring(index + 1, categoryPath.length());
+					//thingName = categoryPath.substring(index + 1, categoryPath.length());
 					categoryPath = categoryPath.substring(0, index);					
 				}else{
-					thingName = categoryPath;
+					//thingName = categoryPath;
 					categoryPath = null;
 				}
 				CategoryCache  categoryCache = categoryCaches.get(categoryPath);
 				if(categoryCache != null){
 					thing = categoryCache.getThing(path.getPath());
-				}
+				}*/
 				if(thing != null){
-					ThingCache.put(path.getPath(), thing);
+					//ThingCache.put(path.getPath(), thing);
 				}else{				
 					//按照事务管理器列表，获取第一个事物
 					for(int i=0; i<thingManagers.size(); i++){
@@ -388,17 +389,20 @@ public class World {
 					
 					if(thing != null){
 						ThingCache.put(path.getPath(), thing);
+						/*
 						if(categoryCache == null){
 							categoryCache = new CategoryCache();
 							categoryCache.addCategory(thing.getMetadata().getCategory());
 							categoryCaches.put(categoryPath, categoryCache);
 						}
+						*/
 					}else{
 						//查找是否是目录
+						/*
 						categoryCache = categoryCaches.get(path.getPath());
 						if(categoryCache != null){
 							return categoryCache.getCategory();
-						}
+						}*/
 						
 						Category category = null;
 						for(int i=0; i<thingManagers.size(); i++){
@@ -406,13 +410,13 @@ public class World {
 							category = thingManager.getCategory(path.getPath());
 							if(category != null){
 								path.setType(Path.TYPE_CATEGORY);
-
+								/*
 								categoryCache = categoryCaches.get(path.getPath());
 								if(categoryCache == null){
 									categoryCache = new CategoryCache();
 									categoryCache.addCategory(category);
 									categoryCaches.put(path.getPath(), categoryCache);
-								}
+								}*/
 								return category;
 							}
 						}

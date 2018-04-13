@@ -32,14 +32,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import ognl.OgnlException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmeta.cache.LinkedThingEntry;
 import org.xmeta.cache.ThingCache;
 import org.xmeta.cache.ThingEntry;
-import org.xmeta.codes.TxtThingCoder;
+import org.xmeta.codes.DmlThingCoder;
 import org.xmeta.codes.XmlCoder;
 import org.xmeta.thingManagers.TransientThingManager;
 import org.xmeta.util.OgnlUtil;
@@ -51,6 +49,8 @@ import org.xmeta.util.UtilMap;
 import org.xmeta.util.UtilString;
 import org.xmeta.util.UtilThing;
 import org.xml.sax.SAXException;
+
+import ognl.OgnlException;
 
 /**
  * <p>在X-Meta引擎里用事物表示任何东西。</p>
@@ -2755,7 +2755,7 @@ public class Thing {
 			//thing.getMetadata().setReserve(root.getMetadata().getReserve());
 			thing.getMetadata().initPath();
 			if(thing.getMetadata().getCoderType() == null || "".equals(thing.getMetadata().getCoderType())){
-				thing.getMetadata().setCoderType(TxtThingCoder.TYPE);
+				thing.getMetadata().setCoderType(DmlThingCoder.TYPE);
 			}
 			thing.initChildPath();
 			

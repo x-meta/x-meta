@@ -20,6 +20,7 @@ import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xmeta.codes.DmlThingCoder;
 import org.xmeta.ui.session.Session;
 import org.xmeta.ui.session.SessionManager;
 
@@ -60,7 +61,7 @@ public class ThingMetadata {
 	boolean removed = false;
 	
 	/** 编码类型 */
-	String coderType = "xer.txt";
+	String coderType = DmlThingCoder.TYPE;
 	/** 用户分组，一般是UI管理界面的用户自定义分组  */
 	String userGroup = null;
 	

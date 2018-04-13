@@ -23,10 +23,10 @@ public class DmlThingCoder implements ThingCoder{
 	ThingCoder txtThingCoder = null;
 	ThingCoder propertyThingCoder = null;
 
-	private static String TYPE = "dml";
-	private static String TYPE_TXT = "dml_txt";
-	private static String TYPE_XML = "dml_xml";
-	private static String TYPE_PROPERTY = "dml_property";
+	public static String TYPE = "dml";
+	public static String TYPE_TXT = "dml_txt";
+	public static String TYPE_XML = "dml_xml";
+	public static String TYPE_PROPERTY = "dml_property";
 	
 	public DmlThingCoder(ThingCoder xmlThingCoder, ThingCoder txtThingCoder, ThingCoder propertyThingCoder){
 		this.xmlThingCoder = xmlThingCoder;

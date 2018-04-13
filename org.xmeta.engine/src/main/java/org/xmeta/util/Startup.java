@@ -78,16 +78,30 @@ public class Startup {
 	
 	public static List<String> getClassThingConfig() throws IOException{
 		
-		
+		List<String> list = new ArrayList<String>();
 		Properties p = new Properties();
-		InputStream fin = Startup.class.getResourceAsStream("/dml.properties");
+		InputStream fin = Startup.class.getResourceAsStream("/META-INF/MANIFEST.MF");
+		
+		if(fin != null) {
+			p.load(fin);
+			String thing = p.getProperty("Start-Thing");
+			System.out.println(p);
+			if(thing != null) {
+				list.add(thing);
+				list.add("run");
+				return list;
+			}
+			fin.close();
+		}
+		
+		fin = Startup.class.getResourceAsStream("/dml.properties");
 		if(fin != null){
 			p.load(fin);
-			
-			List<String> list = new ArrayList<String>();
+						
 			list.add(p.getProperty("thing"));
 			list.add(p.getProperty("action"));
 			
+			fin.close();
 			return list;
 		}else{
 			return null;

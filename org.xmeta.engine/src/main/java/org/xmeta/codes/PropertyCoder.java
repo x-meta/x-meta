@@ -112,7 +112,7 @@ public class PropertyCoder {
 		//版本和数据头
 		ThingMetadata meta = thing.getMetadata();
 		
-		if(thing.getParent() == null){
+		if(thing.getParent() == null || ident == null || ident.equals("")){
 			//最后修改时间
 			out.print(ident);
 			out.println(PropertyCoder.TYPE_LASTMODIFIED + String.valueOf(meta.getLastModified()));
