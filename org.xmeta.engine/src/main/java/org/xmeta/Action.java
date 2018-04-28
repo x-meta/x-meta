@@ -37,7 +37,6 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmeta.annotation.ActionAnnotationHelper;
-import org.xmeta.annotation.ActionParams;
 import org.xmeta.cache.ThingEntry;
 import org.xmeta.thingManagers.ClassThingManager;
 import org.xmeta.thingManagers.FileThingManager;
@@ -500,7 +499,7 @@ public class Action extends Semaphore{
 						if(method == null) {
 							throw new NoSuchMethodException(methodName);
 						}
-						annotationHelper = ActionAnnotationHelper.parse(method);
+						annotationHelper = ActionAnnotationHelper.parse(actionClass, method);
 					}
 				}catch(Throwable e){		
 					throw new ActionException("load method error, class=" + actionClass.getName() 
@@ -513,7 +512,7 @@ public class Action extends Semaphore{
 						if(method == null) {
 							throw new NoSuchMethodException(methodName);
 						}
-						annotationHelper = ActionAnnotationHelper.parse(method);
+						annotationHelper = ActionAnnotationHelper.parse(actionClass, method);
 					}
 				}catch(Exception e){		
 					throw new ActionException("", e);

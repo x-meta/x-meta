@@ -67,7 +67,9 @@ public class World {
 	public static byte MODE_PROGRAMING = 0;
 	/** 工作模式，一般JavaAction等发生变更时不重新编译 */
 	public static byte MODE_WORKING = 1;
-
+	/** 在WEB模式下，会把webroot作为一个事物管理器 */
+	public static String WEBROOT_TEMP_THINGMANAGER = "xworker_webroot_tmpthingmanager";
+	
 	/** 世界的唯一单态实例 */
 	private final static World worldInstance = new World();
 
@@ -117,6 +119,7 @@ public class World {
 	//private Map<String, CategoryCache> categoryCaches = new HashMap<String, CategoryCache>();
 	/** 初始化发送生错的事物管理器会放在这里，避免重复初始化  */
 	private List<String> failureThingManangers = new ArrayList<String>();
+	private List<String> libList = new ArrayList<String>();
 
 	/**
 	 * 运行时所有的事物基本都通过World获取，为提交性能增加路径缓存。
@@ -183,6 +186,13 @@ public class World {
 		return this.mode;
 	}
 	
+	public  List<String> getLibList(){
+		return libList;
+	}
+	
+	public void addLib(String lib) {
+		libList.add(lib);
+	}
 	/**
 	 * 创建一个ThingManager，必须是全路径&lt;projectName&gt;:&lt;thingManagerName&gt;。
 	 * 

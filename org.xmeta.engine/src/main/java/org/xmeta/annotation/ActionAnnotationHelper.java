@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.xmeta.ActionContext;
@@ -31,7 +32,7 @@ public class ActionAnnotationHelper {
 	 * @throws SecurityException 
 	 * @throws NoSuchMethodException 
 	 */
-	public static ActionAnnotationHelper parse(Method method) throws NoSuchMethodException, SecurityException {
+	public static ActionAnnotationHelper parse(Class<?> cls, Method method) throws NoSuchMethodException, SecurityException {
 		ActionAnnotationHelper helper = new ActionAnnotationHelper();
 		helper.actionMethod = method;
 		
@@ -42,17 +43,24 @@ public class ActionAnnotationHelper {
 		}
 		
 		//查找类的注解
-		Class<?> cls = method.getDeclaringClass();
 		helper.actionClass = cls;
 		ActionClass actionClass = cls.getAnnotation(ActionClass.class);
-		if(actionClass != null) {
+		//静态方法不需要创建实例化的对象
+		if(actionClass != null && (method.getModifiers() & Modifier.STATIC) != Modifier.STATIC) {
 			helper.creator = cls.getMethod(actionClass.creator(), ActionContext.class);
 		}
 		
 		//查找字段的注解
+		List<Field> allFieldList = new ArrayList<Field>() ;
+		Class<?> tempClass = cls;
+		while (tempClass != null) {//当父类为null的时候说明到达了最上层的父类(Object类).
+			allFieldList.addAll(Arrays.asList(tempClass .getDeclaredFields()));
+		      tempClass = tempClass.getSuperclass(); //得到父类,然后赋给自己
+		}
+		
 		List<Field> fieldList = new ArrayList<Field>();
 		List<ActionField> fieldAnnotations_ = new ArrayList<ActionField>();
-		for(Field field : cls.getDeclaredFields()) {
+		for(Field field : allFieldList) {
 			ActionField actionField = field.getAnnotation(ActionField.class);
 			if(actionField != null) {
 				fieldList.add(field);

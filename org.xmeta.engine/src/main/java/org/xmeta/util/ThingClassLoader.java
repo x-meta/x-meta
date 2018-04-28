@@ -54,6 +54,11 @@ public class ThingClassLoader extends URLClassLoader {
 
 		World world = World.getInstance();
 		String worldPath = world.getPath();
+		//优先加载的类库
+		for(String lib : world.getLibList()) {
+			File libFile = new File(lib);
+			addJarOrZip(libFile);
+		}
 		File libFile = new File(worldPath + "/lib/");
 		addJarOrZip(libFile);
 		

@@ -1185,9 +1185,16 @@ public class Thing {
 		
 		linkedThingEntry.addThing(this);
 		try{
+			//最后从MetaThing上找
+			Thing metaThing = World.getInstance().getThing("MetaThing");
+			
 			//从描述者自己上寻找	 		
 			if(actionThing == null){
 				for(Thing descriptor : getDescriptors()){
+					if(descriptor == metaThing) {
+						continue;						
+					}
+					
 					actionThing = descriptor.getSelfActionThing(name, context, linkedThingEntry);
 					if(actionThing != null){
 						break;
@@ -1208,6 +1215,10 @@ public class Thing {
 			//从描述者的父上寻找
 			if(actionThing == null){
 				for(Thing descriptor : getDescriptors()){
+					if(descriptor == metaThing) {
+						continue;						
+					}
+					
 					actionThing = descriptor.getSuperActionThing(name, context, superContext, linkedThingEntry);
 					if(actionThing != null){
 						break;
@@ -1223,6 +1234,10 @@ public class Thing {
 						break;
 					}
 				}
+			}
+			
+			if(actionThing == null){
+				actionThing = metaThing.getSelfActionThing(name, context, linkedThingEntry);
 			}
 		}finally{
 			if(actionThing == null){
