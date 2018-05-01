@@ -337,8 +337,13 @@ public class UtilFile {
 		for(ThingCoder coder : World.getInstance().getThingCoders()){
 			String type = coder.getType();
 			if(path.endsWith(type)){
-				path = path.substring(0, path.length() - type.length() - 1);
-				return path.replace(File.separatorChar, '.');
+				path = path.substring(0, path.length() - type.length() - 1);				
+				path = path.replace(File.separatorChar, '.');
+				if(path.startsWith(".")){
+					path = path.substring(1, path.length());
+				}
+				
+				return path;
 			}
 		}
 		

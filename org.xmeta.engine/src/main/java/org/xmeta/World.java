@@ -1356,6 +1356,13 @@ public class World {
 		if(isFailureThingManager(name)){
 			return null;
 		}
+		try{
+			if(rootPath.getCanonicalFile().equals(new File(this.getPath()).getCanonicalFile())){			
+				return null;
+			}
+		}catch(Exception e){
+			log.error("XWorker home can not be a project", e);
+		}
 		
 		boolean hasThingsDir = false;
 		Properties properties = new Properties();
