@@ -498,7 +498,7 @@ public class UtilString {
 		}else if(value.startsWith("lang:")){
 			value = value.substring(5, value.length());
 			Map<String, String> params = UtilString.getParams(value);
-			Session session = SessionManager.getSession(null);
+			Session session = SessionManager.getSession(actionContext);
 			Locale locale = session.getLocale();
 			String language = locale.getLanguage();
 			value = params.get(language);

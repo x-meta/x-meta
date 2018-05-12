@@ -191,6 +191,12 @@ public class ThingMetadata {
 		return getLabel(locale);
 	}
 	
+	public String getLabel(ActionContext actionContext) {		
+		Session session = SessionManager.getSession(actionContext);
+		Locale locale = session.getLocale();
+		return getLabel(locale);
+	}
+	
 	public String getGroup(){
 		if(userGroup != null && !"".equals(userGroup)){
 			return userGroup;
@@ -256,7 +262,11 @@ public class ThingMetadata {
 	 * @return 事物的描述
 	 */
 	public String getDescription(){
-		Session session = SessionManager.getSession(null);
+		return getDescription(null);
+	}
+	
+	public String getDescription(ActionContext actionContext){
+		Session session = SessionManager.getSession(actionContext);
 		Locale locale = session.getLocale();
 		String country = locale.getCountry();
 		String language = locale.getLanguage();

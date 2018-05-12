@@ -15,8 +15,7 @@
 ******************************************************************************/
 package org.xmeta.ui.session;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.xmeta.ActionContext;
 
 /**
  * 会话管理者，表示的是UI交互中的会话，还需进一步设计。
@@ -24,20 +23,39 @@ import java.util.Map;
  * @author zyx
  *
  */
-public class SessionManager {
-	static Map<String, Session> sessions = new HashMap<String, Session>();
-	
-	public static Session getSession(String name) {
-		Session session = sessions.get(name);
-		if(session == null){
-			session = new Session();
-			sessions.put(name, session);
-		}
-		
-		return session;
+public abstract class SessionManager {
+	private static SessionManager sessionManager = new DefaultSessionManager();
+
+	public static Session getSession(String name, ActionContext actionContext) {
+		return sessionManager.get(name, actionContext);
 	}
 	
-	public static void remove(String name){
-		sessions.remove(name);
+	public static Session remove(String name, ActionContext actionContext){
+		return sessionManager.delete(name, actionContext);
 	}
+	
+	public static Session getSession(ActionContext actionContext) {
+		return getSession(null, actionContext);
+	}
+	
+	public static void setSessionManager(SessionManager sessionManager) {
+		SessionManager.sessionManager = sessionManager;
+	}
+	
+	/**
+	 * 获取一个指定的会话，其中name可以为null，如果Session不存在那么创建一个。。
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public abstract Session get(String name, ActionContext actionContext);
+	
+	/**
+	 * 删除一个会话。
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public abstract Session delete(String name, ActionContext actionContext);
+	
 }
