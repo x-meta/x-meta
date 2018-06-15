@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.x-meta</groupId>
   <artifactId>org.xmeta.engine</artifactId>
-  <version>1.4.3-SNAPSHOT</version>
+  <version>1.4.4-SNAPSHOT</version>
   <licenses>
      <license>
        <name>The Apache License, Version 2.0</name>
@@ -90,12 +90,13 @@
       </executions>
       <configuration>  
             <encoding>UTF-8</encoding>
+            <additionalJOption> -source 1.6</additionalJOption>
       </configuration> 
     </plugin>
      <plugin>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-gpg-plugin</artifactId>
-      <version>1.5</version>
+      <version>1.6</version>
       <executions>
         <execution>
           <id>sign-artifacts</id>
@@ -174,19 +175,16 @@
 		<groupId>com.fasterxml.jackson.core</groupId>
 		<artifactId>jackson-databind</artifactId>
 		<version>2.6.4</version>
-		<scope>provided</scope>
   	</dependency>
   	<dependency>
 		<groupId>com.fasterxml.jackson.core</groupId>
 		<artifactId>jackson-core</artifactId>
 		<version>2.6.4</version>
-		<scope>provided</scope>
   	</dependency>
 	<dependency>
 		<groupId>com.fasterxml.jackson.core</groupId>
 		<artifactId>jackson-annotations</artifactId>
 		<version>2.6.4</version>
-		<scope>provided</scope>
 	</dependency>
   </dependencies>
   <properties>
@@ -196,7 +194,8 @@
   	<argLine>-Dfile.encoding=UTF-8</argLine>
   </properties>
   <scm>
-  	<developerConnection>zhangyuxiang</developerConnection>
+  	<developerConnection>scm:git:git@gitee.com:xworker/x-meta.git</developerConnection>
   	<url>http://www.xworker.org</url>
+    <tag>org.xmeta.engine-1.4.3</tag>
   </scm>
 </project>

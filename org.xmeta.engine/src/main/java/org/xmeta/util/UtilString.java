@@ -446,7 +446,7 @@ public class UtilString {
 			if(labelThing == null){
 				return thingPath;
 			}else{
-				return World.getInstance().getThing(thingPath).getMetadata().getLabel();
+				return labelThing.getMetadata().getLabel(actionContext);
 			}
 		}else if(value.startsWith("desc:")){
 			String thingPath = value.substring(5, value.length());

@@ -963,6 +963,10 @@ public class Action extends Semaphore{
 	}
 	
 	private List<Thing> getContextThings(ActionContext actionContext){
+		if(actionContext.isDisableGloableContext()) {
+			return Collections.emptyList();
+		}
+		
 		List<Thing> allContexts = new ArrayList<Thing>();
 		//是否禁止全局变量上下文
 		if(!actionContext.isDisableGloableContext()){
@@ -1032,6 +1036,7 @@ public class Action extends Semaphore{
 	 * @param actionContext 变量上下文
 	 * @param methodName 方法名称
 	 * @param exception 抛出的异常
+	 * @param result 运行结果
 	 * 
 	 * @return 如果动作可以抛出异常则抛出异常
 	 */
@@ -1089,6 +1094,7 @@ public class Action extends Semaphore{
 	/**
 	 * 执行动作上下文的inherit或init方法。
 	 * 
+	 * @param action 动作
 	 * @param context 上下文事物
 	 * @param actionContext 变量上下文
 	 */

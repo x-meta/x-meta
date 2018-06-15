@@ -378,7 +378,7 @@ public class XmlCoder {
 
 	
 	/**
-	 * 分析XML字符串并返回事物。
+	 * 分析XML字符串。
 	 * 
 	 * @param thing 事物
 	 * @param content 内容 
@@ -387,6 +387,19 @@ public class XmlCoder {
 	 * @throws SAXException  XML异常
 	 */
 	public static void parse(Thing thing, String content) throws ParserConfigurationException, SAXException, IOException{
+		parse(thing, null, content);
+	}
+	
+	/**
+	 * 分析XML字符串并返回事物。
+	 * 
+	 * @param thing 事物
+	 * @param content 内容 
+	 * @throws ParserConfigurationException  分析异常
+	 * @throws IOException  IO异常
+	 * @throws SAXException  XML异常
+	 */
+	public static void parse(Thing thing, Thing descriptor, String content) throws ParserConfigurationException, SAXException, IOException{
 		if(content == null){
 			return;
 		}
@@ -400,7 +413,7 @@ public class XmlCoder {
         document = builder.parse(bis);
         
         Element root = document.getDocumentElement();
-        parse(thing, null, root, System.currentTimeMillis());
+        parse(thing, descriptor, root, System.currentTimeMillis());
         
         setLastModified(thing, System.currentTimeMillis());
 	}
@@ -415,6 +428,19 @@ public class XmlCoder {
 	 * @throws ParserConfigurationException 分析异常
 	 */
 	public static void parse(Thing thing, InputStream input) throws SAXException, IOException, ParserConfigurationException{
+		parse(thing, null, input);
+	}
+	
+	/**
+	 * 从输入流中读取事物。
+	 * 
+	 * @param thing 事物
+	 * @param input 输入流
+	 * @throws SAXException SAX异常
+	 * @throws IOException IO异常
+	 * @throws ParserConfigurationException 分析异常
+	 */
+	public static void parse(Thing thing, Thing descriptor, InputStream input) throws SAXException, IOException, ParserConfigurationException{
 		Document document = null;
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
@@ -423,7 +449,7 @@ public class XmlCoder {
         document = builder.parse(input);
         
         Element root = document.getDocumentElement();
-        parse(thing, null, root, System.currentTimeMillis());
+        parse(thing, descriptor, root, System.currentTimeMillis());
         
         setLastModified(thing, System.currentTimeMillis());
 	}

@@ -211,6 +211,12 @@ public class Thing {
 		}
 	}
 	
+	public void addChild(String xml) throws ParserConfigurationException, SAXException, IOException {
+		Thing thing = new Thing();
+		XmlCoder.parse(thing, getDescriptor(), xml);
+		addChild(thing);
+	}
+	
 	/**
 	 * 添加一个子事物。
 	 * 
@@ -781,14 +787,27 @@ public class Thing {
 			return;
 		}
 		
-		World world = World.getInstance();
-		if(world.globalContexts != null && world.globalContexts.size() > 0){
-			for(ThingEntry contextEntry : world.globalContexts){
-				Thing context = contextEntry.getThing();				
-				if(context != null && context != this){
-					context.doAction("onDoAction", actionContext, "thing", this, "actionName", name, "params", params);					
+		actionContext.setDisableGloableContext(true);
+		try {
+			World world = World.getInstance();
+			if(world.globalContexts != null && world.globalContexts.size() > 0){
+				for(ThingEntry contextEntry : world.globalContexts){
+					Thing context = contextEntry.getThing();				
+					if(context != null && context != this){
+						context.doAction("onDoAction", actionContext, "thing", this, "actionName", name, "params", params);					
+					}
 				}
 			}
+			
+			//变量上下文设置的
+			for(Bindings bindings : actionContext.getScopes()){
+				Thing context = bindings.getContextThing();
+				if(context != null) {
+					context.doAction("onDoAction", actionContext, "thing", this, "actionName", name, "params", params);
+				}
+			}
+		}finally {
+			actionContext.setDisableGloableContext(false);
 		}
 	}
 	
@@ -1443,7 +1462,27 @@ public class Thing {
 		childList.addAll(getChilds());
 		
 		//添加继承者的子事物
+		Map<String, String> excludes = new HashMap<String, String>();
+		String excludeDescriptorsForChilds = getStringBlankAsNull("excludeDescriptorsForChilds");
+	    if(excludeDescriptorsForChilds != null){
+	        for(String ex : excludeDescriptorsForChilds.split("[,]")){
+	        	excludes.put(ex, ex);
+	        }
+	    }
 		for(Thing thing : getAllExtends()){
+			excludeDescriptorsForChilds = thing.getStringBlankAsNull("excludeDescriptorsForChilds");
+		    if(excludeDescriptorsForChilds != null){
+		        for(String ex : excludeDescriptorsForChilds.split("[,]")){
+		        	excludes.put(ex, ex);
+		        }
+		    }
+		}
+
+		for(Thing thing : getAllExtends()){
+			if(excludes.get(thing.getMetadata().getPath()) != null) {
+				continue;
+			}
+			
 			for(Thing child : thing.childs){
 				if(!"private".equals(child.getString("modifier"))){
 					childList.add(child);
@@ -2304,6 +2343,9 @@ public class Thing {
 	 */
 	protected void initChildMetadata(Thing child){
 		ThingMetadata childMeta = child.getMetadata();
+		if(childMeta.isRemoved()) {
+			childMeta.setRemoved(false);
+		}
 		childMeta.setCategory(metadata.getCategory());
 		if(getRoot() == this){
 			childMeta.setPath(metadata.getPath() + "/@" + childMeta.getId());
@@ -2470,8 +2512,28 @@ public class Thing {
 		//添加自己的子节点和所有的继承的子节点
 		final List<List<Thing>> allChilds = new ArrayList<List<Thing>>();
 		allChilds.add(childs);
-		for(Thing extend : getAllExtends()){
-			allChilds.add(extend.getChilds());			
+		//添加继承者的子事物
+		Map<String, String> excludes = new HashMap<String, String>();
+		String excludeDescriptorsForChilds = getStringBlankAsNull("excludeDescriptorsForChilds");
+	    if(excludeDescriptorsForChilds != null){
+	        for(String ex : excludeDescriptorsForChilds.split("[,]")){
+	        	excludes.put(ex, ex);
+	        }
+	    }
+		for(Thing thing : getAllExtends()){
+			excludeDescriptorsForChilds = thing.getStringBlankAsNull("excludeDescriptorsForChilds");
+		    if(excludeDescriptorsForChilds != null){
+		        for(String ex : excludeDescriptorsForChilds.split("[,]")){
+		        	excludes.put(ex, ex);
+		        }
+		    }
+		}
+
+		for(Thing thing : getAllExtends()){
+			if(excludes.get(thing.getMetadata().getPath()) != null) {
+				continue;
+			}
+			allChilds.add(thing.getChilds());			
 		}
 		
 		return new Iterator<Thing>(){

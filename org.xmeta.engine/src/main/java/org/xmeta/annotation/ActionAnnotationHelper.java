@@ -55,7 +55,7 @@ public class ActionAnnotationHelper {
 		Class<?> tempClass = cls;
 		while (tempClass != null) {//当父类为null的时候说明到达了最上层的父类(Object类).
 			allFieldList.addAll(Arrays.asList(tempClass .getDeclaredFields()));
-		      tempClass = tempClass.getSuperclass(); //得到父类,然后赋给自己
+		    tempClass = tempClass.getSuperclass(); //得到父类,然后赋给自己
 		}
 		
 		List<Field> fieldList = new ArrayList<Field>();

@@ -32,6 +32,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xmeta.annotation.ThingAnnotationUtils;
 import org.xmeta.cache.ThingCache;
 import org.xmeta.cache.ThingEntry;
 import org.xmeta.codes.DmlThingCoder;
@@ -526,6 +527,24 @@ public class World {
 					log.error("load thing from classpath error", e);
 				}
 			}
+		}
+		
+		//按照类来加载
+		try {
+			Class<?> cls = this.worldClassLoader.loadClass(thingPath);
+			if(cls != null) {
+				thing = ThingAnnotationUtils.parse(cls);
+				if(thing != null) {
+					thing.getMetadata().setCategory(classThingManager.getCategory(cls.getPackageName()));
+					thing.getMetadata().setPath(thingPath);
+					
+					//放到缓存中
+					ThingCache.put(thing.metadata.getPath(), thing);
+					
+					return thing;
+				}
+			}
+		}catch(Exception e) {			
 		}
 		return null;
 	}
@@ -1268,6 +1287,10 @@ public class World {
 		thingManagers.add(thingManager);
 	}
 	
+	public ClassThingManager getClassThingManager() {
+		return classThingManager;
+	}
+
 	/**
 	 * 添加事物管理器到最前面。
 	 * 

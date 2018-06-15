@@ -42,6 +42,10 @@ public abstract class SessionManager {
 		SessionManager.sessionManager = sessionManager;
 	}
 	
+	public static SessionManager getSessionManager() {
+		return sessionManager;
+	}
+	
 	/**
 	 * 获取一个指定的会话，其中name可以为null，如果Session不存在那么创建一个。。
 	 * 

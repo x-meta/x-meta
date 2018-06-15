@@ -622,8 +622,8 @@ public class ActionContext implements Map<String, Object>{
 	/**
 	 * 获取参数Bindings栈中的变量的值。
 	 * 
-	 * @param key
-	 * @return
+	 * @param key 键
+	 * @return 对应key的值
 	 */
 	public Object getParameter(Object key) {
 		if(key == null || "".equals(key)){
