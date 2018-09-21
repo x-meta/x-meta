@@ -207,6 +207,7 @@ public class Action extends Semaphore{
 		try{
 			init();
 		}catch(Exception e){
+			log.warn("init action error, action=" + thing.getMetadata().getPath(), e);
 			throw new ActionException("init action error, action=" + thing.getMetadata().getPath(), e);
 		}
 	}

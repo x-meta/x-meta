@@ -351,6 +351,10 @@ public class World {
 			return this;
 		}
 		
+//		if("Test".equals(pathStr)) {
+//			System.out.println();
+//		}
+		
 		Path path = pathCache1.get(pathStr);
 		if(path == null){
 			path = pathCache2.get(pathStr);
@@ -535,7 +539,12 @@ public class World {
 			if(cls != null) {
 				thing = ThingAnnotationUtils.parse(cls);
 				if(thing != null) {
-					thing.getMetadata().setCategory(classThingManager.getCategory(cls.getPackageName()));
+					String pkg = cls.getName();
+					int index = pkg.lastIndexOf(".");
+					if(index > 0) {
+						pkg = pkg.substring(0, index);
+					}
+					thing.getMetadata().setCategory(classThingManager.getCategory(pkg));
 					thing.getMetadata().setPath(thingPath);
 					
 					//放到缓存中
@@ -1296,10 +1305,20 @@ public class World {
 	 * 
 	 * @param thingManager 事物管理器
 	 */
-	public void addThingManagerFirst(ThingManager thingManager){
+	public void addThingManagerFirst(ThingManager thingManager){		
 		checkIfThingManagerExists(thingManager);
 		
 		thingManagers.add(0, thingManager);
+	}
+	
+	/**
+	 * 先从事物管理器列表中移除，然后再加到最前面。如果移除失败（不在事物管理器列表中），则不会添加。
+	 * @param thingManager
+	 */
+	public void moveThingManagerToFirst(ThingManager thingManager) {
+		if(thingManagers.remove(thingManager)) {
+			thingManagers.add(0, thingManager);
+		}
 	}
 	
 	private void checkIfThingManagerExists(ThingManager thingManager){
@@ -1393,11 +1412,15 @@ public class World {
 			File configFile = new File(rootPath, "config.properties");
 			if(!configFile.exists()){
 				configFile = new File(rootPath, "xworker.properties");
+			}			
+			
+			if(!configFile.exists()){
+				configFile = new File(rootPath, ".dml");
+			}else{
+				hasThingsDir = true;
 			}
 			if(!configFile.exists()){
 				configFile = new File(rootPath, "dml.prj");
-			}else{
-				hasThingsDir = true;
 			}
 			if(configFile.exists()){				
 				FileInputStream fin = null; 
@@ -1453,9 +1476,7 @@ public class World {
 					
 					//添加到类库
 					getClassLoader().addJarOrZip(linkFile);
-					getClassLoader().addJarOrZip(new File(rootPath, "lib"));
-					getClassLoader().addJarOrZip(new File(rootPath, "lib_" + OS));
-					getClassLoader().addJarOrZip(new File(rootPath, "lib_" + OS + "_" + PROCESSOR_ARCHITECTURE));
+					addJarOrZip(rootPath);							
 					thingManager.setRootDir(rootPath);
 					return thingManager;
 				}else{
@@ -1463,9 +1484,7 @@ public class World {
 					addThingManager(thingManager);
 					
 					//添加类库
-					getClassLoader().addJarOrZip(new File(linkFile, "lib"));
-					getClassLoader().addJarOrZip(new File(linkFile, "lib_" + OS));
-					getClassLoader().addJarOrZip(new File(linkFile, "lib_" + OS + "_" + PROCESSOR_ARCHITECTURE));
+					addJarOrZip(linkFile);		
 					thingManager.setRootDir(rootPath);
 					return thingManager;
 				}
@@ -1504,13 +1523,23 @@ public class World {
 			addThingManager(thingManager);
 			
 			//添加类库
-			getClassLoader().addJarOrZip(new File(rootPath, "lib"));
-			getClassLoader().addJarOrZip(new File(rootPath, "lib_" + OS));
-			getClassLoader().addJarOrZip(new File(rootPath, "lib_" + OS + "_" + PROCESSOR_ARCHITECTURE));
+			addJarOrZip(rootPath);			
 			thingManager.setRootDir(rootPath);
 			return thingManager;
 		}else{
 			return null;
+		}
+	}
+	
+	private void addJarOrZip(File dir) {
+		getClassLoader().addJarOrZip(new File(dir, "lib"));
+		getClassLoader().addJarOrZip(new File(dir, "lib_" + OS));
+		getClassLoader().addJarOrZip(new File(dir, "lib_" + OS + "_" + PROCESSOR_ARCHITECTURE));
+		
+		//增加了WEB-INF下的包的加载，如果一个外部项目即是WEB应用，又是普通应用时需要
+		File webInfo = new File(dir, "WEB-INF");
+		if(webInfo.exists() && webInfo.isDirectory()) {
+			addJarOrZip(webInfo);
 		}
 	}
 	

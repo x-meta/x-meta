@@ -15,7 +15,7 @@
 ******************************************************************************/
 package org.xmeta.util;
 
-import java.util.List;
+import java.lang.reflect.Array;
 
 import org.xmeta.Action;
 import org.xmeta.ActionContext;
@@ -136,5 +136,66 @@ public class UtilAction {
 	 */
 	public static boolean getDebugLog(Thing actionThing, ActionContext actionContext){
 		return actionThing.getBoolean("debugLog");
+	}
+	
+	/**
+	 * 从actionContext获取需要保留的变量。
+	 * 
+	 * @param reservedVars 变量名，多个时使用英文逗号分隔
+	 * @param actionContext
+	 * @return
+	 */
+	public static Bindings getReservedVars(String reservedVars, ActionContext actionContext) {
+		Bindings bindings = new Bindings();
+		if(reservedVars != null) {
+			for(String var : reservedVars.split("[,]")) {
+				var = var.trim();
+				bindings.put(var, actionContext.get(var));
+			}
+		}
+		
+		return bindings;
+	}
+	
+	public static Class<?> parseClass(String className) throws ClassNotFoundException{
+		if("int".equals(className)) {
+			return int.class;
+		}else if("byte".equals(className)) {
+			return byte.class;
+		}else if("double".equals(className)) {
+			return double.class;
+		}else if("long".equals(className)) {
+			return long.class;
+		}else if("float".equals(className)) {
+			return float.class;
+		}else if("char".equals(className)) {
+			return char.class;
+		}else {
+			boolean isArray = false;
+			if(className.endsWith("[]")) {
+				isArray = true;
+				className = className.substring(0, className.length() - 2);
+			}
+			Class<?> cls = Class.forName(className);
+			if(isArray) {
+				return Array.newInstance(cls, 0).getClass();
+			}else {
+				return cls;
+			}
+		}
+	}
+	
+	public static Class<?>[] parseClasses(String classNames) throws ClassNotFoundException{
+		if(classNames == null || "".equals(classNames)) {
+			return new Class<?>[0];
+		}else {
+			String[] clNames = classNames.split("[,]");
+			Class<?>[] cls = new Class<?>[clNames.length];
+			for(int i=0; i<clNames.length; i++) {
+				cls[i] = parseClass(clNames[i]);
+			}
+			
+			return cls;
+		}
 	}
 }

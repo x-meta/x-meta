@@ -27,8 +27,6 @@ import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xmeta.ActionContext;
 import org.xmeta.Thing;
 import org.xmeta.World;
@@ -199,7 +197,7 @@ public class ThingRunner {
 					world.setVerbose(true);
 				}				
 			}
-			
+						
 			boolean isFile = false;
 			File thingFile = new File(thingPath);
 			if(!thingFile.exists()){
@@ -207,6 +205,12 @@ public class ThingRunner {
 				//logger.info("create temp thing");
 			}
 			if(thingFile.exists()){
+				if(".dml".equals(thingFile.getName())) {
+					//.dml是模型的项目文件，点击它创建编辑器
+					createThingEditor();
+					return;
+				}
+				
 				//打开的事物是一个文件
 				//logger.info("thing is file :" + thingFile.getPath());
 				thingPath = UtilFile.getThingPathByFile(thingFile.getAbsoluteFile());
@@ -274,6 +278,11 @@ public class ThingRunner {
 			e.printStackTrace();
 			System.exit(0);
 		}
+	}
+	
+	private static void createThingEditor() {
+		Thing thing = World.getInstance().getThing("xworker.tools.DmlConsole");
+		thing.doAction("run");
 	}
 	
 	private static boolean editThing(String thingPath){		

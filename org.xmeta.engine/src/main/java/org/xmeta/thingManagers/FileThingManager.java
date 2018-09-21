@@ -67,9 +67,9 @@ public class FileThingManager extends AbstractThingManager{
 	@Override
 	public Thing doLoadThing(String thingName) {
 		try{
-			if("xworker.lang.actions.GroovyAction".equals(name)){
-				System.out.println("FileTHingManager : groovy action reloaded");
-			}
+//			if("xworker.lang.actions.GroovyAction".equals(name)){
+//				System.out.println("FileTHingManager : groovy action reloaded");
+//			}
 			String thingPath = thingName.replace('.', '/');
 			World world = World.getInstance();
 			for(ThingCoder thingCoder : world.getThingCoders()){

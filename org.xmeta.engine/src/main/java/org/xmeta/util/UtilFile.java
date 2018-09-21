@@ -357,19 +357,25 @@ public class UtilFile {
 		
 		File prj = new File(dir, ".dmlprj");
 		if(prj.exists()){
-			initProject(prj);
+			initProject(prj, true);
+			return dir;
+		}
+		
+		prj = new File(dir, ".dml");
+		if(prj.exists()){
+			initProject(prj, true);
 			return dir;
 		}
 		
 		prj = new File(dir, "dml.prj");
 		if(prj.exists()){
-			initProject(prj);
+			initProject(prj, true);
 			return dir;
 		}
-		
+				
 		prj = new File(dir, "xworker.properties");
 		if(prj.exists()){
-			initProject(prj);
+			initProject(prj, true);
 			return new File(dir, "things");
 		}
 		
@@ -382,6 +388,10 @@ public class UtilFile {
 	}
 	
 	public static void initProject(File prjFile) throws IOException{
+		initProject(prjFile, false);
+	}
+	
+	public static void initProject(File prjFile, boolean addToFirst) throws IOException{
 		Properties p = new Properties();
 		try{
 			FileInputStream fin = new FileInputStream(prjFile);
@@ -397,10 +407,14 @@ public class UtilFile {
 		}
 		
 		World world = World.getInstance();
-		if(world.getThingManager(name) != null){
+		ThingManager thingManager = world.getThingManager(name); 
+		if(thingManager != null){
 			//logger.warn("Thing manager already exists, name=" + name);
 		}else{
-			world.initThingManager(prjFile.getParentFile(), name);			
+			thingManager = world.initThingManager(prjFile.getParentFile(), name);
+			if(addToFirst) {
+				world.moveThingManagerToFirst(thingManager);
+			}
 			/*
 			if(".dmlprj".equals(prjFile.getName()) || "dml.prj".equals(prjFile.getName())){
 				world.addFileThingManager(name, prjFile.getParentFile(), false, true);
