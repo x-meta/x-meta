@@ -26,6 +26,11 @@ import redis.clients.jedis.JedisPoolConfig;
  *
  */
 public class RedisThingManager extends AbstractThingManager{
+	@Override
+	public String toString() {
+		return "RedisThingManager [host=" + host + ", port=" + port + ", jedisPool=" + jedisPool + "]";
+	}
+
 	/** Redist服务器的地址 */
 	String host;
 	/** Redist服务器的端口 */

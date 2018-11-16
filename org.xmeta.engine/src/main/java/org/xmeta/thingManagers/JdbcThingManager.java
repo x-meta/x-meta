@@ -384,4 +384,10 @@ public class JdbcThingManager extends AbstractThingManager{
 	public boolean isSaveable() {
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "JdbcThingManager [driverClass=" + driverClass + ", url=" + url + ", dbUser=" + dbUser
+				+ ", connectionError=" + connectionError + ", lastConnectTime=" + lastConnectTime + "]";
+	}
 }

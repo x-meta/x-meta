@@ -177,4 +177,10 @@ public class JarThingManager extends AbstractThingManager{
 	public boolean isSaveable() {
 		return false;
 	}
+
+	@Override
+	public String toString() {
+		return "JarThingManager [jarFile=" + jarFile + ", name=" + name + ", jarFilePath=" + jarFilePath
+				+ ", refreshed=" + refreshed + "]";
+	}
 }

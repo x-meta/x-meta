@@ -37,11 +37,14 @@ public class JavaCompiler16 {
 			Iterable<? extends JavaFileObject> compilationUnits1 =
 			fileManager.getJavaFileObjectsFromFiles(Arrays.asList(codeFile));
 			
+			String bootClass = System.getProperty("sun.boot.class.path");
+			String classPath_ = System.getProperty("java.class.path");
+			String cp = bootClass + File.pathSeparator + classPath + File.pathSeparator + classPath_;
 			List<String> options = null;
 			if(sourcePath != null && !"".equals(sourcePath)){
-				options = Arrays.asList("-cp", classPath, "-sourcepath", sourcePath, "-d", world.getPath() + "/actionClasses");
+				options = Arrays.asList("-cp", cp, "-sourcepath", sourcePath, "-d", world.getPath() + "/actionClasses");
 			}else{
-				options = Arrays.asList("-cp", classPath, "-d", targetDir);
+				options = Arrays.asList("-cp", cp, "-d", targetDir);
 			}
 			compiler.getTask(null, fileManager, null, options, null, compilationUnits1).call();
 			

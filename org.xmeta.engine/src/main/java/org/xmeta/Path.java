@@ -28,6 +28,7 @@ package org.xmeta;
  *     xmeta.core.things.MetaThing
  * 子节点的路径规则：
  *     /@thingId              //取标识为thingId的子事物
+ *     /%name                 //取事物名为name的子事物，只取第一个
  *     /#attributeId          //取属性名为attributeId的事物属性
  *     /thingName$index       //取事物名为thingName的第index个子事物
  *     /thingName@thingId     //取事物名为thingName且标识为thingId的子事物
@@ -46,6 +47,7 @@ public class Path {
 	public final static byte TYPE_CATEGORY_OR_THING = 6;
 	public final static byte TYPE_CHILD_THING = 7;
 	public final static byte TYPE_CHILD_THING_OR_INDEX = 8;
+	public final static byte TYPE_CHILD_THING_BY_NAME = 9;
 	
 	/** 路径 */
 	private String path = null;
@@ -139,6 +141,10 @@ public class Path {
 		if(childPath.startsWith("@")){
 			child = new Path();
 			child.type = Path.TYPE_CHILD_THING;
+			child.thingId = childPath.substring(1, childPath.length());
+		}else if(childPath.startsWith("%")){
+			child = new Path();
+			child.type = Path.TYPE_CHILD_THING_BY_NAME;
 			child.thingId = childPath.substring(1, childPath.length());
 		}else if(childPath.startsWith("#")){
 			child = new Path();

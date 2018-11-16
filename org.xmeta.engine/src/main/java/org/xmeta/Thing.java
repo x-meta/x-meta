@@ -990,6 +990,22 @@ public class Thing {
 				
 				currentThing = nextCurrentThing;
 				break;
+			case Path.TYPE_CHILD_THING_BY_NAME:
+				//子事物，使用名字获取，只取第一个
+				nextCurrentThing = null;
+				for(Iterator<Thing> iter = currentThing.getChildsIterator(); iter.hasNext();){
+					Thing child = iter.next();
+					if(child.getMetadata().getName().equals(childPath.getThingId())){
+						nextCurrentThing = child;
+						lastChildPath = childPath;
+						childPath = childPath.getChildPath();
+						
+						break;
+					}
+				}
+				
+				currentThing = nextCurrentThing;
+				break;
 			case Path.TYPE_ATTRIBUTE:
 				return currentThing.get(childPath.getAttributeName());
 			case Path.TYPE_CHILD_THING_OR_INDEX:
