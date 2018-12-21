@@ -164,7 +164,18 @@
   		<groupId>ognl</groupId>
   		<artifactId>ognl</artifactId>
   		<version>3.0.8</version>
+  		<exclusions>
+  			<exclusion>
+  				<groupId>javassist</groupId>
+  				<artifactId>javassist</artifactId>
+  			</exclusion>
+  		</exclusions>
   	</dependency>
+  	<dependency>
+	    <groupId>org.javassist</groupId>
+	    <artifactId>javassist</artifactId>
+	    <version>3.24.0-GA</version>
+	</dependency>
   	<dependency>
 		<groupId>redis.clients</groupId>
 		<artifactId>jedis</artifactId>

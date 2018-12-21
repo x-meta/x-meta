@@ -468,7 +468,7 @@ public class UtilString {
 			String exp = value.substring(5, value.length());
 			Object obj = null;
 			try {
-				obj = (String) Ognl.getValue(exp, actionContext);
+				obj = (String) OgnlUtil.getValue(exp, actionContext);
 			} catch (Exception e) {
 				obj = null;
 			}				
@@ -533,7 +533,7 @@ public class UtilString {
 			String obj = null;
 			if(actionContext != null){
 				try {
-					obj = (String) Ognl.getValue(v, actionContext);
+					obj = (String) OgnlUtil.getValue(v, actionContext);
 				} catch (Exception e) {
 					obj = (String) actionContext.get(v);
 				}				

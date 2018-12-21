@@ -194,6 +194,9 @@ public class Action extends Semaphore{
 	
 	/** Class注解，对JavaAction生效 */
 	private ActionAnnotationHelper annotationHelper;
+	
+	/** 是否动作定义了Variables子节点，如果定义了在创建时用于生成局部变量 */
+	boolean hasVariables = false;
 		
 	//----------构造函数和其他方法------------
 	/**
@@ -292,6 +295,12 @@ public class Action extends Semaphore{
 		}else{
 			actionsDefiend = null;
 		}
+		
+		//变量定义
+		if(thing.getChilds("Variables").size() > 0) {
+			hasVariables = true;
+		}
+		
 		
 		//返回值
 		returnVarName = thing.getString("returnVarName");
@@ -749,8 +758,21 @@ public class Action extends Semaphore{
 		if(logger != null){
 			bindings.put("log", logger);
 		}
+		
+		//预制的动作
 		if(actionsDefiend != null){
 			bindings.putAll(actionsDefiend);
+		}
+		
+		//预制的变量
+		if(hasVariables) {
+			for(Thing vars : thing.getChilds("Variables")){
+	        	for(Thing var : vars.getChilds()){
+	        		String key = var.getMetadata().getName();
+	        		Object value = var.getAction().run(context, null, true);
+	        		bindings.put(key, value);
+	        	}
+	        }
 		}
 				
 		Object result = null;
@@ -863,7 +885,7 @@ public class Action extends Semaphore{
 				for(ActionResult scObj : results){	
 					boolean execute = false;
 					try{
-						execute = (Boolean) Ognl.getValue(scObj.condition, context);
+						execute = (Boolean) OgnlUtil.getValue(scObj.condition, context);
 					}catch(Exception e){
 						log.warn("", e);
 					}

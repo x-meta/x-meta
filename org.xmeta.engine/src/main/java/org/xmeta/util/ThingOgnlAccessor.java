@@ -20,6 +20,7 @@ import java.util.Map;
 import org.xmeta.Thing;
 
 import ognl.ObjectPropertyAccessor;
+import ognl.Ognl;
 import ognl.OgnlException;
 import ognl.OgnlRuntime;
 import ognl.PropertyAccessor;
@@ -32,8 +33,7 @@ import ognl.PropertyAccessor;
  */
 public class ThingOgnlAccessor  extends ObjectPropertyAccessor implements PropertyAccessor{
 	static{
-		OgnlRuntime.setPropertyAccessor(Thing.class, new ThingOgnlAccessor());	
-		OgnlClassResolver.getInstance();
+		OgnlRuntime.setPropertyAccessor(Thing.class, new ThingOgnlAccessor());
 	}
 	
 	public static void init(){		

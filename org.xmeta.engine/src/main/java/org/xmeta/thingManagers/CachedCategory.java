@@ -224,10 +224,11 @@ public abstract class CachedCategory implements Category{
 			 */
 			private void initNextThing(){
 				//如果当前的current为null表示下一个next未初始化
-				if(current == null){
-					if(stacks.size() == 0){
-						return;
-					}
+				//if(current == null){
+				//	if(stacks.size() == 0){
+				//		return;
+				//	}
+				while(stacks.size() > 0 && current == null) {
 					
 					IteratorStackEntry entry = stacks.peek();
 					
@@ -259,10 +260,10 @@ public abstract class CachedCategory implements Category{
 							aentry.categoryIndex = 0;
 							entry.categoryIndex ++;
 							stacks.push(aentry);
-							initNextThing();
+							//initNextThing();
 						}else{
 							stacks.pop();
-							initNextThing();
+							//initNextThing();
 						}
 					}
 					

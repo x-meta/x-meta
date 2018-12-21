@@ -18,9 +18,8 @@ package org.xmeta.ognl;
 import java.util.ArrayList;
 import java.util.List;
 
-import ognl.Ognl;
-
 import org.xmeta.ActionContext;
+import org.xmeta.util.OgnlUtil;
 
 public class TestOgnl {
 	public static void main(String args[]){
@@ -40,8 +39,8 @@ public class TestOgnl {
 			System.out.println("Action time is :" + (System.currentTimeMillis() - start));
 			start = System.currentTimeMillis();
 			for(int i=0; i<count; i++){
-				Ognl.getValue("a", ac);
-				//Ognl.getValue("b", ac);
+				OgnlUtil.getValue("a", ac);
+				//OgnlUtil.getValue("b", ac);
 			}
 			System.out.println("Ognl time is :" + (System.currentTimeMillis() - start));
 			

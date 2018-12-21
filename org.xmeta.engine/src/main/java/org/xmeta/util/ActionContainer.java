@@ -23,6 +23,7 @@ public class ActionContainer {
 
 	private Thing actions;
 	private ActionContext actionContext;
+	private List<Thing> actionThings = null;
 
 	public ActionContainer(Thing actions, ActionContext actionContext) {
 		this.actionContext = actionContext;
@@ -32,6 +33,18 @@ public class ActionContainer {
 
 	public Thing getThing() {
 		return actions;
+	}
+	
+	public void append(Thing action) {
+		if(actionThings == null) {
+			actionThings = new ArrayList<Thing>();			
+		}
+		
+		actionThings.add(action);
+	}
+	
+	public List<Thing> getAppednActions(){
+		return actionThings;
 	}
 
 	public <T> T doAction(String name) {
@@ -104,16 +117,35 @@ public class ActionContainer {
 	}
 
 	public Thing getActionThing(String name) {
-		for (Thing child : actions.getAllChilds()) {
+		Thing thing = getActionThing(actions, name);
+		if(thing == null && actionThings != null) {
+			for(Thing actionThing : actionThings) {
+				thing = getActionThing(actionThing, name);
+				if(thing != null) {
+					break;
+				}
+			}
+		}
+			
+		if(thing == null) {
+			log.info("action is not found : " + actions.getMetadata().getPath()
+					+ "/@" + name);
+			return null;
+		}else {
+			return thing;
+		}
+	}
+	
+	private Thing getActionThing(Thing actionThing, String name) {
+		for (Thing child : actionThing.getAllChilds()) {
 			if (child.getMetadata().getName().equals(name)) {
 				return child;
 			}
 		}
 		
-		Thing child = actions.getActionThing(name);
+		Thing child = actionThing.getActionThing(name);
 		if(child == null){			
-			log.warn("action is not found : " + actions.getMetadata().getPath()
-					+ "/@" + name);
+			
 			return null;
 		}else{
 			return child;

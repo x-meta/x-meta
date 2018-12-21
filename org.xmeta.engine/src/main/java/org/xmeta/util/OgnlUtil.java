@@ -15,13 +15,38 @@
 ******************************************************************************/
 package org.xmeta.util;
 
-import ognl.Ognl;
-import ognl.OgnlException;
+import java.util.Map;
 
 import org.xmeta.Thing;
 
+import ognl.Ognl;
+import ognl.OgnlContext;
+import ognl.OgnlException;
+
 public class OgnlUtil {
 	private static String CACHE = "__ognl_attrPathCache_";
+	private static OgnlContext  ognlContext = new OgnlContext();
+	static{
+		Ognl.setClassResolver(ognlContext, new OgnlClassResolver());
+	}
+	
+	public static Object getValue(Object tree, Object root) throws OgnlException {
+		return Ognl.getValue(tree, ognlContext, root);
+	}
+	
+	public static Object getValue(String expression, Object root) throws OgnlException {
+		return Ognl.getValue(expression, ognlContext, root);
+	}
+	
+	public static void setValue(Object tree, Object root, Object value)
+	            throws OgnlException  {
+		 Ognl.setValue(tree, ognlContext, root, value);
+	 }
+	 
+	public static void setValue(String expression, Object root, Object value) throws OgnlException {
+		 Ognl.setValue(expression, ognlContext, root, value);
+	 }
+	 
 	/**
 	 * 通过Ognl表达式取值， 事物的属性是Ognl的表达式。使用这种方式缓存了Ognl表达式。
 	 * 
@@ -36,7 +61,7 @@ public class OgnlUtil {
 		if(pathCache == null){
 			return null;
 		}
-		return Ognl.getValue(pathCache.expression, root);
+		return getValue(pathCache.expression, root);
 	}
 	
 	/**
@@ -55,7 +80,7 @@ public class OgnlUtil {
 			return null;
 		}
 		
-		return Ognl.getValue(pathCache.expression, root);
+		return getValue(pathCache.expression, root);
 	}
 	
 	public static PathCache getPathCache(Thing thing, String attributeName) throws OgnlException{
@@ -106,7 +131,7 @@ public class OgnlUtil {
 			pathCache.expression = Ognl.parseExpression(pathAttributeValue);
 		}
 		
-		Ognl.setValue(pathCache.expression, root, value);
+		setValue(pathCache.expression, root, value);
 		
 	}
 	
