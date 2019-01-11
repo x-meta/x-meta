@@ -15,11 +15,16 @@
 ******************************************************************************/
 package org.xmeta.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xmeta.ActionException;
 import org.xmeta.Thing;
 import org.xmeta.World;
 
+
 public class UtilThing {
+	private static Logger logger = LoggerFactory.getLogger(UtilThing.class);
+	
 	/**
 	 * 通过事物属性获取事物定义的事物，或者通过指定的子事物的第一个子节点获取定义的事物。
 	 * 
@@ -112,7 +117,11 @@ public class UtilThing {
 		Thing thing = World.getInstance().getThing(path);
 		if(thing == null){
 			thing = new Thing(descriptorForCreate);
-			thing.saveAs(thingManager, path);
+			if(World.getInstance().getThingManager("thingManager") != null) {				
+				thing.saveAs(thingManager, path);
+			}else {
+				logger.warn("Can not crate thing=" + path + ", thingManager=" + thingManager + " not exists");
+			}
 		}
 		
 		return thing;
@@ -130,7 +139,11 @@ public class UtilThing {
 		Thing thing = World.getInstance().getThing(path);
 		if(thing == null){
 			thing = forReplace.detach();
-			thing.saveAs(thingManager, path);
+			if(World.getInstance().getThingManager("thingManager") != null) {				
+				thing.saveAs(thingManager, path);
+			}else {
+				logger.warn("Can not crate thing=" + path + ", thingManager=" + thingManager + " not exists");
+			}
 		}
 		
 		return thing;
