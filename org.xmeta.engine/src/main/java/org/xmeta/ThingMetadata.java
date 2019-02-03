@@ -178,19 +178,35 @@ public class ThingMetadata {
 	}
 	
 	/**
-	 * 标签可理解为事物的名的另一种语言的翻译，比如事物的属性"name"，那么标签属性可谓“名称”。
-	 * 通常在界面上显示“名称”，此外也可作多语言的翻译桥梁。
+	 * 标签是事物的别名，一般显示在界面上。标签支持多语言，在不同的Locale下可以显示对应的标签的值。
 	 * 
+	 * @see #getLabel(String, ActionContext)
 	 * @return 事物的标签
 	 */
 	public String getLabel(){
-		Session session = SessionManager.getSession(null);
-		Locale locale = session.getLocale();
-		return getLabel(locale);
+		return getLabel(null, null);
 	}
 	
+	/**
+	 * 获取标签。
+	 * 
+	 * @see #getLabel(String, ActionContext)
+	 * @param actionContext
+	 * @return
+	 */
 	public String getLabel(ActionContext actionContext) {		
-		Session session = SessionManager.getSession(actionContext);
+		return getLabel(null, actionContext);
+	}
+	
+	/**
+	 * 返回事物的标签。
+	 * 
+	 * @param env
+	 * @param actionContext
+	 * @return
+	 */
+	public String getLabel(String env, ActionContext actionContext) {
+		Session session = SessionManager.getSession(null, actionContext);
 		Locale locale = session.getLocale();
 		return getLabel(locale);
 	}
@@ -200,7 +216,7 @@ public class ThingMetadata {
 			return userGroup;
 		}
 		
-		Session session = SessionManager.getSession(null);
+		Session session = SessionManager.getSession(null, null);
 		Locale locale = session.getLocale();
 		return getLocaleString("group", locale);
 	}
@@ -233,7 +249,7 @@ public class ThingMetadata {
 	 */
 	public String getLocaleString(String name, Locale locale){
 		if(locale == null){
-			Session session = SessionManager.getSession(null);
+			Session session = SessionManager.getSession(null, null);
 			locale = session.getLocale();
 		}
 		
@@ -260,12 +276,43 @@ public class ThingMetadata {
 	 * @return 事物的描述
 	 */
 	public String getDescription(){
-		return getDescription(null);
+		return getDescription(null, null);
 	}
 	
+	/**
+	 * 返回事物的描述文档。
+	 * 
+	 * @param actionContext
+	 * @return
+	 */
 	public String getDescription(ActionContext actionContext){
-		Session session = SessionManager.getSession(actionContext);
-		Locale locale = session.getLocale();
+		return getDescription(null, actionContext);
+		
+	}
+	
+	/**
+	 * 返回事物的描述文档。
+	 * 
+	 * @param env
+	 * @param actionContext
+	 * @return
+	 */
+	public String getDescription(String env, ActionContext actionContext) {
+		Session session = SessionManager.getSession(env, actionContext);
+		return getDescription(session.getLocale());
+	}
+	
+	/**
+	 * 返回事物的描述文档。
+	 * 	
+	 * @param locale
+	 * @return
+	 */
+	public String getDescription(Locale locale) {
+		if(locale == null) {
+			locale = Locale.getDefault();
+		}
+		
 		String country = locale.getCountry();
 		String language = locale.getLanguage();
 		
@@ -286,7 +333,6 @@ public class ThingMetadata {
 		}
 		return description;
 	}
-	
 	/**
 	 * 返回事物的路径。
 	 * 

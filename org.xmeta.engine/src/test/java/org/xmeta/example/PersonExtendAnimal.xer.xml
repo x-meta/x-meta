@@ -1,6 +1,6 @@
 <thing name="Person" extends="org.xmeta.example.Animal">    
-    <actions name="actions" descriptors="actions">
-        <JavaAction name="run" useOuterJava="true"   descriptors="JavaAction" 
+    <actions name="actions">
+        <JavaAction name="run" useOuterJava="true" 
                 methodName="run"  outerClassName="org.xmeta.example.PersonWithActionTest"/>
     </actions>
 </thing>

@@ -40,6 +40,11 @@ public class ActionAnnotationHelper {
 		ActionParams actionParams = method.getAnnotation(ActionParams.class);		
 		if(actionParams != null) {
 			helper.params = actionParams.names().split("[,]");
+			for(int i=0; i<helper.params.length; i++) {
+				if(helper.params[i] != null) {
+					helper.params[i] = helper.params[i].trim();
+				}
+			}
 		}
 		
 		//查找类的注解
@@ -91,14 +96,16 @@ public class ActionAnnotationHelper {
 	 * @throws IllegalArgumentException 
 	 * @throws IllegalAccessException 
 	 * @throws InstantiationException 
+	 * @throws SecurityException 
+	 * @throws NoSuchMethodException 
 	 */
-	public Object createObject(ActionContext actionContext) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
+	public Object createObject(ActionContext actionContext) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException, NoSuchMethodException, SecurityException {
 		//创建对象
 		Object obj = null;
 		if(creator != null) {
 			obj = creator.invoke(null, actionContext);
 		}else if(fields != null || ((actionMethod.getModifiers() & Modifier.STATIC) == Modifier.STATIC)) {
-			obj = actionClass.newInstance();
+			obj = actionClass.getConstructor(new Class<?>[0]).newInstance();
 		}
 		
 		//设置字段的值

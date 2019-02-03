@@ -36,6 +36,7 @@ public class PersonWithActionTest {
 		
 		//Person也可以转化为动作执行，不过这里执行会出现异常，因此action直接执行是不包含self变量
 		Action action = person.getAction();
+		System.out.println("ActionContext has not self, will throw a exception!!");
 		action.run();
 	}
 }

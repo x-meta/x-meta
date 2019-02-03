@@ -534,7 +534,7 @@ public class Thing {
 			List<Thing> descriptors = thing.getDescriptors();
 			for(Thing descriptor : descriptors){
 				//元事物的描述者不添加
-				if(descriptor != World.getInstance().baseClass && !descriptor.getMetadata().getPath().equals("metaThing")){
+				if(descriptor != World.getInstance().metaThing && !descriptor.getMetadata().getPath().equals("metaThing")){
 					addDescriptor(-1, descriptor);
 				}			
 			}
@@ -1677,7 +1677,7 @@ public class Thing {
 		return UtilData.getBigDecimal(getAttribute(name), defaultValue);
 	}
 	
-	public BigDecimal getBigDecimal(String name, BigDecimal defaultValue, ActionContext actionContext) throws OgnlException{
+	public BigDecimal getBigDecimal(String name, BigDecimal defaultValue, ActionContext actionContext) {
 		return UtilData.getBigDecimal(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
@@ -1689,7 +1689,7 @@ public class Thing {
 		return UtilData.getBigInteger(getAttribute(name), defaultValue);
 	}
 	
-	public BigInteger getBigInteger(String name, BigInteger defaultValue, ActionContext actionContext) throws OgnlException{
+	public BigInteger getBigInteger(String name, BigInteger defaultValue, ActionContext actionContext){
 		return UtilData.getBigInteger(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
@@ -1701,7 +1701,7 @@ public class Thing {
 		return UtilData.getBoolean(getAttribute(name), defaultValue);
 	}
 	
-	public boolean getBoolean(String name, boolean defaultValue, ActionContext actionContext) throws OgnlException{
+	public boolean getBoolean(String name, boolean defaultValue, ActionContext actionContext) {
 		return UtilData.getBoolean(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
@@ -1713,7 +1713,7 @@ public class Thing {
 		return UtilData.getByte(getAttribute(name), defaultValue);
 	}
 	
-	public byte getByte(String name, byte defaultValue, ActionContext actionContext) throws OgnlException{
+	public byte getByte(String name, byte defaultValue, ActionContext actionContext) {
 		return UtilData.getByte(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
@@ -1725,7 +1725,7 @@ public class Thing {
 		return UtilData.getBytes(getAttribute(name), defaultValue);
 	}
 	
-	public byte[] getBytes(String name, byte[] defaultValue, ActionContext actionContext) throws OgnlException{
+	public byte[] getBytes(String name, byte[] defaultValue, ActionContext actionContext) {
 		return UtilData.getBytes(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
@@ -1737,7 +1737,7 @@ public class Thing {
 		return UtilData.getChar(getAttribute(name), defaultValue);
 	}
 	
-	public char getChar(String name, char defaultValue, ActionContext actionContext) throws OgnlException{
+	public char getChar(String name, char defaultValue, ActionContext actionContext) {
 		return UtilData.getChar(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
@@ -1787,7 +1787,7 @@ public class Thing {
 		return UtilData.getDate(getAttribute(name), defaultValue);
 	}
 	
-	public Date getDate(String name, Date defaultValue, ActionContext actionContext) throws OgnlException{
+	public Date getDate(String name, Date defaultValue, ActionContext actionContext) {
 		return UtilData.getDate(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
@@ -1840,8 +1840,8 @@ public class Thing {
 			}
 		}
 		
-		if(world.baseClass != null){
-			descriptors.add(world.baseClass);
+		if(world.metaThing != null){
+			descriptors.add(world.metaThing);
 		}
 		
 		return descriptors;
@@ -1885,9 +1885,9 @@ public class Thing {
 			descriptors.add(desc);
 		}
 		
-		if(caches.get(World.getInstance().baseClass) == null){
+		if(caches.get(World.getInstance().metaThing) == null){
 			//元事物是每个事物的描述者
-			descriptors.add(World.getInstance().baseClass);
+			descriptors.add(World.getInstance().metaThing);
 		}
 		
 		return descriptors;
@@ -1901,7 +1901,7 @@ public class Thing {
 		return UtilData.getDouble(getAttribute(name), defaultValue);
 	}
 	
-	public double getDouble(String name, double defaultValue, ActionContext actionContext) throws OgnlException{
+	public double getDouble(String name, double defaultValue, ActionContext actionContext) {
 		return UtilData.getDouble(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
@@ -1941,7 +1941,7 @@ public class Thing {
 		return UtilData.getFloat(getAttribute(name), defaultValue);
 	}
 	
-	public float getFloat(String name, float defaultValue, ActionContext actionContext) throws OgnlException{
+	public float getFloat(String name, float defaultValue, ActionContext actionContext) {
 		return UtilData.getFloat(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
@@ -1960,7 +1960,7 @@ public class Thing {
 		return value;
 	}
 	
-	public int getInt(String name, int defaultValue, ActionContext actionContext) throws OgnlException{
+	public int getInt(String name, int defaultValue, ActionContext actionContext){
 		return UtilData.getInt(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
@@ -1971,7 +1971,7 @@ public class Thing {
 	 * @return 值
 	 * @throws OgnlException 异常 
 	 */
-	public Object getObject(String name, ActionContext actionContext) throws OgnlException{		
+	public Object getObject(String name, ActionContext actionContext) {		
 		Object value = this.get(name);
 		if(value != null && value instanceof String){
 			String str = (String) value;
@@ -2002,7 +2002,7 @@ public class Thing {
 		return UtilData.getLong(getAttribute(name), defaultValue);
 	}
 	
-	public long getLong(String name, long defaultValue, ActionContext actionContext) throws OgnlException{
+	public long getLong(String name, long defaultValue, ActionContext actionContext){
 		return UtilData.getLong(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
@@ -2079,7 +2079,7 @@ public class Thing {
 		return UtilData.getShort(getAttribute(name), defaultValue);
 	}
 	
-	public short getShort(String name, short defaultValue, ActionContext actionContext) throws OgnlException{
+	public short getShort(String name, short defaultValue, ActionContext actionContext) {
 		return UtilData.getShort(UtilData.getData(this, name, actionContext), defaultValue);
 	}
 	
@@ -2217,6 +2217,16 @@ public class Thing {
 			String descriptorsNames[] = UtilString.split(descriptorsNamesStr, ','); //.split("[,]");
 			for(String descriptorName : descriptorsNames){
 				Thing descriptor = world.getThing(descriptorName);
+				if(descriptor == null) {
+					//兼容使用XWorker编辑的模型，但可以脱离XWorker执行
+					if("xworker.lang.MetaDescriptor3".equals(descriptorName)) {
+						descriptor = world.metaThing;
+					}else if("xworker.lang.MetaDescriptor3/@actions".equals(descriptorName)) {
+						descriptor = world.metaThing.getThing("actions@0");
+					}else if("xworker.lang.actions.JavaAction".equals(descriptorName)) {
+						descriptor = world.metaThing.getThing("actions@0/JavaAction@0");
+					}
+				}
 				if(descriptor != null){
 					tempList.add(new ThingEntry(descriptorName, descriptor));
 				}
@@ -2471,6 +2481,7 @@ public class Thing {
 		*/ 
 	}
 	
+	/*
 	private synchronized void removeDescriptorsCache(int index){
 		ThingEntry[] temp = new ThingEntry[descriptorsCaches.length - 1];
 		for(int i=0; i<descriptorsCaches.length; i++){
@@ -2482,7 +2493,7 @@ public class Thing {
 		}
 		
 		descriptorsCaches = temp;
-	}
+	}*/
 	
 	private synchronized void removeExtendsCache(int index){
 		ThingEntry[] temp = new ThingEntry[extendsCaches.length - 1];

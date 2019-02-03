@@ -323,13 +323,12 @@ public class Action extends Semaphore{
 		if(rootParent != thing){
 			className = className + ".p" + thing.getMetadata().getPath().hashCode();
 			className = className.replace('-', '_');
-			
-			String cName = thing.getString("className");			    
-			if(cName == null || "".equals(cName)){
-			    className = className + "." + thing.getMetadata().getName();
-			}else{
-				className = className + "." + cName;
-			}
+		}
+		String cName = thing.getString("className");			    
+		if(cName == null || "".equals(cName)){
+		    className = className + "." + thing.getMetadata().getName();
+		}else{
+			className = className + "." + cName;
 		}
 				
 		className = getClassName(className);
@@ -502,7 +501,7 @@ public class Action extends Semaphore{
 						actionClass = classLoader.loadClass(className);
 					}
 				}
-				java.lang.Compiler.compileClass(actionClass);
+				//java.lang.Compiler.compileClass(actionClass);
 				try{	
 					if(methodName != null && !"".equals(methodName)){
 						method = getDeclaredMethod(actionClass, methodName);//actionClass.getDeclaredMethod(methodName, new Class[]{ActionContext.class});
@@ -815,13 +814,16 @@ public class Action extends Semaphore{
 						Object classInstance = null;
 						Object[] paramValues = null;
 						if(annotationHelper != null) {
-							classInstance = annotationHelper.createObject(context);
+							if((method.getModifiers() & Modifier.STATIC) != Modifier.STATIC){
+								//静态方法不要创建实例
+								classInstance = annotationHelper.createObject(context);
+							}
 							paramValues = annotationHelper.getParamValues(context);
 						}
 						
 						//如果不是静态方法，实例化一个对象
 						if(classInstance == null && ((method.getModifiers() & Modifier.STATIC) != Modifier.STATIC)){							
-							classInstance = actionClass.newInstance();
+							classInstance = actionClass.getConstructor(new Class<?>[0]).newInstance();
 						}
 						
 						if(paramValues == null) {

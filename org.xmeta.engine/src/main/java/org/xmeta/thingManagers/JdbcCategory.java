@@ -15,8 +15,6 @@ import org.xmeta.Category;
 import org.xmeta.ThingIndex;
 import org.xmeta.ThingManager;
 
-import redis.clients.jedis.Jedis;
-
 public class JdbcCategory  extends CachedCategory{	
 	private static Logger logger = LoggerFactory.getLogger(JdbcCategory.class);
 	
@@ -176,16 +174,6 @@ public class JdbcCategory  extends CachedCategory{
 		}
 	}
 	
-	public Jedis getJedis(){
-		RedisThingManager th = (RedisThingManager) this.getThingManager();
-		return th.getJedis();
-	}
-	
-	public void releaseJedis(Jedis jedis){
-		RedisThingManager th = (RedisThingManager) this.getThingManager();
-		th.releaseJedis(jedis);
-	}
-
 	@Override
 	public void refresh(boolean includeChild) {
 		this.refresh();

@@ -47,7 +47,7 @@ public class JarThingManager extends AbstractThingManager{
 		
 		try {
 			//打开JarFile并一直保持打开状态，由于可能会经常获取Jar中的流，故还没有更好的办法关闭它
-			this.jarFile = new JarFile(jarFile);
+			this.jarFile = new JarFile(jarFile);			
 			jarFilePath = jarFile.getAbsolutePath();
 		} catch (IOException e) {
 			throw new XMetaException("open jar error, jarFile=" + jarFile, e);

@@ -56,7 +56,7 @@ public class XerThingCoder implements ThingCoder{
 	public void decodeIndex(ThingIndex thingIndex, InputStream in, long lastModifyed) {
 		try{
 			//读取一部分应该足够包含索引信息的数据
-			int length = in.available();
+			int length = 1024;//in.available();
 			byte[] bytes = new byte[length];
 			in.read(bytes);
 			

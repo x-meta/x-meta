@@ -15,6 +15,9 @@
 ******************************************************************************/
 package org.xmeta.ui.session;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.xmeta.ActionContext;
 
 /**
@@ -24,26 +27,72 @@ import org.xmeta.ActionContext;
  *
  */
 public abstract class SessionManager {
-	private static SessionManager sessionManager = new DefaultSessionManager();
+	/**
+	 * 默认的会话管理器。
+	 */
+	private static SessionManager defaultSessionManager = new DefaultSessionManager();
+	
+	/**
+	 * 和环境相关的会话管理器。 如WEB、RAP等。
+	 */
+	private static Map<String, SessionManager> sessionManagers = new HashMap<String, SessionManager>();
+	static {
+		//本地会话管理器
+		sessionManagers.put("DEFAULT", defaultSessionManager);
+	}
 
-	public static Session getSession(String name, ActionContext actionContext) {
-		return sessionManager.get(name, actionContext);
+	/**
+	 * 通过指定的环境获取会话。
+	 * 
+	 * @param env
+	 * @param actionContext
+	 * @return
+	 */
+	public static Session getSession(String env, ActionContext actionContext) {		
+		return getSessionManager(env).get(actionContext);
 	}
 	
-	public static Session remove(String name, ActionContext actionContext){
-		return sessionManager.delete(name, actionContext);
-	}
-	
+	/**
+	 * 获取默认环境的会话，是本地会话，公用一个Session。
+	 * 
+	 * @param actionContext
+	 * @return
+	 */
 	public static Session getSession(ActionContext actionContext) {
-		return getSession(null, actionContext);
+		return getSessionManager(null).get(actionContext);
 	}
 	
-	public static void setSessionManager(SessionManager sessionManager) {
-		SessionManager.sessionManager = sessionManager;
+	public static Session remove(String env, ActionContext actionContext){
+		return getSessionManager(env).delete(actionContext);
 	}
 	
-	public static SessionManager getSessionManager() {
-		return sessionManager;
+	public static void setSessionManager(String env, SessionManager sessionManager) {
+		sessionManagers.put(env, sessionManager);
+		//SessionManager.defaultSessionManager = sessionManager;
+	}
+	
+	/**
+	 * 根据环境返回会话管理器，如果不存在返回默认的会话管理器。
+	 * 	
+	 * @param env
+	 * @return
+	 */
+	public static SessionManager getSessionManager(String env) {
+		SessionManager sessionManager = sessionManagers.get(env);
+		if(sessionManager != null) {
+			return sessionManager;
+		}else {
+			return defaultSessionManager;
+		}
+	}
+	
+	/**
+	 * 返回默认的会话管理器。
+	 * 
+	 * @return
+	 */
+	public static SessionManager getDefaultSessionManager() {
+		return defaultSessionManager;
 	}
 	
 	/**
@@ -52,7 +101,7 @@ public abstract class SessionManager {
 	 * @param name
 	 * @return
 	 */
-	public abstract Session get(String name, ActionContext actionContext);
+	public abstract Session get(ActionContext actionContext);
 	
 	/**
 	 * 删除一个会话。
@@ -60,6 +109,6 @@ public abstract class SessionManager {
 	 * @param name
 	 * @return
 	 */
-	public abstract Session delete(String name, ActionContext actionContext);
+	public abstract Session delete(ActionContext actionContext);
 	
 }

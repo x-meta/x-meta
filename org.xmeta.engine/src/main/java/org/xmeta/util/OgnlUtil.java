@@ -15,8 +15,7 @@
 ******************************************************************************/
 package org.xmeta.util;
 
-import java.util.Map;
-
+import org.xmeta.ActionException;
 import org.xmeta.Thing;
 
 import ognl.Ognl;
@@ -26,26 +25,41 @@ import ognl.OgnlException;
 public class OgnlUtil {
 	private static String CACHE = "__ognl_attrPathCache_";
 	private static OgnlContext  ognlContext = new OgnlContext();
-	static{
+	static{		
 		Ognl.setClassResolver(ognlContext, new OgnlClassResolver());
 	}
 	
-	public static Object getValue(Object tree, Object root) throws OgnlException {
-		return Ognl.getValue(tree, ognlContext, root);
+	public static Object getValue(Object tree, Object root) {
+		try {
+			return Ognl.getValue(tree, ognlContext, root);
+		}catch(OgnlException e) {
+			throw new ActionException(e);
+		}		
 	}
 	
-	public static Object getValue(String expression, Object root) throws OgnlException {
-		return Ognl.getValue(expression, ognlContext, root);
+	public static Object getValue(String expression, Object root) {
+		try {
+			return Ognl.getValue(expression, ognlContext, root);
+		}catch(OgnlException e) {
+			throw new ActionException(e);
+		}
 	}
 	
-	public static void setValue(Object tree, Object root, Object value)
-	            throws OgnlException  {
-		 Ognl.setValue(tree, ognlContext, root, value);
-	 }
+	public static void setValue(Object tree, Object root, Object value){
+		try {
+			Ognl.setValue(tree, ognlContext, root, value);
+		}catch(OgnlException e) {
+			throw new ActionException(e);
+		}
+	}
 	 
-	public static void setValue(String expression, Object root, Object value) throws OgnlException {
-		 Ognl.setValue(expression, ognlContext, root, value);
-	 }
+	public static void setValue(String expression, Object root, Object value) {
+		try {
+		    Ognl.setValue(expression, ognlContext, root, value);
+		}catch(OgnlException e) {
+			throw new ActionException(e);
+		}
+	}
 	 
 	/**
 	 * 通过Ognl表达式取值， 事物的属性是Ognl的表达式。使用这种方式缓存了Ognl表达式。
@@ -56,7 +70,7 @@ public class OgnlUtil {
 	 * @return 值
 	 * @throws OgnlException 异常
 	 */
-	public static Object getValue(Thing thing, String pathAttributeName, Object root) throws OgnlException{
+	public static Object getValue(Thing thing, String pathAttributeName, Object root) {
 		PathCache pathCache = getPathCache(thing, pathAttributeName);
 		if(pathCache == null){
 			return null;
@@ -74,7 +88,7 @@ public class OgnlUtil {
 	 * @return 值
 	 * @throws OgnlException 异常
 	 */
-	public static Object getValue(Thing thing, String pathAttributeName, String pathAttributeValue, Object root) throws OgnlException{
+	public static Object getValue(Thing thing, String pathAttributeName, String pathAttributeValue, Object root) {
 		PathCache pathCache = getPathCache(thing, pathAttributeName);
 		if(pathCache == null){
 			return null;
@@ -83,7 +97,7 @@ public class OgnlUtil {
 		return getValue(pathCache.expression, root);
 	}
 	
-	public static PathCache getPathCache(Thing thing, String attributeName) throws OgnlException{
+	public static PathCache getPathCache(Thing thing, String attributeName) {
 		String key = CACHE + attributeName;
 		PathCache pathCache = (PathCache) thing.getData(key);
 		if(pathCache == null || pathCache.lastModified != thing.getMetadata().getLastModified()){
@@ -101,20 +115,25 @@ public class OgnlUtil {
 			if(path.startsWith("ognl:")){
 				path = path.substring(5, path.length());
 			}
-			pathCache.expression = Ognl.parseExpression(path);			
+			
+			try {
+				pathCache.expression = Ognl.parseExpression(path);
+			}catch(OgnlException e) {
+				throw new ActionException(e);
+			}
 			thing.setData(key, pathCache);
 		}
 		
 		return pathCache;
 	}
 	
-	public static Object getCachedExpression(Thing thing, String attributeName) throws OgnlException{
+	public static Object getCachedExpression(Thing thing, String attributeName){
 		PathCache pathCache = getPathCache(thing, attributeName);
 		
 		return pathCache.expression;
 	}
 	
-	public static void setValue(Thing thing, String pathAttributeName, String pathAttributeValue, Object value, Object root) throws OgnlException{
+	public static void setValue(Thing thing, String pathAttributeName, String pathAttributeValue, Object value, Object root) {
 		if(pathAttributeValue == null || "".equals(pathAttributeValue)){
 			return;
 		}
@@ -128,7 +147,11 @@ public class OgnlUtil {
 			}
 			
 			pathCache.lastModified = thing.getMetadata().getLastModified();
-			pathCache.expression = Ognl.parseExpression(pathAttributeValue);
+			try {
+				pathCache.expression = Ognl.parseExpression(pathAttributeValue);
+			}catch(OgnlException e) {
+				throw new ActionException(e);
+			}
 		}
 		
 		setValue(pathCache.expression, root, value);

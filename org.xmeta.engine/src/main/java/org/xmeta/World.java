@@ -47,6 +47,7 @@ import org.xmeta.thingManagers.FileMonitor;
 import org.xmeta.thingManagers.FileThingManager;
 import org.xmeta.thingManagers.JarThingManager;
 import org.xmeta.thingManagers.TransientThingManager;
+import org.xmeta.util.JarThingManagerIniter;
 import org.xmeta.util.ThingClassLoader;
 import org.xmeta.util.ThingOgnlAccessor;
 import org.xmeta.util.UtilFile;
@@ -79,8 +80,7 @@ public class World {
 	private ClassThingManager classThingManager = new ClassThingManager();
 		
 	/** 元事物 */
-	//public Thing metaThing = null;// new MetaThing();
-	public Thing baseClass = null;//new MetaThing();
+	public Thing metaThing = null;//new MetaThing();
 
 	/** 全局上下文 */
 	protected List<ThingEntry> globalContexts = new CopyOnWriteArrayList<ThingEntry>();
@@ -371,7 +371,7 @@ public class World {
 		if(thing == null){
 			if("MetaThing".equals(path.getPath())){
 				//MetaThing这个名字永远分配给元事物
-				thing = baseClass;
+				thing = metaThing;
 			}else{
 				//先从目录缓存中读取，然后再遍历每一个事物管理器
 				/*
@@ -389,53 +389,50 @@ public class World {
 				if(categoryCache != null){
 					thing = categoryCache.getThing(path.getPath());
 				}*/
+				
+				//按照事务管理器列表，获取第一个事物
+				for(int i=0; i<thingManagers.size(); i++){
+					ThingManager thingManager = thingManagers.get(i);
+					thing = thingManager.getThing(path.getPath());
+					if(thing != null){
+						path.setType(Path.TYPE_THING);
+						break;
+					}
+				}
+				
 				if(thing != null){
-					//ThingCache.put(path.getPath(), thing);
-				}else{				
-					//按照事务管理器列表，获取第一个事物
+					ThingCache.put(path.getPath(), thing);
+					/*
+					if(categoryCache == null){
+						categoryCache = new CategoryCache();
+						categoryCache.addCategory(thing.getMetadata().getCategory());
+						categoryCaches.put(categoryPath, categoryCache);
+					}
+					*/
+				}else{
+					//查找是否是目录
+					/*
+					categoryCache = categoryCaches.get(path.getPath());
+					if(categoryCache != null){
+						return categoryCache.getCategory();
+					}*/
+					
+					Category category = null;
 					for(int i=0; i<thingManagers.size(); i++){
 						ThingManager thingManager = thingManagers.get(i);
-						thing = thingManager.getThing(path.getPath());
-						if(thing != null){
-							path.setType(Path.TYPE_THING);
-							break;
+						category = thingManager.getCategory(path.getPath());
+						if(category != null){
+							path.setType(Path.TYPE_CATEGORY);
+							/*
+							categoryCache = categoryCaches.get(path.getPath());
+							if(categoryCache == null){
+								categoryCache = new CategoryCache();
+								categoryCache.addCategory(category);
+								categoryCaches.put(path.getPath(), categoryCache);
+							}*/
+							return category;
 						}
-					}
-					
-					if(thing != null){
-						ThingCache.put(path.getPath(), thing);
-						/*
-						if(categoryCache == null){
-							categoryCache = new CategoryCache();
-							categoryCache.addCategory(thing.getMetadata().getCategory());
-							categoryCaches.put(categoryPath, categoryCache);
-						}
-						*/
-					}else{
-						//查找是否是目录
-						/*
-						categoryCache = categoryCaches.get(path.getPath());
-						if(categoryCache != null){
-							return categoryCache.getCategory();
-						}*/
-						
-						Category category = null;
-						for(int i=0; i<thingManagers.size(); i++){
-							ThingManager thingManager = thingManagers.get(i);
-							category = thingManager.getCategory(path.getPath());
-							if(category != null){
-								path.setType(Path.TYPE_CATEGORY);
-								/*
-								categoryCache = categoryCaches.get(path.getPath());
-								if(categoryCache == null){
-									categoryCache = new CategoryCache();
-									categoryCache.addCategory(category);
-									categoryCaches.put(path.getPath(), categoryCache);
-								}*/
-								return category;
-							}
-						}
-					}
+					}					
 				}
 			}
 		}
@@ -1034,14 +1031,8 @@ public class World {
 		
 		//System.out.println("world initLibraryPath: " + (System.currentTimeMillis() - start));
 		// 初始化项目等
-		baseClass = new MetaThing();
-		//System.out.println("world init metathing: " + (System.currentTimeMillis() - start));
-		//添加World目录下的事物管理器
-		thingManagers.clear();
-		refresh();
-		
-		//System.out.println("world refresh: " + (System.currentTimeMillis() - start));
-		thingManagers.add(transientThingManager);
+		metaThing = new MetaThing();
+		//System.out.println("world init metathing: " + (System.currentTimeMillis() - start));		
 		//thingManagers.add(classThingManager);
 		
 		// 初始化子系统，此方法应该属于IDE的方法，于2014-10-30日由张玉祥取消
@@ -1057,6 +1048,13 @@ public class World {
 		//初始化通过.lib文件自定义的类库
 		getClassLoader().initLibs();
 		
+		//添加World目录下的事物管理器
+		thingManagers.clear();
+		refresh();
+		
+		//System.out.println("world refresh: " + (System.currentTimeMillis() - start));
+		thingManagers.add(transientThingManager);
+		
 		//System.out.println("world initLibs: " + (System.currentTimeMillis() - start));
 		
         //重新设置元事物如果存在, 2015-03-18加入，因为一些事物已经使用这个xworker.lang.MetaThing
@@ -1066,7 +1064,7 @@ public class World {
 	        //保留元事物的路径
         	baseClass.getMetadata().setPath("xworker.lang.MetaThing");
         	baseClass.initChildPath();
-	        this.baseClass = baseClass;
+	        this.metaThing = baseClass;
         }
         
        // System.out.println("world init metathing: " + (System.currentTimeMillis() - start));
@@ -1137,6 +1135,9 @@ public class World {
 			}
 			//System.out.println("Init thing manager all : " + (System.currentTimeMillis() - start));
 		}
+		
+		//初始化JarThingManager
+		new JarThingManagerIniter().run();		
 	}
 
 	/**
@@ -1500,7 +1501,7 @@ public class World {
 					if(constructor != null){
 						thingManager = (ThingManager) constructor.newInstance(new Object[]{name, rootPath});
 					}else{
-						thingManager = (ThingManager) cls.newInstance();
+						thingManager = (ThingManager) cls.getConstructor(new Class[] {}).newInstance();
 					}
 				} catch (Exception e) {
 					log.warn("can not load thingManager", e);

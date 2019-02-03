@@ -54,7 +54,7 @@ import org.xmeta.ThingIndex;
  *
  */
 public class XmlThingCoder implements ThingCoder{
-	public static String TYPE = "xer.xml";
+	public static String TYPE = "dml.xml";
 
 	@Override
 	public void decode(Thing thing, InputStream in, long lastModified) {

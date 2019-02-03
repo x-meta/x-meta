@@ -60,8 +60,8 @@ public abstract class CachedCategory implements Category{
 	
 	private void checkRefresh(){
 		if(!refreshed){
-			refresh(false);
 			refreshed = true;
+			refresh(false);
 		}
 	}
 	

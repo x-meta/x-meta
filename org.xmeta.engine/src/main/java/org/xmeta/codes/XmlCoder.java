@@ -476,10 +476,13 @@ public class XmlCoder {
 			for(Thing descriptor : parentDescriptor.getAllChilds("thing")){
 				if(thingName.equals(descriptor.getMetadata().getName())){
 					descriptors = descriptor.getMetadata().getPath();
-					attributes.put("descriptors", descriptors);
-					thing.initDefaultValue();					
 					break;
 				}
+			}
+			
+			if(descriptors != null) {
+				attributes.put("descriptors", descriptors);
+				thing.initDefaultValue();
 			}
 		}
 		//如果descriptors为空，默认设置为元事物

@@ -1,7 +1,7 @@
 <Person name="Tom" age="40">
     <Child name="Smith" age="10"/>
-    <actions name="actions" descriptors="actions">
-        <JavaAction name="run" useOuterJava="true"   descriptors="JavaAction" 
+    <actions >
+        <JavaAction name="run" useOuterJava="true" 
                 methodName="run"  outerClassName="org.xmeta.example.PersonWithActionTest"/>
     </actions>
 </Person>

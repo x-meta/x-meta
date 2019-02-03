@@ -1,6 +1,8 @@
 package org.xmeta.codes;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -8,6 +10,7 @@ import org.xmeta.Thing;
 import org.xmeta.ThingCoder;
 import org.xmeta.ThingCoderException;
 import org.xmeta.ThingIndex;
+import org.xmeta.World;
 
 /**
  * 
@@ -49,12 +52,27 @@ public class DmlThingCoder implements ThingCoder{
 	@Override
 	public void decode(Thing thing, InputStream in, long lastModifyed)  {				
 		try{
-			//允许空的文件为事物，这样编辑器中可以先创建文件
-			if(in.available() == 0){
-				return;
-			}
+			BufferedInputStream bin = null;
 			
-			BufferedInputStream bin = new BufferedInputStream(in);
+			if(in.available() == 0){
+				//有的输入流available=0并不代表没有数据
+				ByteArrayOutputStream bout = new ByteArrayOutputStream();
+				if(thing.getMetadata().getThingManager() == World.getInstance().getClassThingManager()) {				
+					byte[] bytes = new byte[1024 * 8];
+					int length = -1;
+					while((length = in.read(bytes)) != -1) {
+						bout.write(bytes, 0, length);
+					}
+				}
+				if(bout.toByteArray().length == 0) {
+					//确实为空，允许空的文件为事物，这样编辑器中可以先创建文件
+					return;
+				}else {
+					bin = new BufferedInputStream(new ByteArrayInputStream(bout.toByteArray()));
+				}
+			}else {				
+				bin = new BufferedInputStream(in);
+			}
 			bin.mark(10);
 		
 			int firstChar = bin.read();

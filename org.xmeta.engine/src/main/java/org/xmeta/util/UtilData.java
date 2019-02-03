@@ -29,9 +29,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import ognl.Ognl;
-import ognl.OgnlException;
-
 import org.xmeta.Action;
 import org.xmeta.ActionContext;
 import org.xmeta.ActionException;
@@ -124,6 +121,7 @@ public class UtilData {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static Object parse(String value, String valueType, String pattern) throws ParseException{
 		if(value == null) return null;
 		
@@ -379,6 +377,7 @@ public class UtilData {
     	return defaultValue;
     }
 	
+	@SuppressWarnings("deprecation")
 	public static char getChar(Object v, char defaultValue){
     	if(v == null || VALUE_BLANK.equals(v)){
     		return defaultValue;
@@ -797,7 +796,7 @@ public class UtilData {
 	 * @return 对象
 	 * @throws OgnlException 异常
 	 */
-	public static Object getObject(Thing thing, String attributeName, ActionContext actionContext) throws OgnlException{
+	public static Object getObject(Thing thing, String attributeName, ActionContext actionContext) {
 		Object obj = UtilData.getData(thing, attributeName, actionContext);
 		if(obj instanceof String){
 			obj = actionContext.get((String) obj);
@@ -807,7 +806,7 @@ public class UtilData {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static <T> T get(Thing thing, String attributeName, ActionContext actionContext) throws OgnlException{
+	public static <T> T get(Thing thing, String attributeName, ActionContext actionContext){
 		Object obj = UtilData.getData(thing, attributeName, actionContext);
 		if(obj instanceof String){
 			obj = actionContext.get((String) obj);
@@ -817,7 +816,7 @@ public class UtilData {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static <T> T getObjectByType(Thing thing, String attributeName, Class<T> t, ActionContext actionContext) throws OgnlException{
+	public static <T> T getObjectByType(Thing thing, String attributeName, Class<T> t, ActionContext actionContext){
 		Object obj = getObject(thing, attributeName, actionContext);
 		if(t.isInstance(obj)){
 			return (T) obj;
@@ -835,7 +834,7 @@ public class UtilData {
 	 * @return 事物，如果不存在返回null
 	 * @throws OgnlException
 	 */
-	public static Thing getThing(Thing thing, String attributeName, ActionContext actionContext) throws OgnlException{
+	public static Thing getThing(Thing thing, String attributeName, ActionContext actionContext) {
 		Object obj = UtilData.getData(thing, attributeName, actionContext);
 		if(obj instanceof Thing){
 			return (Thing) obj;
@@ -858,7 +857,7 @@ public class UtilData {
 	 * @return 要返回的额事物，如果不存在返回null
 	 * @throws OgnlException
 	 */
-	public static Thing getThing(Thing thing, String attributeName, String childThingPath, ActionContext actionContext) throws OgnlException{
+	public static Thing getThing(Thing thing, String attributeName, String childThingPath, ActionContext actionContext) {
 		Thing th = getThing(thing, attributeName, actionContext);
 		if(th == null && childThingPath != null){
 			return thing.getThing(childThingPath);
@@ -876,7 +875,7 @@ public class UtilData {
 	 * @return 结果
 	 * @throws OgnlException 异常
 	 */
-	public static Object getData(Thing thing, String attributeName, ActionContext actionContext) throws OgnlException{
+	public static Object getData(Thing thing, String attributeName, ActionContext actionContext) {
 		Object value = thing.get(attributeName);
 		if(value != null && value instanceof String){
 			String str = (String) value;
@@ -909,7 +908,7 @@ public class UtilData {
 		return value;
 	}
 	
-	public static Object getData( String value, ActionContext actionContext) throws OgnlException{		
+	public static Object getData( String value, ActionContext actionContext) {		
 		String str = (String) value;
 		if(str.startsWith("var:")){
 			return actionContext.get(str.substring(4, str.length()));

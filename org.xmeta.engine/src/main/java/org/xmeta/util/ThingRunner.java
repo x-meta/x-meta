@@ -198,70 +198,74 @@ public class ThingRunner {
 				}				
 			}
 						
-			boolean isFile = false;
-			File thingFile = new File(thingPath);
-			if(!thingFile.exists()){
-				thingFile = new File("./" + thingPath);
-				//logger.info("create temp thing");
-			}
-			if(thingFile.exists()){
-				if(".dml".equals(thingFile.getName())) {
-					//.dml是模型的项目文件，点击它创建编辑器
-					createThingEditor();
-					return;
+			Thing thing = null;
+			if(thing == null) {
+				boolean isFile = false;
+				File thingFile = new File(thingPath);
+				if(!thingFile.exists()){
+					thingFile = new File("./" + thingPath);
+					//logger.info("create temp thing");
 				}
-				
-				//打开的事物是一个文件
-				//logger.info("thing is file :" + thingFile.getPath());
-				thingPath = UtilFile.getThingPathByFile(thingFile.getAbsoluteFile());
-				
-				if(thingPath == null){
-					System.out.println("Cann't open, file is no a thing, file=" + thingPath);
-					return;
-				}
-				isFile = true;
-			}else{
-				//打开的是事物的路径
-				File file = new File(".");
-				//查找项目目录和初始化项目
-				File rootFile = UtilFile.getThingsRootAndInitProject(file);
-				if(rootFile == null){
-					rootFile = file;
-					
-					//是没有项目的孤立事物，把事物所在的目录加入的事物管理器中
-					String tname = UtilFile.getThingManagerNameByDir(rootFile);
-					if(world.getThingManager(tname) == null){
-						//把它加到事物管理器的开头
-						world.addFileThingManager(tname, rootFile, false, true);						
-					}
-				}
-			}			
-			
-			if(isFile){
-				//如果是文件，那么可以选择是编辑还是运行
-				/*
-				System.out.print("按任意键进入编辑器(Preess any key to edit)，等待3秒(Wait for 3 seconds): ");
-				WaiterForEnter we = new WaiterForEnter();
-				we.start();
-				we.waitForEnter();
-				
-				if(we.ctrPressed){
-					if(editThing(thingFile.getAbsolutePath())){
+				if(thingFile.exists()){
+					if(".dml".equals(thingFile.getName())) {
+						//.dml是模型的项目文件，点击它创建编辑器
+						createThingEditor();
 						return;
 					}
-				}*/
-			}
+					
+					//打开的事物是一个文件
+					//logger.info("thing is file :" + thingFile.getPath());
+					thingPath = UtilFile.getThingPathByFile(thingFile.getAbsoluteFile());
+					
+					if(thingPath == null){
+						System.out.println("Cann't open, file is no a thing, file=" + thingPath);
+						return;
+					}
+					isFile = true;
+				}else{
+					//打开的是事物的路径
+					File file = new File(".");
+					//查找项目目录和初始化项目
+					File rootFile = UtilFile.getThingsRootAndInitProject(file);
+					if(rootFile == null){
+						rootFile = file;
+						
+						//是没有项目的孤立事物，把事物所在的目录加入的事物管理器中
+						String tname = UtilFile.getThingManagerNameByDir(rootFile);
+						if(world.getThingManager(tname) == null){
+							//把它加到事物管理器的开头
+							world.addFileThingManager(tname, rootFile, false, true);						
+						}
+					}
+				}			
+				
+				if(isFile){
+					//如果是文件，那么可以选择是编辑还是运行
+					/*
+					System.out.print("按任意键进入编辑器(Preess any key to edit)，等待3秒(Wait for 3 seconds): ");
+					WaiterForEnter we = new WaiterForEnter();
+					we.start();
+					we.waitForEnter();
+					
+					if(we.ctrPressed){
+						if(editThing(thingFile.getAbsolutePath())){
+							return;
+						}
+					}*/
+				}
+				
+				//XWorker是一个命令行的特殊事物，为了和目录xworker区分，所以用了前大写
+				//但用户输入可能会大小写错误，所以再次规避
+				if("XWORKER".equals(thingPath.toUpperCase())){
+					thingPath = "XWorker"; //
+				}
 			
-			//XWorker是一个命令行的特殊事物，为了和目录xworker区分，所以用了前大写
-			//但用户输入可能会大小写错误，所以再次规避
-			if("XWORKER".equals(thingPath.toUpperCase())){
-				thingPath = "XWorker"; //
+				thing = world.getThing(thingPath);
 			}
 
 			//System.out.println("init thing path： " + (System.currentTimeMillis() - start));
 			
-			//执行事物
-			Thing thing = world.getThing(thingPath);
+			//执行事物			
 			
 			//System.out.println("get thing： " + (System.currentTimeMillis() - start));
 			if (thing == null) {
@@ -271,7 +275,7 @@ public class ThingRunner {
 				ActionContext actionContext = new ActionContext();
 				actionContext.put("args", args);
 				actionContext.put("_args_", args);
-				thing.doAction(actionName, actionContext);
+				thing.doAction(actionName, actionContext);				
 			}			
 			//System.out.println("executed： " + (System.currentTimeMillis() - start));
 		} catch (Exception e) {

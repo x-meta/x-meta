@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import ognl.Ognl;
-
 import org.xmeta.ActionContext;
 import org.xmeta.Thing;
 import org.xmeta.World;
@@ -425,7 +423,7 @@ public class UtilString {
 		value = value.trim();
 		
 		if(value.startsWith("res:")){
-			Session session = SessionManager.getSession(null);
+			Session session = SessionManager.getSession(null, actionContext);
 			UtilResource resource = session.getI18nResource();
 			
 			String resStrs[] = value.split("[:]");
@@ -498,7 +496,7 @@ public class UtilString {
 		}else if(value.startsWith("lang:")){
 			value = value.substring(5, value.length());
 			Map<String, String> params = UtilString.getParams(value);
-			Session session = SessionManager.getSession(actionContext);
+			Session session = SessionManager.getSession(null, actionContext);
 			Locale locale = session.getLocale();
 			String language = locale.getLanguage();
 			value = params.get(language);

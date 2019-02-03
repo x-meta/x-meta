@@ -69,6 +69,8 @@ public class MetaThing extends Thing{
 		//long start = System.currentTimeMillis();
 		this.beginModify();
 		
+		this.getMetadata().setPath("MetaThing");
+		
         //<thing name="thing"/>
 		attributes.put(Thing.NAME, Thing.THING);
 		attributes.put(Thing.DESCRIPTORS, "MetaThing");
@@ -108,6 +110,7 @@ public class MetaThing extends Thing{
 		//             <attribute name="otherActionPath""/>
 		//</thing>
 		Thing actions = createThing("actions");
+		actions.set("descriptors", "MetaThing/@actions");
 		Thing javaAction = createThing("JavaAction");
 		javaAction.addChild(createAttribute("name"));
 		javaAction.addChild(createAttribute("useOuterJava"));
@@ -118,9 +121,11 @@ public class MetaThing extends Thing{
 		javaAction.addChild(createAttribute("isSynchronized"));
 		javaAction.addChild(createAttribute("useOtherAction"));
 		javaAction.addChild(createAttribute("otherActionPath"));
+		javaAction.set("descriptors", "MetaThing/@actions/@JavaAction");
 		actions.addChild(javaAction);
 		addChild(actions);
 		//System.out.println("metathing addchild actions : " + (System.currentTimeMillis() - start));
+		
 		
 		this.endModify(true);
 	}

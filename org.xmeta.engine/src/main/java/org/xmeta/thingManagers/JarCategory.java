@@ -72,6 +72,9 @@ public class JarCategory extends CachedCategory{
 		            		ThingCoder thingCoder = world.getThingCoder(fileExt);
 		            		if(thingCoder != null){
 		            			String thingName = fileName.substring(0, index);
+		            			if("".equals(thingName)) {
+		            				continue;
+		            			}
 		            			initThingIndex(jarThingManager.jarFile, jarEntry, thingCoder, packageName, thingName, fileExt);
 		            		}
 		            	}	            	
@@ -101,7 +104,7 @@ public class JarCategory extends CachedCategory{
 			in.close();
 		}
 		thingIndex.name = thingName;
-		thingIndex.path = packageName + "." + thingName;
+		thingIndex.path = (packageName == null || "".equals(packageName)) ? thingName : (packageName + "." + thingName);
 		thingIndex.thingManager = this.thingManager;
 		thingIndex.lastModified = jarEntry.getTime();
 		((CachedCategory) category).addThingIndex(thingIndex);
@@ -135,6 +138,7 @@ public class JarCategory extends CachedCategory{
 
 	@Override
 	public void refresh(boolean includeChild) {
-		
+		//这里不用调用refresh，JarThingManager只需要refresh一次
+		refresh();
 	}
 }

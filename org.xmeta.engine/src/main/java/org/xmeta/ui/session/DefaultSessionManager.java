@@ -1,27 +1,18 @@
 package org.xmeta.ui.session;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.xmeta.ActionContext;
 
 public class DefaultSessionManager extends SessionManager{
-	private Map<String, Session> sessions = new HashMap<String, Session>();
+	private Session session = new DefaultSession();
 	
 	@Override
-	public Session get(String name, ActionContext actionContext) {
-		Session session = sessions.get(name);
-		if(session == null){
-			session = new DefaultSession();
-			sessions.put(name, session);
-		}
-		
+	public Session get(ActionContext actionContext) {
 		return session;
 	}
 
 	@Override
-	public Session delete(String name, ActionContext actionContext) {
-		return sessions.remove(name);
+	public Session delete(ActionContext actionContext) {
+		return session;
 	}
 
 }
