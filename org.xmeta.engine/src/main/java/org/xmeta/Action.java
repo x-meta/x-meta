@@ -239,7 +239,7 @@ public class Action extends Semaphore{
 		}else{
 			fileManagerName = UtilString.trimFileName(fileManagerName);
 		}
-		return World.getInstance().getPath() + "/actionClasses/" +  fileManagerName; 
+		return World.getInstance().getPath() + "/work/actionClasses/" +  fileManagerName; 
 	}
 	
 	/**
@@ -342,8 +342,8 @@ public class Action extends Semaphore{
 		//fileName += ".java";
 					
 		
-		fileName = World.getInstance().getPath() + "/actionSources/" +  fileName;
-		classFileName = World.getInstance().getPath() + "/actionClasses/" +  fileManagerName + "/" + className.replace('.', '/') + ".class";
+		fileName = World.getInstance().getPath() + "/work/actionSources/" +  fileName;
+		classFileName = World.getInstance().getPath() + "/work/actionClasses/" +  fileManagerName + "/" + className.replace('.', '/') + ".class";
 		
 		//设置代码和方法名
 		code = thing.getString("code");
@@ -376,7 +376,7 @@ public class Action extends Semaphore{
 		if(world.getMode() == World.MODE_WORKING){
 			classLoader = pclssLoader;
 		}else{
-			File classDir = new File(world.getPath() + "/actionClasses/" + fileManagerName);
+			File classDir = new File(world.getPath() + "/work/actionClasses/" + fileManagerName);
 			if(classDir.exists() == false){
 				classDir.mkdirs();
 			}
@@ -471,7 +471,7 @@ public class Action extends Semaphore{
 								fout.close();
 							}
 							
-							File classDir = new File(world.getPath() + "/actionClasses");
+							File classDir = new File(world.getPath() + "/work/actionClasses");
 							if(!classDir.exists()){
 								classDir.mkdirs();
 							}
@@ -1282,10 +1282,6 @@ public class Action extends Semaphore{
 		
 		public ClassCompileTimeFile(String path){
 			File file = new File(path);
-			if(!file.exists()){
-				file.mkdirs();
-			}
-			
 			File timeFile = new File(file, "_classTime.txt");
 			timeFileName = timeFile.getAbsolutePath();
 			
@@ -1335,6 +1331,11 @@ public class Action extends Semaphore{
 			
 			FileOutputStream fout = null;
 			try{
+				File file = new File(timeFileName);
+				if(!file.exists()){
+					file.getParentFile().mkdirs();
+				}
+				
 				fout = new FileOutputStream(timeFileName);
 				for(String key : classTimes.keySet()){
 					Long ctime = classTimes.get(key);

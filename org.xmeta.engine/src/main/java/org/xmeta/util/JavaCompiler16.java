@@ -42,7 +42,7 @@ public class JavaCompiler16 {
 			String cp = bootClass + File.pathSeparator + classPath + File.pathSeparator + classPath_;
 			List<String> options = null;
 			if(sourcePath != null && !"".equals(sourcePath)){
-				options = Arrays.asList("-cp", cp, "-sourcepath", sourcePath, "-d", world.getPath() + "/actionClasses");
+				options = Arrays.asList("-cp", cp, "-sourcepath", sourcePath, "-d", world.getPath() + "/work/actionClasses");
 			}else{
 				options = Arrays.asList("-cp", cp, "-d", targetDir);
 			}

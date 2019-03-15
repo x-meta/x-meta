@@ -117,7 +117,7 @@ public class UtilThing {
 		Thing thing = World.getInstance().getThing(path);
 		if(thing == null){
 			thing = new Thing(descriptorForCreate);
-			if(World.getInstance().getThingManager("thingManager") != null) {				
+			if(World.getInstance().getThingManager(thingManager)!= null) {				
 				thing.saveAs(thingManager, path);
 			}else {
 				logger.warn("Can not crate thing=" + path + ", thingManager=" + thingManager + " not exists");

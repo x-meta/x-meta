@@ -119,6 +119,10 @@ public class FileCategory extends CachedCategory{
 								//判断事物索引是否已经存在
 								ThingIndex child = null;
 								String thingName = childName.substring(0, index);
+								if("".equals(thingName)) {
+									//名字不能为空，过滤.dml
+									continue;
+								}
 								path = path.substring(0, path.lastIndexOf("."));
 								for(int i=0; i<thingIndexs.size(); i++){
 									ThingIndex c = thingIndexs.get(i);

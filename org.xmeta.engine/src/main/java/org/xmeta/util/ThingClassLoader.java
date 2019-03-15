@@ -59,11 +59,12 @@ public class ThingClassLoader extends URLClassLoader {
 			File libFile = new File(lib);
 			addJarOrZip(libFile);
 		}
+		
 		File libFile = new File(worldPath + "/lib/");
 		addJarOrZip(libFile);
 		
-		addJarOrZip(new File(worldPath + "/lib_" + world.getOS()));
-		addJarOrZip(new File(worldPath + "/lib_" + world.getOS() + "_" + world.getJVMBit()));
+		addJarOrZip(new File(worldPath + "/os/lib/lib_" + world.getOS()));
+		addJarOrZip(new File(worldPath + "/os/lib/lib_" + world.getOS() + "_" + world.getJVMBit()));
 		
 		//System.out.println(new File(worldPath + "/lib_" + world.getOS()).getAbsolutePath());
 		//System.out.println(new File(worldPath + "/lib_" + world.getOS() + "_" + world.getJVMBit()).getAbsolutePath());

@@ -928,6 +928,17 @@ public class UtilData {
 	}
 	
 	public static boolean isTrue(Object condition){
+		return isTrue(condition, false);
+	}
+	
+	/**
+	 * 判断condition是否为true， 当condition==null时返回传入的默认值。
+	 * 
+	 * @param condition
+	 * @param defaultValue
+	 * @return
+	 */
+	public static boolean isTrue(Object condition, boolean defaultValue){
 		boolean ok = false;
 		if(condition != null){
 			if(condition instanceof Boolean){
@@ -942,7 +953,7 @@ public class UtilData {
 				ok = true;
 			}
 		}else{
-			ok = false;
+			ok = defaultValue;
 		}
 		
 		return ok;

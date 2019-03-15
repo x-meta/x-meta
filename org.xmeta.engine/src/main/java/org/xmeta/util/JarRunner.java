@@ -79,7 +79,7 @@ public class JarRunner {
 	}
 	
 	public static void extractXWorker(File root, JarFile jarFile, JarEntry xworkerJar) throws IOException {
-		System.out.println("xworkerJar=" + xworkerJar);
+		//System.out.println("xworkerJar=" + xworkerJar);
 		if(root.exists() == false) {
 			root.mkdirs();
 		}

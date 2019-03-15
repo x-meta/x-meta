@@ -167,6 +167,9 @@ public class XmlCoder {
 		Map<String, String> attrContext = new HashMap<String, String>();
 		//节点名
 		String thingName = thing.getThingName();
+		if(thingName.startsWith("#")) {
+			thingName = thingName.replace('#', '_');
+		}
 		writer.writeStartElement(thingName);				
 		
 		int lineStartIndex = ident.length() + 4;

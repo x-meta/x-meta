@@ -550,7 +550,7 @@ public class World {
 					return thing;
 				}
 			}
-		}catch(Exception e) {			
+		}catch(Throwable e) {			
 		}
 		return null;
 	}
@@ -901,18 +901,64 @@ public class World {
 		File f = new File(worldPath);
 		
 		String libraryPath = System.getProperty("java.library.path");
+		String[] paths = libraryPath == null ? new String[] {} : libraryPath.split("[" + File.pathSeparator + "]");
 		
-		//设置world目录下的library/<OS>/为类库位置
-		String path = new File(f, "library/" + OS).getAbsolutePath();
-		libraryPath = libraryPath + File.pathSeparator + path;
-		addLibraryDir(path);
+		//设置world目录下的os/library/<OS>/为类库位置
+		String path = new File(f, "os/library/" + OS).getAbsolutePath();
+		boolean changed = false;
+		if(isLibraryExists(paths, path) == false) {
+			libraryPath = libraryPath + File.pathSeparator + path;
+			addLibraryDir(path);
+			changed = true;
+		}
+		
 		
 		//设置 world目下下的library/<OS>/<PROCESSOR_ARCHITECTURE>/为类库位置
-		path = new File(f, "library/" + OS + "/" + PROCESSOR_ARCHITECTURE).getAbsolutePath();
-		libraryPath = libraryPath + File.pathSeparator + path;
-		addLibraryDir(path);
-				
-		System.setProperty("java.library.path", libraryPath);
+		path = new File(f, "os/library/" + OS + "_" + PROCESSOR_ARCHITECTURE).getAbsolutePath();
+		if(isLibraryExists(paths, path) == false) {
+			libraryPath = libraryPath + File.pathSeparator + path;
+			addLibraryDir(path);
+			changed = true;
+		}
+		
+		if(changed) {
+			System.setProperty("java.library.path", libraryPath);
+			//log.info("java.library.path changed=" + libraryPath);
+		}
+	}
+	
+	/**
+	 * 判断动态库的路径是否已经设置过了。
+	 * 
+	 * @param paths
+	 * @param path
+	 * @return
+	 */
+	private boolean isLibraryExists(String paths[], String path) {
+		File pathFile = new File(path);
+		if(!pathFile.exists()) {
+			return true;
+		}
+		
+		for(int i=0; i<paths.length; i++) {
+			File f = new File(paths[i]);
+			if(f.exists() == false) {
+				continue;
+			}
+			
+			try {
+				if(f.getCanonicalPath().equals(pathFile.getCanonicalPath())) {
+					return true;
+				}
+			}catch(Exception e) {				
+			}
+			
+			if(i >= 1){
+				break;
+			}
+		}
+		
+		return false;
 	}
 	
 	private void initOsProperites(){
