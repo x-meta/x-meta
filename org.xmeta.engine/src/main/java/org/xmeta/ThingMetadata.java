@@ -206,7 +206,7 @@ public class ThingMetadata {
 	 * @return
 	 */
 	public String getLabel(String env, ActionContext actionContext) {
-		Session session = SessionManager.getSession(null, actionContext);
+		Session session = SessionManager.getSession(actionContext);
 		Locale locale = session.getLocale();
 		return getLabel(locale);
 	}
@@ -216,7 +216,7 @@ public class ThingMetadata {
 			return userGroup;
 		}
 		
-		Session session = SessionManager.getSession(null, null);
+		Session session = SessionManager.getSession(null);
 		Locale locale = session.getLocale();
 		return getLocaleString("group", locale);
 	}
@@ -249,7 +249,7 @@ public class ThingMetadata {
 	 */
 	public String getLocaleString(String name, Locale locale){
 		if(locale == null){
-			Session session = SessionManager.getSession(null, null);
+			Session session = SessionManager.getSession(null);
 			locale = session.getLocale();
 		}
 		
@@ -298,7 +298,7 @@ public class ThingMetadata {
 	 * @return
 	 */
 	public String getDescription(String env, ActionContext actionContext) {
-		Session session = SessionManager.getSession(env, actionContext);
+		Session session = SessionManager.getSession(actionContext);
 		return getDescription(session.getLocale());
 	}
 	

@@ -423,7 +423,7 @@ public class UtilString {
 		value = value.trim();
 		
 		if(value.startsWith("res:")){
-			Session session = SessionManager.getSession(null, actionContext);
+			Session session = SessionManager.getSession(actionContext);
 			UtilResource resource = session.getI18nResource();
 			
 			String resStrs[] = value.split("[:]");
@@ -485,7 +485,11 @@ public class UtilString {
 			if(obj instanceof Thing){
 				return ((Thing) obj).getMetadata().getPath();
 			}else{
-				return String.valueOf(obj);
+				if(obj == null) {
+					return null;
+				}else {
+					return String.valueOf(obj);
+				}
 			}
 			//return (String) actionContext.get(path);
 		}else if(value.startsWith("\":")){
@@ -496,7 +500,7 @@ public class UtilString {
 		}else if(value.startsWith("lang:")){
 			value = value.substring(5, value.length());
 			Map<String, String> params = UtilString.getParams(value);
-			Session session = SessionManager.getSession(null, actionContext);
+			Session session = SessionManager.getSession( actionContext);
 			Locale locale = session.getLocale();
 			String language = locale.getLanguage();
 			value = params.get(language);

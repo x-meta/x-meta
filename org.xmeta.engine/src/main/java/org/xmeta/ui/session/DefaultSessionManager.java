@@ -15,4 +15,9 @@ public class DefaultSessionManager extends SessionManager{
 		return session;
 	}
 
+	@Override
+	public boolean accept(ActionContext actionContext) {
+		return true;
+	}
+
 }
