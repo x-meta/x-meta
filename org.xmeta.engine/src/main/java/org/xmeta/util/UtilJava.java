@@ -16,6 +16,7 @@
 package org.xmeta.util;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -205,4 +206,68 @@ public class UtilJava {
 		
 		return null;
 	}
+	
+	/**
+	 * 一个简单的实例化对象的方法。
+	 * 
+	 * @param className 类名
+	 * @param objects 参数列表
+	 * @return
+	 * @throws ClassNotFoundException 
+	 * @throws InvocationTargetException 
+	 * @throws IllegalArgumentException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T newInstance(String className, Object ...objects) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		Class<?> cls = Class.forName(className);
+		if(cls != null){
+			Constructor<?> cons = getConstructor(cls, objects);
+			if(cons != null) {
+				return (T) cons.newInstance(objects);
+			}else {
+				return null;
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * 根据参数获取相应的构造函数。
+	 * 
+	 * @param cls
+	 * @param objects
+	 * @return
+	 */
+	public static Constructor<?> getConstructor(Class<?> cls, Object ... objects){
+		Class<?> params[] = new Class<?>[objects.length];
+		for(int i=0; i<objects.length; i++) {
+			if(objects[i] != null) {
+				params[i] = objects[i].getClass();
+			}
+		}
+		
+		for(Constructor<?> cons : cls.getConstructors()) {			
+			if(cons.getParameterCount() == objects.length) {
+				Class<?> paramsTypes[] = cons.getParameterTypes();
+				boolean match = true;
+				for(int i=0; i<params.length; i++) {
+					if(params[i] != null && !paramsTypes[i].isAssignableFrom(params[i])) {
+						match = false;
+						break;
+					}
+				}
+				
+				if(match) {
+					return cons;
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	
 }
