@@ -41,7 +41,7 @@ public class FileMonitor extends TimerTask{
 	World world = World.getInstance();
 	
 	private FileMonitor(){
-		timer.schedule(this, 0, 2000);
+		timer.schedule(this, 0, 10000);
 	}
 	
 	public static FileMonitor getInstance(){
@@ -59,15 +59,17 @@ public class FileMonitor extends TimerTask{
 	 * @param thing 事物
 	 * @param file  事物的文件
 	 */
-	public void addFile(String path, Thing thing, File file){
-		FileEntry entry = new FileEntry();
-		entry.path = path;
-		entry.check = true;
-		entry.thingReference = new WeakReference<Thing>(thing);
-		entry.file = file;
-		entry.lastModified = entry.file.lastModified();
-		
-		things.put(path, entry);
+	public void addFile(String path, Thing thing, File file, boolean monitor){
+		if(thing != null && (monitor || thing.getBoolean("th_fileMonitor"))) {
+			FileEntry entry = new FileEntry();
+			entry.path = path;
+			entry.check = true;
+			entry.thingReference = new WeakReference<Thing>(thing);
+			entry.file = file;
+			entry.lastModified = entry.file.lastModified();
+			
+			things.put(path, entry);
+		}
 	}
 	
 	public FileEntry getFileEntry(String path){

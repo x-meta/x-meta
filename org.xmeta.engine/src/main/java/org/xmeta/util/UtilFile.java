@@ -26,8 +26,6 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xmeta.ActionContext;
 import org.xmeta.ActionException;
 import org.xmeta.ThingCoder;
@@ -42,7 +40,7 @@ import org.xmeta.thingManagers.FileThingManager;
  *
  */
 public class UtilFile {
-	private static Logger logger = LoggerFactory.getLogger(UtilFile.class);
+	//private static Logger logger = LoggerFactory.getLogger(UtilFile.class);
 	
 	/**
 	 * 递归删除一个文件或目录。
@@ -143,7 +141,7 @@ public class UtilFile {
 		File worldFile = new File(World.getInstance().getPath());
 		String worldFilePath = worldFile.getAbsolutePath();
 		if(filePath.startsWith(worldFilePath)){
-			filePath = "world|" + filePath.substring(worldFilePath.length(), filePath.length());
+			filePath = "world:" + filePath.substring(worldFilePath.length(), filePath.length());
 			return filePath;
 		}else{
 			return filePath;
@@ -202,7 +200,8 @@ public class UtilFile {
 		    		con.connect();
 	    			return con.getInputStream();
 	    		}catch(Exception ee){
-	    			logger.warn("Create image from http error", ee);
+	    			//logger.warn("Create image from http error", ee);
+	    			throw new ActionException("Get http content error", ee);
 	    		}
 	    	}
 	    }catch(Exception e){		    			    	
@@ -270,7 +269,7 @@ public class UtilFile {
 		//是否是模型
 		String name = file.getName();
 		String ext = null;
-		int index = name.lastIndexOf(".");
+		int index = name.indexOf(".");
 		if(index != -1){
 			ext = name.substring(index + 1, name.length());
 		}else{
@@ -368,6 +367,12 @@ public class UtilFile {
 		}
 		
 		prj = new File(dir, "dml.prj");
+		if(prj.exists()){
+			initProject(prj, true);
+			return dir;
+		}
+		
+		prj = new File(dir, "dml.properties");
 		if(prj.exists()){
 			initProject(prj, true);
 			return dir;

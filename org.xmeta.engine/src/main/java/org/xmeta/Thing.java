@@ -32,8 +32,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xmeta.cache.LinkedThingEntry;
 import org.xmeta.cache.ThingCache;
 import org.xmeta.cache.ThingEntry;
@@ -50,7 +48,7 @@ import org.xmeta.util.UtilString;
 import org.xmeta.util.UtilThing;
 import org.xml.sax.SAXException;
 
-import ognl.OgnlException;
+//import ognl.OgnlException;
 
 /**
  * <p>在X-Meta引擎里用事物表示任何东西。</p>
@@ -65,7 +63,7 @@ import ognl.OgnlException;
  */
 public class Thing {
 	/** 日志 */
-	private static Logger log = LoggerFactory.getLogger(Thing.class);
+	//private static Logger log = LoggerFactory.getLogger(Thing.class);
 	private static Map<String, String> nameCache = new HashMap<String, String>(4096);
 	
 	/** 事物的名字 */
@@ -748,7 +746,7 @@ public class Thing {
 	
 		//long start = System.currentTimeMillis();
 		if(action == null){
-			log.info("thing's action is not found : " + getMetadata().getPath() + " : " + name);
+			//log.info("thing's action is not found : " + getMetadata().getPath() + " : " + name);
 			return null;
 		}else{
 			World world = World.getInstance();
@@ -757,7 +755,7 @@ public class Thing {
 				try{
 					listener.actionExecuted(this, name, context, parameters, System.currentTimeMillis(), true);
 				}catch(Throwable t){
-					log.error("ActionRecorder error", t);
+					throw new ActionException("ActionRecorder error", t);
 				}
 			}
 			
@@ -852,7 +850,7 @@ public class Thing {
 	
 		//long start = System.currentTimeMillis();
 		if(action == null){
-			log.info("thing's action is not found : " + getMetadata().getPath() + " : " + name);
+			//log.info("thing's action is not found : " + getMetadata().getPath() + " : " + name);
 			return null;
 		}else{
 			if(includeSelf){
@@ -1039,6 +1037,8 @@ public class Thing {
 				}			
 				currentThing = nextCurrentThing;
 				break;
+			case Path.TYPE_RESOURCE_ID:
+				return currentThing.doAction("getResource", new ActionContext(), "resourceId", childPath.getAttributeName());
 				default:
 					
 			}
@@ -1967,9 +1967,8 @@ public class Thing {
 	/**
 	 * 从事物中取指定的属性的字符串的值作为变量名，然后从ActionContext中取变量，支持var:或ognl:，默认相当于 var:。
 	 * @param name 属性名
-	 * @param actionContext 变量上下文 
-	 * @return 值
-	 * @throws OgnlException 异常 
+	 * @param actionContext 变量上下文
+	 * @return 返回对象 
 	 */
 	public Object getObject(String name, ActionContext actionContext) {		
 		Object value = this.get(name);
@@ -2999,12 +2998,13 @@ public class Thing {
 		datas.put(key, data);
 	}
 	
-	public Object getData(String key){
+	@SuppressWarnings("unchecked")
+	public <T> T getData(String key){
 		if(datas == null){
 			return null;
 		}
 		
-		return datas.get(key);
+		return (T) datas.get(key);
 	}
 	
 	/**
@@ -3042,6 +3042,14 @@ public class Thing {
 		}else{
 			return data;
 		}
+	}
+	
+	public void setStaticData(String key , Object value) {
+		World.getInstance().setData(this.getMetadata().getPath() + "-" + key, value);
+	}
+	
+	public <T> T getStaticData(String key) {
+		return (T) World.getInstance().getData(this.getMetadata().getPath() + "-" + key);
 	}
 
 	public void setTransient(boolean isTransient) {

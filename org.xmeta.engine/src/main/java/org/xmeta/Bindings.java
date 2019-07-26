@@ -46,6 +46,9 @@ public class Bindings extends HashMap<String, Object>{
 	/** 是否关闭全局事物动作监听器，如果关闭子函数也都关闭 */
 	public boolean disableGloableContext = false;
 	
+	/** 额外的用于存储多个key的数据 */
+	private static Map<Object, Object> dataMap = null; 
+	
 	/** 
 	 * 是否是变量范围的标志，通常在函数调用（动作执行）、条件、循环等处设置为true，以便划分一个
 	 * 变量范围，一般新的变量都保存到此变量范围中。
@@ -146,5 +149,72 @@ public class Bindings extends HashMap<String, Object>{
 		this.parameterScope = parameterScope;
 	}
 	
+	public synchronized Map<Object, Object> getDataMap(){
+		if(dataMap == null) {
+			dataMap = new HashMap<Object, Object>();
+		}
+		
+		return dataMap;
+	}
 	
+	@SuppressWarnings("unchecked")
+	public void setData(Object value, Object ... keys) {
+		Map<Object, Object> m = getDataMap();
+		for(int i=0; i<keys.length - 1; i++) {
+			Map<Object, Object> m1 = (Map<Object, Object>) m.get(keys[i]);
+			if(m1 == null) {
+				m1 = new HashMap<Object, Object>();
+				m.put(keys[i], m1);
+			}
+			
+			m = m1;
+		}
+		
+		m.put(keys[keys.length - 1], value);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Object getData(Object ... keys) {
+		Map<Object, Object> m = getDataMap();
+		for(int i=0; i<keys.length - 1; i++) {
+			Map<Object, Object> m1 = (Map<Object, Object>) m.get(keys[i]);
+			if(m1 == null) {
+				return null;
+			}else {			
+				m = m1;
+			}
+		}
+		
+		return m.get(keys[keys.length -1]);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Object removeData(Object ... keys) {
+		Map<Object, Object> m = getDataMap();
+		for(int i=0; i<keys.length - 1; i++) {
+			Map<Object, Object> m1 = (Map<Object, Object>) m.get(keys[i]);
+			if(m1 == null) {
+				return null;
+			}else {			
+				m = m1;
+			}
+		}
+		
+		return m.remove(keys[keys.length -1]);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void clearData(Object ... keys) {
+		Map<Object, Object> m = getDataMap();
+		for(int i=0; i<keys.length - 1; i++) {
+			Map<Object, Object> m1 = (Map<Object, Object>) m.get(keys[i]);
+			if(m1 == null) {
+				return;
+			}else {			
+				m = m1;
+			}
+		}
+		
+		m.clear();
+	}
 }

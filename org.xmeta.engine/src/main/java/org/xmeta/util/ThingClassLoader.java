@@ -28,20 +28,25 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xmeta.Thing;
 import org.xmeta.World;
 
 public class ThingClassLoader extends URLClassLoader {
-	private static Logger logger = LoggerFactory.getLogger(ThingClassLoader.class);
+	//private static Logger logger = LoggerFactory.getLogger(ThingClassLoader.class);
+	private static Logger logger = Logger.getLogger(ThingClassLoader.class.getName());
 	
 	/** 未初始化的类库，在类库中以.lib为后缀名的类库配置文件 */
 	List<Lib> libs = new ArrayList<Lib>();
 	
 	public ThingClassLoader(URL[] urls){
 		super(urls);
+	}
+	
+	public ThingClassLoader(URL[] urls, ClassLoader parent){
+		super(new URL[] {}, parent);
 	}
 	
 	/**
@@ -159,7 +164,7 @@ public class ThingClassLoader extends URLClassLoader {
 					e.printStackTrace();
 				}
 			}else if(fileName.endsWith(".lib")){
-				logger.info("init lib from file: " + dir.getAbsolutePath());
+				//logger.info("init lib from file: " + dir.getAbsolutePath());
 				initLib(dir);
 			}
 		}
@@ -188,7 +193,7 @@ public class ThingClassLoader extends URLClassLoader {
 			}
 			br.close();
 		}catch(Exception e){
-			logger.error("init lib error", e);
+			logger.log(Level.WARNING, "init lib error", e);
 		}finally{
 			try {
 				if(fin != null){
@@ -202,7 +207,11 @@ public class ThingClassLoader extends URLClassLoader {
 	
 	public String getClassPath() {
 		Map<String, String> context = new HashMap<String, String>();
-		return getClassPathFormClassLoader(this, "", context);
+		
+		String javaClassPath = System.getProperty("java.class.path");		
+		
+		String path = getClassPathFormClassLoader(this, "", context);
+		return javaClassPath + File.pathSeparator + path;
 	}
 	
 	/**
@@ -268,7 +277,7 @@ public class ThingClassLoader extends URLClassLoader {
 	public static String getClassPathFormClassLoader(URLClassLoader loader, String classPath, Map<String, String> context){		
 		for(URL url : loader.getURLs()){
 			String filePath = url.getFile();
-			if(filePath != null && context.get(filePath) == null){
+			if(filePath != null && context.get(filePath) == null && !"".equals(filePath)){
 				context.put(filePath, filePath);
 				if(classPath == null){
 					classPath = filePath;

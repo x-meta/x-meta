@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xmeta.XMetaTimerManager;
 
 /**
@@ -31,7 +29,7 @@ import org.xmeta.XMetaTimerManager;
  *
  */
 public class TransientFinalizer extends TimerTask{
-	private static Logger log = LoggerFactory.getLogger(TransientFinalizer.class);	
+	//private static Logger log = LoggerFactory.getLogger(TransientFinalizer.class);	
 	
 	List<WeakReference<TransientThingManager>> managers = new CopyOnWriteArrayList<WeakReference<TransientThingManager>>();
 	
@@ -55,7 +53,7 @@ public class TransientFinalizer extends TimerTask{
 					try{
 						manager.removeDeadThings();
 					}catch(Throwable t){
-						log.error("remove transient dead things", t);
+						//log.error("remove transient dead things", t);
 					}
 				}
 			}
@@ -64,7 +62,7 @@ public class TransientFinalizer extends TimerTask{
 				managers.remove(managerR);
 			}
 		}catch(Exception e){
-			log.error("do transientFinalizer error", e);
+			//log.error("do transientFinalizer error", e);
 		}
 	}
 }

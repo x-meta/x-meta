@@ -9,14 +9,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.xmeta.ActionException;
 import org.xmeta.Category;
 import org.xmeta.ThingIndex;
 import org.xmeta.ThingManager;
 
 public class JdbcCategory  extends CachedCategory{	
-	private static Logger logger = LoggerFactory.getLogger(JdbcCategory.class);
+	//private static Logger logger = LoggerFactory.getLogger(JdbcCategory.class);
 	
 	public JdbcCategory(String name, ThingManager thingManager, Category parent){		
 		super(thingManager, parent, name);
@@ -153,8 +152,8 @@ public class JdbcCategory  extends CachedCategory{
 					i--;
 				}
 			}
-		}catch(Exception e){
-			logger.error("Refresh category error", e);
+		}catch(Exception e){			
+			throw new ActionException("Refresh category error, thingManager=" + name, e);
 		}finally{
 			if(pst != null){
 				try {

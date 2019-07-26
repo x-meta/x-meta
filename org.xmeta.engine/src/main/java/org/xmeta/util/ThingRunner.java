@@ -94,8 +94,11 @@ public class ThingRunner {
 	}
 	
 	public static boolean isProject(File dir){
-		return new File(dir, "config.properties").exists() || new File(dir, "xworker.properties").exists() ||
-				new File(dir, "dml.prj").exists();		
+		return new File(dir, "config.properties").exists() || 
+				new File(dir, "xworker.properties").exists() ||
+				new File(dir, "dml.prj").exists() ||
+				new File(dir, "dml.properties").exists() ||
+				new File(dir, ".dml").exists();		
 	}
 	
 	public static void run(String args[]) {
@@ -179,6 +182,17 @@ public class ThingRunner {
 			System.setProperty("XWORKER_HOME", worldPath);
 			System.setProperty("MODEL", getThingPathAsModelForLog(thingPath));
 			
+			//下面参数用于初始化log4j
+			String currentDir = new File(".").getAbsolutePath();
+			currentDir = currentDir.replace('/', '_').replace('\\', '_').replace(':', '_');
+			System.setProperty("currentDir", currentDir);
+			File thingFile = new File(thingPath);
+			if(thingFile.exists()) {
+				System.setProperty("thing", thingFile.getName());
+			}else {
+				System.setProperty("thing", thingPath);
+			}
+			
 			//System.out.println("before init world： " + (System.currentTimeMillis() - start));
 			World world = World.getInstance();
 			//System.out.println("before init world1： " + (System.currentTimeMillis() - start));
@@ -200,8 +214,7 @@ public class ThingRunner {
 						
 			Thing thing = null;
 			if(thing == null) {
-				boolean isFile = false;
-				File thingFile = new File(thingPath);
+				boolean isFile = false;				
 				if(!thingFile.exists()){
 					thingFile = new File("./" + thingPath);
 					//logger.info("create temp thing");
@@ -218,7 +231,7 @@ public class ThingRunner {
 					thingPath = UtilFile.getThingPathByFile(thingFile.getAbsoluteFile());
 					
 					if(thingPath == null){
-						System.out.println("Cann't open, file is no a thing, file=" + thingPath);
+						System.out.println("Cann't open, file is not a thing, file=" + thingPath);
 						return;
 					}
 					isFile = true;
@@ -272,9 +285,11 @@ public class ThingRunner {
 				System.out.println("thing not exists : " + thingPath);
 				System.exit(0);
 			} else {
+				//系统的参数
 				ActionContext actionContext = new ActionContext();
 				actionContext.put("args", args);
 				actionContext.put("_args_", args);
+				
 				thing.doAction(actionName, actionContext);				
 			}			
 			//System.out.println("executed： " + (System.currentTimeMillis() - start));

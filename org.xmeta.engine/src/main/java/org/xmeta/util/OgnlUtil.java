@@ -68,7 +68,6 @@ public class OgnlUtil {
 	 * @param pathAttributeName 属性
 	 * @param root 根
 	 * @return 值
-	 * @throws OgnlException 异常
 	 */
 	public static Object getValue(Thing thing, String pathAttributeName, Object root) {
 		PathCache pathCache = getPathCache(thing, pathAttributeName);
@@ -85,8 +84,7 @@ public class OgnlUtil {
 	 * @param pathAttributeName 属性
 	 * @param pathAttributeValue  是事物的属性值，如果为空返回null
 	 * @param root 根对象
-	 * @return 值
-	 * @throws OgnlException 异常
+	 * @return 值 
 	 */
 	public static Object getValue(Thing thing, String pathAttributeName, String pathAttributeValue, Object root) {
 		PathCache pathCache = getPathCache(thing, pathAttributeName);

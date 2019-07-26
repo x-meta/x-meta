@@ -23,15 +23,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xmeta.Category;
 import org.xmeta.Thing;
 import org.xmeta.ThingManager;
 import org.xmeta.World;
 
 public class ThingUtil {
-	private static Logger logger = LoggerFactory.getLogger(ThingUtil.class); 
+	//private static Logger logger = LoggerFactory.getLogger(ThingUtil.class); 
 	static World world = World.getInstance();
 
 	/**
@@ -74,7 +72,7 @@ public class ThingUtil {
 		for (Iterator<Thing> iter = category.iterator(true); iter.hasNext();) {
 			Thing thing = iter.next();
 
-			logger.info("replace " + thing.getMetadata().getPath());
+			//logger.info("replace " + thing.getMetadata().getPath());
 			replaceThing(thing, replaceFor, replaceWidth);
 			thing.getMetadata().setLastModified(System.currentTimeMillis());
 			thing.save();
@@ -86,7 +84,7 @@ public class ThingUtil {
 		for (Iterator<Thing> iter = tm.iterator("", true); iter.hasNext();) {
 			Thing thing = iter.next();
 
-			logger.info("replace " + thing.getMetadata().getPath());
+			//logger.info("replace " + thing.getMetadata().getPath());
 			replaceThing(thing, replaceFor, replaceWidth);
 			thing.getMetadata().setLastModified(System.currentTimeMillis());
 			thing.save();

@@ -7,15 +7,13 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.HashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xmeta.Thing;
 import org.xmeta.ThingCoder;
 import org.xmeta.ThingCoderException;
 import org.xmeta.ThingIndex;
 
 public class PropertyThingCoder  implements ThingCoder{
-	private static final Logger logger = LoggerFactory.getLogger(PropertyThingCoder.class);
+	//private static final Logger logger = LoggerFactory.getLogger(PropertyThingCoder.class);
 	
 	public static String TYPE = "xer.properties";
 	
@@ -25,8 +23,8 @@ public class PropertyThingCoder  implements ThingCoder{
 		try{
 			PropertyCoder.decode(thing, in, true, lastModifyed);			
 		}catch(Exception e){
-			logger.error("decode thing error, still return part decoded thing, thing=" + thing.getMetadata().getPath(), e);
-			//throw new ThingCoderException(e);
+			//logger.error("decode thing error, still return part decoded thing, thing=" + thing.getMetadata().getPath(), e);
+			throw new ThingCoderException("thing=" + thing.getMetadata().getPath(), e);
 		}finally{
 			thing.endModify(false);
 		}

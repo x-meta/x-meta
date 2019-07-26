@@ -43,6 +43,8 @@ public class FileThingManager extends AbstractThingManager{
 	
 	boolean hasThingsDir;
 	
+	boolean monitor = false;
+	
 	public FileThingManager(String name, File rootFile){
 		this(name, rootFile, true);
 	}
@@ -93,7 +95,7 @@ public class FileThingManager extends AbstractThingManager{
 						
 						thingCoder.decode(thing, fin, thingFile.lastModified());
 						
-						FileMonitor.getInstance().addFile(thingName, thing, thingFile);
+						FileMonitor.getInstance().addFile(thingName, thing, thingFile, monitor);
 						return thing;
 					}finally{
 						fin.close();
@@ -149,7 +151,7 @@ public class FileThingManager extends AbstractThingManager{
 					if(fileEntry != null){
 						fileEntry.lastModified = thingFile.lastModified();
 					}else{						
-						FileMonitor.getInstance().addFile(rootThingPath, rootThing, thingFile);
+						FileMonitor.getInstance().addFile(rootThingPath, rootThing, thingFile, monitor);
 					}
 				}
 				return true;
@@ -285,5 +287,13 @@ public class FileThingManager extends AbstractThingManager{
 	@Override
 	public boolean isSaveable() {
 		return true;
+	}
+
+	public boolean isMonitor() {
+		return monitor;
+	}
+
+	public void setMonitor(boolean monitor) {
+		this.monitor = monitor;
 	}
 }

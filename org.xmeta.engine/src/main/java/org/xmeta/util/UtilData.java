@@ -362,6 +362,8 @@ public class UtilData {
     		return null;
     	}else if (v instanceof byte[]){
     		return (byte[]) v;
+    	}else if(v instanceof String) {
+    		return ((String) v).getBytes();
     	}else if(v instanceof java.io.Serializable){
     		ByteArrayOutputStream bout = new ByteArrayOutputStream();
     		ObjectOutputStream oout;
@@ -794,7 +796,6 @@ public class UtilData {
 	 * @param attributeName 属性名
 	 * @param actionContext 变量上下文
 	 * @return 对象
-	 * @throws OgnlException 异常
 	 */
 	public static Object getObject(Thing thing, String attributeName, ActionContext actionContext) {
 		Object obj = UtilData.getData(thing, attributeName, actionContext);
@@ -832,7 +833,6 @@ public class UtilData {
 	 * @param attributeName 属性名
 	 * @param actionContext 变量上下文
 	 * @return 事物，如果不存在返回null
-	 * @throws OgnlException
 	 */
 	public static Thing getThing(Thing thing, String attributeName, ActionContext actionContext) {
 		Object obj = UtilData.getData(thing, attributeName, actionContext);
@@ -855,7 +855,6 @@ public class UtilData {
 	 * @param childThingPath 子事物节点
 	 * @param actionContext 变量上下文
 	 * @return 要返回的额事物，如果不存在返回null
-	 * @throws OgnlException
 	 */
 	public static Thing getThing(Thing thing, String attributeName, String childThingPath, ActionContext actionContext) {
 		Thing th = getThing(thing, attributeName, actionContext);
@@ -872,8 +871,8 @@ public class UtilData {
 	 * @param thing 事物
 	 * @param attributeName 属性名
 	 * @param actionContext 变量上下文
+	 * 
 	 * @return 结果
-	 * @throws OgnlException 异常
 	 */
 	public static Object getData(Thing thing, String attributeName, ActionContext actionContext) {
 		Object value = thing.get(attributeName);
@@ -917,6 +916,24 @@ public class UtilData {
 		}else if(str.startsWith("thing:")){
 			String thingPath = str.substring(6, str.length());
 			return World.getInstance().getThing(thingPath);
+		}else if(str.startsWith("int:")) {
+			return Integer.parseInt(str.substring(4, str.length()));
+		}else if(str.startsWith("byte:")) {
+			return Byte.parseByte(str.substring(5, str.length()));
+		}else if(str.startsWith("float:")) {
+			return Float.parseFloat(str.substring(6, str.length()));
+		}else if(str.startsWith("double:")) {
+			return Double.parseDouble(str.substring(7, str.length()));
+		}else if(str.startsWith("string:")) {
+			return str.substring(7, str.length());
+		}else if(str.startsWith("long:")) {
+			return Long.parseLong(str.substring(5, str.length()));
+		}else if(str.startsWith("bool:")) {
+			return Boolean.parseBoolean(str.substring(5, str.length()));
+		}else if(str.startsWith("char:")) {
+			return (char) Short.parseShort(str.substring(5, str.length()));
+		}else if(str.startsWith("short:")) {
+			return Short.parseShort(str.substring(6, str.length()));
 		}else{
 			if("".equals(str)){
 				return null;

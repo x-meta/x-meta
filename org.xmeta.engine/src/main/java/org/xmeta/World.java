@@ -29,9 +29,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xmeta.annotation.ThingAnnotationUtils;
 import org.xmeta.cache.ThingCache;
 import org.xmeta.cache.ThingEntry;
@@ -49,8 +49,8 @@ import org.xmeta.thingManagers.JarThingManager;
 import org.xmeta.thingManagers.TransientThingManager;
 import org.xmeta.util.JarThingManagerIniter;
 import org.xmeta.util.ThingClassLoader;
-import org.xmeta.util.ThingOgnlAccessor;
 import org.xmeta.util.UtilFile;
+import org.xmeta.util.UtilJava;
 
 /**
  * <p>世界是存放事物的容器。</p>
@@ -64,7 +64,8 @@ import org.xmeta.util.UtilFile;
  */
 public class World {
 	/** 日志 */
-	private static Logger log = LoggerFactory.getLogger(World.class);
+	//private static Logger log = LoggerFactory.getLogger(World.class);
+	private static Logger log = Logger.getLogger(World.class.getName());
 	/** 编程模式，默认 */
 	public static byte MODE_PROGRAMING = 0;
 	/** 工作模式，一般JavaAction等发生变更时不重新编译 */
@@ -125,9 +126,12 @@ public class World {
 	/**
 	 * 运行时所有的事物基本都通过World获取，为提交性能增加路径缓存。
 	 * 
-	 * 路径缓存1和路径缓存2，未避免系统长期使用而导致路径缓存无限增长，每隔一段时间情况pathCache2，然后pathCach1和pahCach2互换 */
-	private Map<String, Path> pathCache1 = new ConcurrentHashMap<String, Path>(5000);
-	private Map<String, Path> pathCache2 = new ConcurrentHashMap<String, Path>(5000);
+	 * 路径缓存1和路径缓存2，未避免系统长期使用而导致路径缓存无限增长，每隔一段时间情况pathCache2，然后pathCach1和pahCach2互换
+	 * 
+	 * 经测试，使用缓存保存路径效果和不使用Cache没有数量级上的优势，故取消。
+	 * */
+	//private Map<String, Path> pathCache1 = new ConcurrentHashMap<String, Path>(5000);
+	//private Map<String, Path> pathCache2 = new ConcurrentHashMap<String, Path>(5000);
 
 	private String OS;
 	private String PROCESSOR_ARCHITECTURE;
@@ -152,17 +156,19 @@ public class World {
 		thingCoders.add(xmlThingCoder);
 		thingCoders.add(new XerThingCoder());
 		try{
+			
 			thingCoders.add(new JsonThingCoder());
 		}catch(Throwable e){
-			log.debug("JsonThingCoder init error, if need json, need Jackson, " + e.getMessage());
+			log.log(Level.FINE, "JsonThingCoder init error, if need json, need Jackson, " + e.getMessage());
 		}
 		//System.out.println("newworld init coders: " + (System.currentTimeMillis() - start));
 		
 		new Thread(new Runnable(){
 			public void run(){
 				try{
-					ThingOgnlAccessor.init();
-				}catch(Exception e){			
+					UtilJava.invokeMethod("org.xmeta.util.ThingOgnlAccessor", "init", new Class<?>[0], new Object[0]);
+					///ThingOgnlAccessor.init();
+				}catch(Throwable e){			
 				}
 			}
 		}).start();
@@ -355,14 +361,16 @@ public class World {
 //			System.out.println();
 //		}
 		
-		Path path = pathCache1.get(pathStr);
+		Path path = new Path(pathStr); 
+		/*
+				pathCache1.get(pathStr);
 		if(path == null){
 			path = pathCache2.get(pathStr);
 			if(path == null){
 				path = new Path(pathStr);
 			}
 			pathCache1.put(pathStr, path);
-		}
+		}*/
 		
 		Thing thing = ThingCache.get(path.getPath());
 		if(thing != null && thing.getMetadata().isRemoved()){ //如事物的文件被外部改动或事物已给标记为删除，需要重新读取
@@ -516,7 +524,7 @@ public class World {
 					
 					//如果是文件，加入到文件监控，文件变化了可以重新读取事物，可用于在Java项目手工编程时
 					if(url.getProtocol().toLowerCase().equals("file")){
-						FileMonitor.getInstance().addFile(thingPath, thing, new File(url.getFile()));
+						FileMonitor.getInstance().addFile(thingPath, thing, new File(url.getFile()), false);
 					}
 					
 					//放到缓存中
@@ -525,7 +533,7 @@ public class World {
 					return thing;
 				} catch (IOException e) {
 					//e.printStackTrace();
-					log.error("load thing from classpath error", e);
+					log.log(Level.WARNING, "load thing from classpath error", e);
 				}
 			}
 		}
@@ -984,9 +992,9 @@ public class World {
 					PROCESSOR_ARCHITECTURE = value;
 				}
 			}			
-			log.debug("OS=" + OS + ", sun.arch.data.model=" + PROCESSOR_ARCHITECTURE);
+			log.log(Level.FINE, "OS=" + OS + ", sun.arch.data.model=" + PROCESSOR_ARCHITECTURE);
 		}catch(Exception e){
-			log.error("init os info error", e);
+			log.log(Level.WARNING, "init os info error", e);
 		}
 	}
 	
@@ -1144,7 +1152,7 @@ public class World {
 			tmp[paths.length] = s;
 			field.set(null, tmp);
 		} catch (Exception e) {
-			log.error("error on init library path", e);
+			log.log(Level.WARNING, "error on init library path", e);
 		}
 	}
 
@@ -1224,9 +1232,7 @@ public class World {
 			final Map<String, Object> parameters) {
 		final Action action = getAction(actionPath);
 		if (action == null) {
-			if (log.isInfoEnabled()) {
-				log.info("can not find the action : " + actionPath);
-			}
+			log.info("can not find the action : " + actionPath);
 		} else {
 			new Thread(new Runnable() {
 				public void run() {
@@ -1256,9 +1262,7 @@ public class World {
 			Map<String, Object> parameters) {
 		Action action = getAction(actionPath);
 		if (action == null) {
-			if (log.isInfoEnabled()) {
-				log.info("can not find the action : " + actionPath);
-			}
+			log.info("can not find the action : " + actionPath);
 
 			return null;
 		} else {
@@ -1450,7 +1454,7 @@ public class World {
 				return null;
 			}
 		}catch(Exception e){
-			log.error("XWorker home can not be a project", e);
+			log.log(Level.WARNING, "XWorker home can not be a project", e);
 		}
 		
 		boolean hasThingsDir = false;
@@ -1465,6 +1469,9 @@ public class World {
 				configFile = new File(rootPath, ".dml");
 			}else{
 				hasThingsDir = true;
+			}
+			if(!configFile.exists()){
+				configFile = new File(rootPath, "dml.properties");
 			}
 			if(!configFile.exists()){
 				configFile = new File(rootPath, "dml.prj");
@@ -1550,7 +1557,7 @@ public class World {
 						thingManager = (ThingManager) cls.getConstructor(new Class[] {}).newInstance();
 					}
 				} catch (Exception e) {
-					log.warn("can not load thingManager", e);
+					log.log(Level.WARNING, "can not load thingManager", e);
 				}
 				if(thingManager == null){
 					this.failureThingManangers.add(name);
@@ -1563,7 +1570,7 @@ public class World {
 			try{
 				thingManager.init(properties);
 			}catch(Exception e){				
-				log.warn("init thingManager error", e);
+				log.log(Level.WARNING, "init thingManager error", e);
 				this.failureThingManangers.add(name);
 				return null;
 			}

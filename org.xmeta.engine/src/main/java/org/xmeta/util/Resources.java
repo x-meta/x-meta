@@ -18,8 +18,6 @@ package org.xmeta.util;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xmeta.World;
 
 /**
@@ -27,7 +25,7 @@ import org.xmeta.World;
  *
  */
 public class Resources {
-	private static Logger log = LoggerFactory.getLogger(Resources.class);
+	//private static Logger log = LoggerFactory.getLogger(Resources.class);
 	
 	ResourceBundle messages;
 	Locale locale;
@@ -50,9 +48,6 @@ public class Resources {
 			return messages.getString(name);
 		}catch(Exception e){
 			//e.printStackTrace();
-			if(log.isDebugEnabled()){
-				log.debug("锟斤拷锟斤拷源" + this.name + "锟揭诧拷锟斤拷锟斤拷源锟斤拷息锟斤拷" + name);
-			}
 			return null;
 		}
 	}

@@ -33,9 +33,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xmeta.annotation.ActionAnnotationHelper;
 import org.xmeta.cache.ThingEntry;
 import org.xmeta.thingManagers.ClassThingManager;
@@ -61,7 +61,8 @@ import org.xmeta.util.UtilString;
  */
 public class Action extends Semaphore{
 	/** 日志 */
-	private static Logger log = LoggerFactory.getLogger(Action.class);	
+	//private static Logger log = LoggerFactory.getLogger(Action.class);	
+	private static Logger log = Logger.getLogger(Action.class.getName());
 	
 	private static World world = World.getInstance();
 	
@@ -172,7 +173,7 @@ public class Action extends Semaphore{
 	Map<String, Object> userData = new HashMap<String, Object>();
 	
 	/** 动作对应的日志 */
-	Logger logger;
+	//Logger logger;
 	
 	/** 子动作列表 */
 	List<ActionResult> results;
@@ -210,7 +211,7 @@ public class Action extends Semaphore{
 		try{
 			init();
 		}catch(Exception e){
-			log.warn("init action error, action=" + thing.getMetadata().getPath(), e);
+			//log.warn("init action error, action=" + thing.getMetadata().getPath(), e);
 			throw new ActionException("init action error, action=" + thing.getMetadata().getPath(), e);
 		}
 	}
@@ -536,7 +537,7 @@ public class Action extends Semaphore{
 			}			
 			
 			//非Java调用才初始化日志
-			logger = LoggerFactory.getLogger(this.className);
+			//logger = Logger.getLogger(this.className);
 		}
 	}
 	
@@ -715,7 +716,7 @@ public class Action extends Semaphore{
 			try{
 				listener.actionExecuted(this, caller, context, parameters, -1, true);
 			}catch(Throwable t){
-				log.error("ActionRecorder error", t);
+				log.log(Level.SEVERE, "ActionRecorder error", t);
 			}
 		}
 		
@@ -754,9 +755,9 @@ public class Action extends Semaphore{
 				
 		//总是输入一些常量
 		bindings.put("world", world);
-		if(logger != null){
-			bindings.put("log", logger);
-		}
+		//if(logger != null){
+		//	bindings.put("log", logger);
+		//}
 		
 		//预制的动作
 		if(actionsDefiend != null){
@@ -849,7 +850,7 @@ public class Action extends Semaphore{
 						//属性模板，动作的属性可以设置成freemarker模板，在执行时用模板生成真正的属性值 
 						Thing fthing = (Thing) thing.run("processAttributeTemplate", context, (Map<String, Object>) null, isSubAction, true);
 						if(fthing != null){
-							fthing.run("run", context, (Map<String, Object>) null, isSubAction, true);
+							result = fthing.run("run", context, (Map<String, Object>) null, isSubAction, true);
 						}
 					}else{
 						result = thing.run("run", context, (Map<String, Object>) null, isSubAction, true);
@@ -1035,13 +1036,13 @@ public class Action extends Semaphore{
 	}
 	
 	private void logHideenExceptionStackTrace(Throwable t, ActionContext actionContext){
-		log.warn("action ActionContext stacktrace:" + thingEntry.getPath());
-		log.warn(actionContext.getStackTrace());
+		log.log(Level.WARNING, "action ActionContext stacktrace:" + thingEntry.getPath());
+		log.log(Level.WARNING, actionContext.getStackTrace());
 		
 		if(t instanceof InvocationTargetException){
-			log.warn("action hidden throwable", t.getCause());
+			log.log(Level.WARNING, "action hidden throwable", t.getCause());
 		}else{
-			log.warn("action hidden throwable", t);
+			log.log(Level.WARNING, "action hidden throwable", t);
 		}		
 	}
 	
@@ -1101,7 +1102,7 @@ public class Action extends Semaphore{
 					}
 				}
 			}catch(Exception e){
-				log.error("执行" + contextObj.getMetadata().getPath() + "上下文方法" + methodName + "失败：", e);
+				log.log(Level.WARNING, "执行" + contextObj.getMetadata().getPath() + "上下文方法" + methodName + "失败：", e);
 				//如果上下文抛出异常，那么后面的也执行异常的方法
 				if("exception".equals(onError)){
 					tempMethodName = "exception";		
@@ -1165,13 +1166,13 @@ public class Action extends Semaphore{
 	}
 	
 	/**
-	 * 返回动作对应的日志。
+	 * 返回动作对应的日志。日志已取消，现在总是返回null。
 	 * 
 	 * @return 返回动作的日志
 	 */
-	public Logger getLogger(){
-		return this.logger;
-	}
+	//public Logger getLogger(){
+	//	return null;//this.logger;
+	//}
 	
 	/**
 	 * 返回正确的包名，因在X-Meta包名和类名没有约束，但java的包名和类名不能是关键字，所以修改，在关键字前加t。
@@ -1305,7 +1306,7 @@ public class Action extends Semaphore{
 					}
 					br.close();
 				}catch(Exception e){
-					log.error("init class compile time file error, " + timeFileName, e);
+					log.log(Level.WARNING, "init class compile time file error, " + timeFileName, e);
 				}finally{
 					if(fin != null){
 						try {
@@ -1342,7 +1343,7 @@ public class Action extends Semaphore{
 					fout.write((key + "|" + ctime + "\n").getBytes());
 				}				
 			}catch(Exception e){		
-				log.error("update class compile time file error, " + timeFileName, e);
+				log.log(Level.WARNING, "update class compile time file error, " + timeFileName, e);
 			}finally{
 				if(fout != null){
 					try {
@@ -1454,7 +1455,7 @@ public class Action extends Semaphore{
 				}else{
 					if((ActionContext.RUNTYPE_SUCCESS.equals(runType) || ActionContext.RUNTYPE_RANDOM_SUCCESS.equals(runType))){
 						if(aexception != null){
-							log.error("run script method", aexception);
+							log.log(Level.WARNING, "run script method", aexception);
 						}
 					}else if(aexception != null){
 						throw aexception;

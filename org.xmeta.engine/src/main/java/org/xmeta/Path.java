@@ -30,6 +30,7 @@ package org.xmeta;
  *     /@thingId              //取标识为thingId的子事物
  *     /%name                 //取事物名为name的子事物，只取第一个
  *     /#attributeId          //取属性名为attributeId的事物属性
+ *     /!resourceId           //调用事物的getResource(resourceId)方法获取资源
  *     /thingName$index       //取事物名为thingName的第index个子事物
  *     /thingName@thingId     //取事物名为thingName且标识为thingId的子事物
  *     /thingName@            //取事物名为thingName的所有子事物
@@ -48,6 +49,7 @@ public class Path {
 	public final static byte TYPE_CHILD_THING = 7;
 	public final static byte TYPE_CHILD_THING_OR_INDEX = 8;
 	public final static byte TYPE_CHILD_THING_BY_NAME = 9;
+	public final static byte TYPE_RESOURCE_ID = 10;
 	
 	/** 路径 */
 	private String path = null;
@@ -149,6 +151,10 @@ public class Path {
 		}else if(childPath.startsWith("#")){
 			child = new Path();
 			child.type = Path.TYPE_ATTRIBUTE;
+			child.attributeName = childPath.substring(1, childPath.length());					
+		}else if(childPath.startsWith("!")){
+			child = new Path();
+			child.type = Path.TYPE_RESOURCE_ID;
 			child.attributeName = childPath.substring(1, childPath.length());					
 		}else if(childPath.startsWith("$")){
 			child = new Path();

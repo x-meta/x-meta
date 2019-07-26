@@ -208,6 +208,34 @@ public class UtilJava {
 	}
 	
 	/**
+	 * 调用参数是ActionContext的静态方法。
+	 * 
+	 * @param className 类名
+	 * @param methodName 方法名
+	 * @param paramTypes 参数类型
+	 * @param args 参数列表
+	 * 
+	 * @return 方法的执行结果
+	 * @throws InvocationTargetException 
+	 * @throws IllegalArgumentException 
+	 * @throws IllegalAccessException 
+	 * @throws SecurityException 
+	 * @throws NoSuchMethodException 
+	 * @throws ClassNotFoundException 
+	 */
+	public static Object invokeMethod(String className, String methodName, Class<?>[] paramTypes, Object[] args) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException{
+		Class<?> cls = Class.forName(className);
+		if(cls != null){
+			Method method = cls.getDeclaredMethod(methodName, paramTypes);
+			if(method != null){
+				return method.invoke(null, args);
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * 一个简单的实例化对象的方法。
 	 * 
 	 * @param className 类名
@@ -239,7 +267,7 @@ public class UtilJava {
 	 * 
 	 * @param cls
 	 * @param objects
-	 * @return
+	 * @return 构造函数
 	 */
 	public static Constructor<?> getConstructor(Class<?> cls, Object ... objects){
 		Class<?> params[] = new Class<?>[objects.length];

@@ -13,8 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.xmeta.ActionException;
 import org.xmeta.Category;
 import org.xmeta.Thing;
 import org.xmeta.ThingCoder;
@@ -30,7 +29,7 @@ import org.xmeta.util.ThingClassLoader;
  *
  */
 public class JdbcThingManager extends AbstractThingManager{
-	private static Logger logger = LoggerFactory.getLogger(JdbcThingManager.class);
+	//private static Logger logger = LoggerFactory.getLogger(JdbcThingManager.class);
 	
 	/** JDBC的驱动  */
 	String driverClass;
@@ -67,12 +66,10 @@ public class JdbcThingManager extends AbstractThingManager{
 			}
 			
 			return con;
-		} catch (SQLException e) {
-			logger.error("Get connection error", e);
-			
+		} catch (SQLException e) {		
 			connectionError = true;
 			lastConnectTime = System.currentTimeMillis();
-			return null;
+			throw new ActionException("Get connection error", e);
 		}
 	}
 
@@ -100,9 +97,8 @@ public class JdbcThingManager extends AbstractThingManager{
 			pst.execute();
 			
 			return true;
-		}catch(Exception e){
-			logger.error("Create category error", e);
-			return false;
+		}catch(Exception e){			
+			throw new ActionException("Create category error, thingManager=" + name, e);
 		}finally{
 			if(pst != null){
 				try {
@@ -151,8 +147,7 @@ public class JdbcThingManager extends AbstractThingManager{
 			pst.execute();
 			return true;
 		}catch(Exception e){
-			logger.error("Delete category error", e);
-			return false;
+			throw new ActionException("Delete category error, thingManager=" + name, e);
 		}finally{
 			if(pst != null){
 				try {
@@ -202,7 +197,7 @@ public class JdbcThingManager extends AbstractThingManager{
 		try {
 			Class.forName(this.driverClass);
 		} catch (ClassNotFoundException e) {
-			logger.error(this.getName() + " load driver class error", e);
+			throw new ActionException("load driver class error, thingManager=" + name, e);
 		}
 		rootCategory = new JdbcCategory(null, this, null);
 	}
@@ -242,8 +237,7 @@ public class JdbcThingManager extends AbstractThingManager{
 			}
 			
 		}catch(Exception e){
-			logger.error("Load thing error", e);
-			return null;
+			throw new ActionException("Load thing error, thingManager=" + name, e);
 		}finally{
 			if(rs != null){
 				try{
@@ -285,8 +279,7 @@ public class JdbcThingManager extends AbstractThingManager{
 			pst.execute();
 			return true;			
 		}catch(Exception e){
-			logger.error("Remove thing error", e);
-			return false;
+			throw new ActionException("Remove thing error, thingManager=" + name, e);
 		}finally{
 			if(pst != null){
 				try {
@@ -359,8 +352,7 @@ public class JdbcThingManager extends AbstractThingManager{
 			}
 			return true;			
 		}catch(Exception e){
-			logger.error("Save thing error", e);
-			return false;
+			throw new ActionException("Save thing error, thingManager=" + name, e);
 		}finally{
 			if(pst != null){
 				try {

@@ -479,6 +479,9 @@ public class UtilString {
 		}else if(value.startsWith("xworker:")){
 			String path = value.substring(8, value.length());
 			return World.getInstance().getPath() + "/" + path;
+		}else if(value.startsWith("world:")){
+			String path = value.substring(6, value.length());
+			return World.getInstance().getPath() + "/" + path;
 		}else if(value.startsWith("var:")){
 			String path = value.substring(4, value.length());
 			Object obj = actionContext.get(path);

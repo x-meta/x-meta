@@ -19,9 +19,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * 多语言资源工具，现在通过事物本身来解决,如UtilString.get("label:thingpath");。
  * 
@@ -29,7 +26,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class UtilResource {
-	private static Logger log = LoggerFactory.getLogger(UtilResource.class);
+	//private static Logger log = LoggerFactory.getLogger(UtilResource.class);
 	
 	static Map<String, UtilResource> resouceCache = new HashMap<String, UtilResource>();
 	Map<String, Resources> cache = new HashMap<String, Resources>();
@@ -71,7 +68,7 @@ public class UtilResource {
 				rs = new Resources(name, locale);
 				cache.put(name, rs);
 			}catch(Exception e){
-				log.debug("找不到资源:" + name);
+				//log.debug("找不到资源:" + name);
 				//e.printStackTrace();
 			}
 		}
@@ -97,7 +94,7 @@ public class UtilResource {
 			//ResourceBundle.clearCache();
 			//resouceCache.clear();
 		}catch(Exception e){
-			log.warn("i18n resource clear error", e);
+			//log.warn("i18n resource clear error", e);
 		}			
 	}
 	

@@ -3,11 +3,11 @@ package org.xmeta.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xmeta.Action;
 import org.xmeta.ActionContext;
+import org.xmeta.ActionException;
 import org.xmeta.Thing;
 import org.xmeta.World;
 
@@ -18,7 +18,8 @@ import org.xmeta.World;
  *
  */
 public class ActionContainer {
-	private static Logger log = LoggerFactory.getLogger(ActionContainer.class);
+	//private static Logger log = LoggerFactory.getLogger(ActionContainer.class);
+	private static Logger logger = Logger.getLogger(ActionContainer.class.getName());
 	static World world = World.getInstance();
 
 	private Thing actions;
@@ -58,8 +59,7 @@ public class ActionContainer {
 				return null;
 			}
 		} catch (Throwable e) {
-			log.error("Container do action " + name, e);
-			return null;
+			throw new ActionException("Container do action [" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);
 		}
 	}
 
@@ -74,8 +74,7 @@ public class ActionContainer {
 				return null;
 			}
 		} catch (Throwable e) {
-			log.error("Container do action " + name, e);
-			return null;
+			throw new ActionException("Container do action [" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);
 		}
 	}
 
@@ -90,13 +89,11 @@ public class ActionContainer {
 				return null;
 			}
 		} catch (Throwable e) {
-			log.error("Container do action " + name, e);
-			return null;
+			throw new ActionException("Container do action [" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);
 		}
 	}
 
-	public <T> T doAction(String name, ActionContext context,
-			Map<String, Object> parameters) {
+	public <T> T doAction(String name, ActionContext context, Map<String, Object> parameters) {
 		try {
 			Thing actionThing = getActionThing(name);
 			if (actionThing != null) {
@@ -107,8 +104,7 @@ public class ActionContainer {
 				return null;
 			}
 		} catch (Throwable e) {
-			log.error("Container do action [" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);
-			return null;
+			throw new ActionException("Container do action [" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);
 		}
 	}
 	
@@ -128,7 +124,7 @@ public class ActionContainer {
 		}
 			
 		if(thing == null) {
-			log.info("action is not found : " + actions.getMetadata().getPath()
+			logger.info("action is not found : " + actions.getMetadata().getPath()
 					+ "/@" + name);
 			return null;
 		}else {
@@ -189,8 +185,8 @@ public class ActionContainer {
 				return null;
 			}
 		} catch (Throwable e) {
-			log.error("Container do action [" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);
-			return null;
+			throw new ActionException("Container do action [" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);
+			//return null;
 		}
 	}
 }
