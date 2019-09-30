@@ -306,6 +306,9 @@ public class Action extends Semaphore{
 		//返回值
 		returnVarName = thing.getString("returnVarName");
 		saveReturn = thing.getBoolean("saveReturn");
+		if(saveReturn && (returnVarName == null || "".equals(returnVarName))){
+			returnVarName = thing.getMetadata().getName();
+		}
 		
 		//设置代码文件名、类名和编译后的类路径等
 		Thing parent = thing.getParent();			
@@ -419,6 +422,9 @@ public class Action extends Semaphore{
 				
 				//需要编译或重新装载
 				if(useOuterJava){
+					if(outerClassName == null || "".equals(outerClassName)) {
+						throw new ActionException("Out class name not setted, action=" + thing.getMetadata().getPath());
+					}
 					actionClass = classLoader.loadClass(outerClassName); 						
 				}else{					
 					boolean recompile = false;

@@ -91,6 +91,9 @@ public class World {
 
 	/** 用户数据 */
 	private Map<String, Object> userDatas = new HashMap<String, Object>();
+	
+	/** 绑定到线程上的数据 */
+	protected ThreadLocal<Map<String, Object>> threadLocalDatas = null;//
 
 	/** 公共事物管理这的监听者注册列表 */
 	private Map<String, List<ThingManagerListener>> thingManagerListeners = new ConcurrentHashMap<String, List<ThingManagerListener>>();
@@ -787,8 +790,61 @@ public class World {
 	 * @param key 键
 	 * @return 值
 	 */
-	public Object getData(String key) {
-		return userDatas.get(key);
+	@SuppressWarnings("unchecked")
+	public <T> T getData(String key) {
+		return (T) userDatas.get(key);
+	}
+	
+	/**
+	 * 设置绑定到当前事物的ThreadLocal的数据。
+	 * 
+	 * @param key
+	 * @param data
+	 */
+	public void setThreadData(String key, Object data) {
+		if(key == null) {
+			return;
+		}
+		
+		if(threadLocalDatas == null) {
+			synchronized(this){
+				if(threadLocalDatas == null){
+					threadLocalDatas = new ThreadLocal<Map<String, Object>>();
+				}	
+			}
+		}
+		
+		Map<String, Object> dataMap = threadLocalDatas.get();
+		if(dataMap == null) {
+			dataMap = new HashMap<String, Object>();
+			threadLocalDatas.set(dataMap);
+		}
+		
+		dataMap.put(key, data);
+	}
+	
+	/**
+	 * 返回绑定到本事物的ThradLocal中的数据。
+	 * 
+	 * @param key
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T getThreadData(String key) {
+		if(key == null) {
+			return null;
+		}
+		
+		if(threadLocalDatas == null) {
+			return null;
+		}
+		
+		Map<String, Object> dataMap = threadLocalDatas.get();
+		if(dataMap == null) {
+			return null;
+		}
+		
+		return (T) dataMap.get(key);
 	}
 
 	/**

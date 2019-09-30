@@ -129,6 +129,9 @@ public class Thing {
 	/** 附加于事物的用户数据 */
 	protected Map<String, Object> datas = null;//new HashMap<String, Object>();
 	
+	/** 绑定到线程上的数据 */
+	protected ThreadLocal<Map<String, Object>> threadLocalDatas = null;//
+	
 	/** 
 	 * 默认构造函数，构造一个空的瞬态事物。 
 	 */
@@ -1185,7 +1188,7 @@ public class Thing {
 		//从自己定义的动作中寻找
 		Thing actionSet = null;
 		for(Thing child : getChilds()){
-			if(child.isThingByName("actions")){
+			if("actions".equals(child.getThingName())){//child.isThingByName("actions")){
 				actionSet = child;
 				break;
 			}
@@ -2984,15 +2987,68 @@ public class Thing {
 			",path=" + getMetadata().getPath() + ",descriptios=" + getString("descriptors") + "}";
 	}
 	
+	/**
+	 * 设置绑定到当前事物的ThreadLocal的数据。
+	 * 
+	 * @param key
+	 * @param data
+	 */
+	public void setThreadData(String key, Object data) {
+		if(key == null) {
+			return;
+		}
+		
+		if(threadLocalDatas == null) {
+			synchronized(this){
+				if(threadLocalDatas == null){
+					threadLocalDatas = new ThreadLocal<Map<String, Object>>();
+				}	
+			}
+		}
+		
+		Map<String, Object> dataMap = threadLocalDatas.get();
+		if(dataMap == null) {
+			dataMap = new HashMap<String, Object>();
+			threadLocalDatas.set(dataMap);
+		}
+		
+		dataMap.put(key, data);
+	}
+	
+	/**
+	 * 返回绑定到本事物的ThradLocal中的数据。
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public Object getThreadData(String key) {
+		if(key == null) {
+			return null;
+		}
+		
+		if(threadLocalDatas == null) {
+			return null;
+		}
+		
+		Map<String, Object> dataMap = threadLocalDatas.get();
+		if(dataMap == null) {
+			return null;
+		}
+		
+		return dataMap.get(key);
+	}
+	
 	public void setData(String key, Object data){
 		if(key == null){
 			return;
 		}
 	
-		synchronized(this){
-			if(datas == null){
-				datas = new HashMap<String, Object>();
-			}	
+		if(datas == null){
+			synchronized(this){
+				if(datas == null){
+					datas = new HashMap<String, Object>();
+				}	
+			}
 		}
 		
 		datas.put(key, data);
@@ -3033,14 +3089,15 @@ public class Thing {
 	 * @param key 键
 	 * @return 值
 	 */
-	public Object getCachedData(String key){
+	@SuppressWarnings("unchecked")
+	public <T> T getCachedData(String key){
 		String timeKey = "__" + key + "__Modified__";
 		Object data = datas.get(key);
 		Long lastTime = (Long) datas.get(timeKey);
 		if(lastTime == null || lastTime != getMetadata().getLastModified()){
 			return null;
 		}else{
-			return data;
+			return (T) data;
 		}
 	}
 	
@@ -3048,10 +3105,20 @@ public class Thing {
 		World.getInstance().setData(this.getMetadata().getPath() + "-" + key, value);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public <T> T getStaticData(String key) {
 		return (T) World.getInstance().getData(this.getMetadata().getPath() + "-" + key);
 	}
 
+	public void setStaticThreadData(String key , Object value) {
+		World.getInstance().setThreadData(this.getMetadata().getPath() + "-" + key, value);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> T getStaticThreadData(String key) {
+		return (T) World.getInstance().getThreadData(this.getMetadata().getPath() + "-" + key);
+	}
+	
 	public void setTransient(boolean isTransient) {
 		setTransient(isTransient, new HashMap<Thing, Thing>());
 	}

@@ -128,6 +128,7 @@ public class ActionContext implements Map<String, Object>{
 		
 		managedByPool = true;
 	}
+	
 	/**
 	 * 通过给定的变量绑定创建变量上下文，其中传入的变量上下文的栈全部放入不可push和pop的栈中，
 	 * 并压入一个新的所有线程都共用的全局变量栈，传入的变量上下文比新的全局变量更加全局。
@@ -181,6 +182,23 @@ public class ActionContext implements Map<String, Object>{
 	
 	public Action getAction(){
 		return getActionStack().peek();
+	}
+	
+	/**
+	 * 返回变量是否为null，变量可以有多个，只要有一个为null那么就返回false，没有指定变量或全部变量都不为null返回true。
+	 * @param vars 变量列表
+	 * @return 变量是否都不为Null
+	 */
+	public boolean exists(String ... vars) {
+		if(vars != null) {
+			for(String var : vars) {
+				if(this.get(var) == null) {
+					return false;
+				}
+			}
+		}
+		
+		return true;
 	}
 
 	private Stack<Bindings> getBindingStack(){

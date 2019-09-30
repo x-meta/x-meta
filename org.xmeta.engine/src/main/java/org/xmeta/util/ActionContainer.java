@@ -123,8 +123,8 @@ public class ActionContainer {
 			}
 		}
 			
-		if(thing == null) {
-			logger.info("action is not found : " + actions.getMetadata().getPath()
+		if(thing == null && actions.getBoolean("log")) {
+			logger.fine("ActionContainer: action is not found : " + actions.getMetadata().getPath()
 					+ "/@" + name);
 			return null;
 		}else {

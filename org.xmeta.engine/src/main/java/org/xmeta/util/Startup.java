@@ -10,8 +10,11 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 public class Startup {
+	private static Logger logger = Logger.getLogger(Startup.class.getName());
+	
 	public static void initJars(File file, List<URL> urlList){
 		if(!file.exists()){
 			return;
@@ -108,31 +111,32 @@ public class Startup {
 		}
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static void main(String args[]){
+	public static void start(String worldPath, String thing, String action) {
+		if(worldPath == null) {
+			worldPath = getHomeFormSytsem();
+		}
+		File worldFile = new File(worldPath);
+		if(worldFile.exists() == false) {
+			logger.info("XMeta or XWorker directory not exists, exit.");
+			return;
+		}
+		
+		if(thing == null) {
+			logger.info("Thing path is null, exit.");
+			return;
+		}
+		
+		if(action == null) {
+			action = "run";
+		}
+		
+		start(new String[] {worldPath, thing, action});
+	}
+	
+	public static void start(String[] args) {
 		try{
 			URL[] urls = null;
 			List<URL> urlList = new ArrayList<URL>();
-			if(args.length < 1){//无参数执行，一般是从Jar中执行，不是从xworker的dml.cmd或dml.sh中执行
-				//获取系统中设置的XWorker_HOME
-				String home = getHomeFormSytsem();
-				if(home == null){
-					System.out.println("Please set xworker home");
-					return;
-				}
-				
-				//获取要执行的事物和法国法
-				List<String> dmlCfg = getClassThingConfig();
-				if(dmlCfg == null){
-					System.out.println("Can not found dml.properties");
-					return;
-				}
-				dmlCfg.add(0, home);
-				args = new String[dmlCfg.size()];
-				dmlCfg.toArray(args);
-			}else{
-				//System.out.println("XWorker home is: " + args[0]);
-			}
 			
 			//过滤参数中的引号
 			for(int i=0; i<args.length; i++){				
@@ -179,14 +183,14 @@ public class Startup {
 			
 			//其次是加载XWorker目录下的类
 			urlList.add(new File(args[0] + "/config/").toURI().toURL());			
-			initJars(new File(args[0] + "/lib_"  + OS), urlList);
-			initJars(new File(args[0] + "/lib_"  + OS + "_" + PROCESSOR_ARCHITECTURE), urlList);
+			initJars(new File(args[0] + "/os/lib/lib_"  + OS), urlList);
+			initJars(new File(args[0] + "/os/lib/lib_"  + OS + "_" + PROCESSOR_ARCHITECTURE), urlList);
 			initJars(new File(args[0] + "/lib/"), urlList);
 			urls = new URL[urlList.size()];
 			urlList.toArray(urls);
 			
-			//URLClassLoader classLoader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
-			URLClassLoader classLoader = new URLClassLoader(urls);
+			URLClassLoader classLoader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
+			//URLClassLoader classLoader = new URLClassLoader(urls);
 			
 			/*
 			System.out.println("------------------class path-------------------");
@@ -197,9 +201,38 @@ public class Startup {
 			System.out.println("------------------class path-------------------");
 			*/
 			Thread.currentThread().setContextClassLoader(classLoader);
-			Class trCls = classLoader.loadClass("org.xmeta.util.ThingRunner");
+			Class<?> trCls = classLoader.loadClass("org.xmeta.util.ThingRunner");
 			Method method = trCls.getDeclaredMethod("run", new Class[]{String[].class});
 			method.invoke(null, new Object[]{args});
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public static void main(String args[]){
+		try{
+			if(args.length < 1){//无参数执行，一般是从Jar中执行，不是从xworker的dml.cmd或dml.sh中执行
+				//获取系统中设置的XWorker_HOME
+				String home = getHomeFormSytsem();
+				if(home == null){
+					System.out.println("Please set xworker home");
+					return;
+				}
+				
+				//获取要执行的事物和方法
+				List<String> dmlCfg = getClassThingConfig();
+				if(dmlCfg == null){
+					System.out.println("Can not found dml.properties");
+					return;
+				}
+				dmlCfg.add(0, home);
+				args = new String[dmlCfg.size()];
+				dmlCfg.toArray(args);
+			}else{
+				//System.out.println("XWorker home is: " + args[0]);
+			}
+			
+			start(args);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
