@@ -17,9 +17,9 @@ package org.xmeta.util;
 
 import java.util.Map;
 
-import ognl.ClassResolver;
-
 import org.xmeta.World;
+
+import ognl.ClassResolver;
 
 /**
  * 一般启动后Ognl找不到world的lib下的静态类。

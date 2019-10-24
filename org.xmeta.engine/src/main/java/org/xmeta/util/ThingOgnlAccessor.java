@@ -20,7 +20,6 @@ import java.util.Map;
 import org.xmeta.Thing;
 
 import ognl.ObjectPropertyAccessor;
-import ognl.Ognl;
 import ognl.OgnlException;
 import ognl.OgnlRuntime;
 import ognl.PropertyAccessor;

@@ -15,7 +15,6 @@
 ******************************************************************************/
 package org.xmeta.test;
 
-import org.xmeta.Index;
 import org.xmeta.World;
 
 public class TestIndex {

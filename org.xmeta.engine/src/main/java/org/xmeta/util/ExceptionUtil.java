@@ -15,11 +15,8 @@
 ******************************************************************************/
 package org.xmeta.util;
 
-import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import org.xmeta.Thing;
 
 public class ExceptionUtil {
 	private static final String[] CAUSE_METHOD_NAMES = { "getCause",

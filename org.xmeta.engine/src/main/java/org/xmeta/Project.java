@@ -1,7 +1,6 @@
 package org.xmeta;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.xmeta.util.ProjectClassLoader;

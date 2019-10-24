@@ -30,6 +30,7 @@ public class ThingEntry {
 	protected String path;
 	protected long lastmodified;
 	protected WeakReference<Thing> thingReference = null;	
+	protected Object data = null;
 	
 	public ThingEntry(Thing thing){
 		this(thing.getMetadata().getPath(), thing);
@@ -67,5 +68,13 @@ public class ThingEntry {
 		}else{
 			return true;
 		}
+	}
+
+	public Object getData() {
+		return data;
+	}
+
+	public void setData(Object data) {
+		this.data = data;
 	}
 }

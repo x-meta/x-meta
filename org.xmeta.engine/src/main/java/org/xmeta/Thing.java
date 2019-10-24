@@ -3038,6 +3038,43 @@ public class Thing {
 		return dataMap.get(key);
 	}
 	
+	/**
+	 * 返回一个和修改时间绑定的缓存，如果事物的当前修改时间和保存时不一样，那么缓存无效返回null。
+	 * 
+	 * @param key
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T getTempData(String key) {
+		ModifyCacheData d = getData(key);
+		if(d == null) {
+			return null;
+		}
+		
+		if(d.getLastModified() != this.getMetadata().getLastModified()) {
+			return null;
+		}
+		
+		return (T) d.getData();
+	}
+	
+	/**
+	 * 设置一个缓存数据。如果事物被修改了，那么缓存也变得无效了。
+	 * 
+	 * @param key
+	 * @param data
+	 */
+	public void setTempData(String key, Object data) {
+		ModifyCacheData d = getData(key);
+		if(d == null) {
+			d = new ModifyCacheData();
+			setData(key, d);
+		}
+		
+		d.setData(data);
+		d.setLastModified(this.getMetadata().getLastModified());
+	}
+	
 	public void setData(String key, Object data){
 		if(key == null){
 			return;
@@ -3170,5 +3207,36 @@ public class Thing {
 		}else{
 			return getChildAt(index + rindex);
 		}
+	}
+	
+	/**
+	 * 修改缓存数据。保存到事物的data中，同时记录事物的修改时间，当获取数据时如果事物的修改时间
+	 * 和记录的时间不一致，则返回null。
+	 * 
+	 * @author zyx
+	 *
+	 */
+	static class ModifyCacheData{
+		long lastModified;
+		
+		Object data;
+
+		public long getLastModified() {
+			return lastModified;
+		}
+
+		public void setLastModified(long lastModified) {
+			this.lastModified = lastModified;
+		}
+
+		public Object getData() {
+			return data;
+		}
+
+		public void setData(Object data) {
+			this.data = data;
+		}
+		
+		
 	}
 }

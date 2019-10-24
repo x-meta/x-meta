@@ -18,11 +18,8 @@ package org.xmeta.index;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.xmeta.Category;
 import org.xmeta.Index;
-import org.xmeta.Thing;
 import org.xmeta.ThingIndex;
-import org.xmeta.ThingManager;
 import org.xmeta.World;
 
 public class ThingIndexIndex extends Index{

@@ -21,8 +21,8 @@ import java.util.List;
 
 import org.xmeta.Category;
 import org.xmeta.Thing;
-import org.xmeta.ThingManager;
 import org.xmeta.ThingIndex;
+import org.xmeta.ThingManager;
 
 /**
  * 瞬态事物管理者下的目录。
