@@ -1,3 +1,0 @@
-<Person name="ZhangSan" age="40" descriptors="org.xmeta.example.PersonWithAction">
-    <Child name="XiaoMing" age="10"/>
-</Person>
