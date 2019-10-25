@@ -1,5 +1,0 @@
-{
-	"MetaThing":{
-		"name":"JavaAction"
-	}
-}

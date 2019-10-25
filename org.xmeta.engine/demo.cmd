@@ -1,1 +1,0 @@
-java -classpath ".;target/classes;lib/commons-pool.jar;lib/jackson-annotations-2.2.0.jar;lib/jackson-core-2.2.0.jar;lib/jackson-databind-2.2.0.jar;lib/jedis-2.1.0.jar;lib/log4j-1.2.15.jar;lib/ognl.jar;lib/slf4j-api-1.5.2.jar;lib/slf4j-log4j12-1.5.2.jar;%JAVA_HOME%/lib/tools.jar" org.xmeta.example.XMetaDemo 

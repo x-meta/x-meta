@@ -1,6 +1,0 @@
-<thing name="Animal">
-    <actions name="actions" descriptors="actions">
-        <JavaAction name="eat" useOuterJava="true"   descriptors="JavaAction" 
-                methodName="animalEat"  outerClassName="org.xmeta.example.PersonExtendTest"/>
-    </actions>
-</thing>
