@@ -169,6 +169,9 @@ public class Action extends Semaphore{
 	/** 如果是Java动作，则有方法 */
 	public Method method = null;
 	
+	/** 是否根据返回值Switch子节点 */
+	public boolean switchResult = false;
+	
 	/** 用户数据，在代码或脚本理可以设置和Action绑定的数据 */
 	Map<String, Object> userData = new HashMap<String, Object>();
 	
@@ -309,6 +312,7 @@ public class Action extends Semaphore{
 		if(saveReturn && (returnVarName == null || "".equals(returnVarName))){
 			returnVarName = thing.getMetadata().getName();
 		}
+		switchResult = thing.getBoolean("switchResult");
 		
 		//设置代码文件名、类名和编译后的类路径等
 		Thing parent = thing.getParent();			
@@ -885,6 +889,16 @@ public class Action extends Semaphore{
 				}
 			}
 			
+			//Switch子节点
+			if(switchResult) {
+				String resultStr = String.valueOf(result);
+				for(Thing child : thing.getChilds()) {
+					if(resultStr.equals(child.getMetadata().getName())) {
+						result = child.getAction().run(context, null, caller, isSubAction);
+						break;
+					}
+				}
+			}
 			/*
 			 * 子流程取消，2012-12-12，使用
 			//执行下级流程
