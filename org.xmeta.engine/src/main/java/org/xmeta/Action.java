@@ -768,7 +768,7 @@ public class Action extends Semaphore{
 		//if(logger != null){
 		//	bindings.put("log", logger);
 		//}
-		
+
 		//预制的动作
 		if(actionsDefiend != null){
 			bindings.putAll(actionsDefiend);

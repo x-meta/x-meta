@@ -21,6 +21,7 @@ public abstract class AbstractSession implements Session{
 	}
 
 	public void setLocale(Locale locale) {
-		this.locale = locale;		
+		this.locale = locale;	
+		i18nResource = UtilResource.getInstance(locale);
 	}
 }
