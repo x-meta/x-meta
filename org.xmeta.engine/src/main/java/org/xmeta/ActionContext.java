@@ -76,6 +76,9 @@ public class ActionContext implements Map<String, Object>{
 	/** 保存父变量上下文的约定的名称 */
 	public final static String PARENT_CONTEXT = "parentContext";
 	
+	/** 由于ActionContext包含了自身，直接toString会递归，在此加入上下文 */
+	private static ThreadLocal<Map<ActionContext, ActionContext>> toStringContextLocal = new ThreadLocal<Map<ActionContext, ActionContext>>();
+	
 	/** 方法调用的变量堆栈每个线程使用各自的，除了初始化时公共的全局变量 */
 	private ThreadLocal<Stack<Bindings>> threadStacks = new ThreadLocal<Stack<Bindings>>();
 	
@@ -873,7 +876,48 @@ public class ActionContext implements Map<String, Object>{
 
 	@Override
 	public String toString() {
-		return "ActionContext [hashCode=" + this.hashCode() + ",callers=" +  this.getThings() + "]";
+		Map<ActionContext, ActionContext> context = new HashMap<ActionContext, ActionContext>();
+		toStringContextLocal.set(context);
+		try {
+			StringBuffer sb = new StringBuffer();
+			sb.append(this.getStackTrace());
+			sb.append("\n");
+			sb.append("ActionContext [hashCode=" + this.hashCode() + "]\n");		
+			
+			initVarsString(sb, "");
+			return sb.toString();
+		}finally {
+			toStringContextLocal.set(null);
+		}
+	}
+	
+	private void initVarsString(StringBuffer sb, String ident) {
+		Map<ActionContext, ActionContext> context = toStringContextLocal.get();		
+		if(context.get(this) != null) {			
+			return;
+		}else {
+			context.put(this, this);
+			for(String key : this.keySet()) {
+				Object value = this.get(key);
+				sb.append(ident + "  ");
+				sb.append(key + "=");
+				if(value instanceof ActionContext) {
+					ActionContext ac = (ActionContext) value;
+					sb.append("ActionContext [hashCode=" + this.hashCode() + "]");
+					ac.initVarsString(sb, ident + "  ");					
+				}else {
+					sb.append(String.valueOf(value));
+				}
+				
+				sb.append("\n");
+				
+				if(sb.length() > 1024 * 1024) {
+					//避免过大
+					sb.append(ident + ".....");
+					break;
+				}
+			}
+		}
 	}
 
 	public String getString(String key){

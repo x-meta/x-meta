@@ -130,15 +130,14 @@ public class Bindings extends HashMap<String, Object>{
 	}
 		
 	public String toString(){
-		return super.toString();
-		/*
+		//return super.toString();
 		String str = "";
 		if(caller != null){
 			str = str + caller.getClass().getSimpleName() + ": " + (callerMethod != null ? callerMethod : "") + ", ";
 		}
 		
-		str = str + "变量个数：" + this.size();
-		return str;*/
+		str = str + "var count：" + this.size();
+		return str;
 	}
 
 	public boolean isParameterScope() {
