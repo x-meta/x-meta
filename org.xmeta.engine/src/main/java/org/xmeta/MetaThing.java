@@ -33,6 +33,8 @@ package org.xmeta;
  *
  */
 public class MetaThing extends Thing{
+	public static MetaThing instance = new MetaThing();
+	
 	public MetaThing(){				
 		super();
 		

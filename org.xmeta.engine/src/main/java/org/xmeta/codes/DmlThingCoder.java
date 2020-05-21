@@ -113,7 +113,7 @@ public class DmlThingCoder implements ThingCoder{
 
 	@Override
 	public String[] getCodeTypes() {
-		return new String[]{TYPE_PROPERTY, TYPE_XML, TYPE_TXT};
+		return new String[]{TYPE_XML, TYPE_PROPERTY, TYPE_TXT};
 	}
 
 }

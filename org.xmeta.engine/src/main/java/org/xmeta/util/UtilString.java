@@ -465,11 +465,11 @@ public class UtilString {
 		}else if(value.startsWith("ognl:")){
 			String exp = value.substring(5, value.length());
 			Object obj = null;
-			try {
-				obj = (String) OgnlUtil.getValue(exp, actionContext);
-			} catch (Exception e) {
-				obj = null;
-			}				
+			//try {
+				obj = OgnlUtil.getValue(exp, actionContext);
+			//} catch (Exception e) {
+			//	obj = null;
+			//}				
 			
 			if(obj != null){
 				return String.valueOf(obj);

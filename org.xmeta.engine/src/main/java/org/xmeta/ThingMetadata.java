@@ -169,8 +169,13 @@ public class ThingMetadata {
 			return name;
 		}else{
 			List<Thing> descriptors = thing.getDescriptors();
-			if(descriptors.size() > 0){
-				return (String) descriptors.get(0).attributes.get(Thing.NAME);
+			if(descriptors.size() > 0){				
+				name = (String) descriptors.get(0).attributes.get(Thing.NAME);
+				if(name == null) {
+					return "thing";
+				}else {
+					return name;
+				}
 			}else{
 				return "";
 			}

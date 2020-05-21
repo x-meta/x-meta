@@ -236,9 +236,9 @@ public class TransientThingManager implements ThingManager{
 				WeakReference<Thing> wr = things.get(key);
 				if(wr == null || wr.get() == null){
 					things.remove(key);
-					thingIndexs.remove(key);
+					//thingIndexs.remove(key);
 				}
-			}
+			}			
 		}catch(Exception e){
 			
 		}

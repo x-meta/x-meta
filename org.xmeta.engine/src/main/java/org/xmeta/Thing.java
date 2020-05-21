@@ -1476,38 +1476,11 @@ public class Thing {
 	 */
 	public List<Thing> getAllChilds(){
 		List<Thing> childList = new ArrayList<Thing>();
-
-		//添加自身定义的子事物
-		childList.addAll(getChilds());
 		
-		//添加继承者的子事物
-		Map<String, String> excludes = new HashMap<String, String>();
-		String excludeDescriptorsForChilds = getStringBlankAsNull("excludeDescriptorsForChilds");
-	    if(excludeDescriptorsForChilds != null){
-	        for(String ex : excludeDescriptorsForChilds.split("[,]")){
-	        	excludes.put(ex, ex);
-	        }
-	    }
-		for(Thing thing : getAllExtends()){
-			excludeDescriptorsForChilds = thing.getStringBlankAsNull("excludeDescriptorsForChilds");
-		    if(excludeDescriptorsForChilds != null){
-		        for(String ex : excludeDescriptorsForChilds.split("[,]")){
-		        	excludes.put(ex, ex);
-		        }
-		    }
-		}
-
-		for(Thing thing : getAllExtends()){
-			if(excludes.get(thing.getMetadata().getPath()) != null) {
-				continue;
-			}
+		for(Iterator<Thing> iter = getChildsIterator(); iter.hasNext();){
+			Thing child = iter.next();
 			
-			for(Thing child : thing.childs){
-				if(!"private".equals(child.getString("modifier"))){
-					childList.add(child);
-					//childList.addAll(thing.childs);
-				}
-			}
+			UtilData.addToSource(childList, child, true);
 		}
 		
 		return childList;
@@ -1523,17 +1496,17 @@ public class Thing {
 	 * @return 描述者的名称为指定名称的子事物
 	 */
 	public List<Thing> getAllChilds(String thingName){
-		List<Thing> childs = new ArrayList<Thing>();
+		List<Thing> childList = new ArrayList<Thing>();
 		
 		for(Iterator<Thing> iter = getChildsIterator(); iter.hasNext();){
 			Thing child = iter.next();
 			
 			if(child.isThingByName(thingName) && (!"private".equals(child.getString("modifier")) || child.getParent() == this)){
-				UtilData.addToSource(childs, child, true);
+				UtilData.addToSource(childList, child, true);
 			}
 		}
 		
-		return childs;
+		return childList;
 	}
 	
 	/**
@@ -2220,13 +2193,13 @@ public class Thing {
 			for(String descriptorName : descriptorsNames){
 				Thing descriptor = world.getThing(descriptorName);
 				if(descriptor == null) {
-					//兼容使用XWorker编辑的模型，但可以脱离XWorker执行
+					//兼容使用XWorker编辑的模型，但可以脱离XWorker执行，使用默认的MetaThing
 					if("xworker.lang.MetaDescriptor3".equals(descriptorName)) {
-						descriptor = world.metaThing;
+						descriptor = MetaThing.instance;
 					}else if("xworker.lang.MetaDescriptor3/@actions".equals(descriptorName)) {
-						descriptor = world.metaThing.getThing("actions@0");
+						descriptor = MetaThing.instance.getThing("actions@0");
 					}else if("xworker.lang.actions.JavaAction".equals(descriptorName)) {
-						descriptor = world.metaThing.getThing("actions@0/JavaAction@0");
+						descriptor = MetaThing.instance.getThing("actions@0/JavaAction@0");
 					}
 				}
 				if(descriptor != null){
@@ -2532,91 +2505,51 @@ public class Thing {
 		return this.isTransient;
 	}
 	
-	/**
-	 * 返回遍历所有的子节点遍历器。
-	 * 
-	 * @return 子节点遍历器
-	 */
-	public Iterator<Thing> getChildsIterator(){
+	private Iterator<Thing> getChildsIterator(Map<String, String> excludes, String childName){
+		if(excludes.get(this.getMetadata().getPath()) != null) {
+			return null;
+		}
+		
 		//添加自己的子节点和所有的继承的子节点
-		final List<List<Thing>> allChilds = new ArrayList<List<Thing>>();
-		allChilds.add(childs);
+		final List<Thing> allChilds = new ArrayList<Thing>();
+		allChilds.addAll(childs);
+		excludes.put(getMetadata().getPath(), getMetadata().getPath()); //把自己放到排除中，避免递归
+		
 		//添加继承者的子事物
-		Map<String, String> excludes = new HashMap<String, String>();
-		String excludeDescriptorsForChilds = getStringBlankAsNull("excludeDescriptorsForChilds");
-	    if(excludeDescriptorsForChilds != null){
-	        for(String ex : excludeDescriptorsForChilds.split("[,]")){
-	        	excludes.put(ex, ex);
-	        }
-	    }
-		for(Thing thing : getAllExtends()){
-			excludeDescriptorsForChilds = thing.getStringBlankAsNull("excludeDescriptorsForChilds");
+		if(childName != null && "thing".equals(childName)) {
+			String excludeDescriptorsForChilds = getStringBlankAsNull("excludeDescriptorsForChilds");
 		    if(excludeDescriptorsForChilds != null){
 		        for(String ex : excludeDescriptorsForChilds.split("[,]")){
 		        	excludes.put(ex, ex);
 		        }
 		    }
 		}
-
-		for(Thing thing : getAllExtends()){
-			if(excludes.get(thing.getMetadata().getPath()) != null) {
+	    
+	    for(Thing thing : getExtends()) {
+	    	String path = thing.getMetadata().getPath();
+	    	if(excludes.get(path) != null) {
 				continue;
 			}
-			allChilds.add(thing.getChilds());			
-		}
-		
-		return new Iterator<Thing>(){
-			int currentIndex = 0;
-			int currentSubIndex = 0;
-			Thing nextChild = null;
-			List<Thing> currentList = null;
-			boolean inited = false;
-			boolean hasNext = false;
-			
-			public boolean hasNext() {	
-				if(!inited){
-					initCurrent();
-					inited = true;
-				}
-				
-				return hasNext;
-			}
-
-			public void initCurrent(){
-				if(currentList == null || currentSubIndex == currentList.size()){
-					if(allChilds.size() == currentIndex){
-						nextChild = null;
-						hasNext = false;
-						return;
-					}else{
-						currentList = allChilds.get(currentIndex);
-						currentIndex ++;
-						currentSubIndex = 0;
-					}
-				}
-				
-				if(currentSubIndex < currentList.size()){
-					nextChild = currentList.get(currentSubIndex);
-					hasNext = true;
-				}else{
-					initCurrent();
-				}
-			}
-			
-			public Thing next() {
-				initCurrent();
-				inited = true;
-				
-				Thing next = nextChild;
-				currentSubIndex++;
-				
-				initCurrent();
-				return next;
-			}
-
-			public void remove() {				
-			}			
-		};
+	    	
+	    	Iterator<Thing> extIter = thing.getChildsIterator(excludes, childName);
+	    	if(extIter != null) {
+		    	while(extIter.hasNext()) {
+		    		Thing extChild = extIter.next();
+	    			allChilds.add(extChild);
+		    	}
+	    	}
+	    }
+	    
+	    return allChilds.iterator();
+	}
+	/**
+	 * 返回遍历所有的子节点遍历器。
+	 * 
+	 * @return 子节点遍历器
+	 */
+	public Iterator<Thing> getChildsIterator(){
+		Map<String, String> context = new HashMap<String, String>();
+		return getChildsIterator(context, null); 
 	}
 	
 	/**

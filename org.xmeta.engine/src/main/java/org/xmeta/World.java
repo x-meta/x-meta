@@ -894,7 +894,7 @@ public class World {
 	 *            事物的路径
 	 * @return 事物，不存在则返回null
 	 */
-	public Thing getThing(String path) {
+	public Thing getThing(String path) {		
 		Object obj = get(path);
 		if (obj instanceof Thing) {
 			// thingCaches.put(path, (Thing) obj);
@@ -1517,20 +1517,28 @@ public class World {
 		Properties properties = new Properties();
 		if(rootPath.isDirectory()){
 			File configFile = new File(rootPath, "config.properties");
+			hasThingsDir = true;
 			if(!configFile.exists()){
 				configFile = new File(rootPath, "xworker.properties");
 			}			
 			
 			if(!configFile.exists()){
 				configFile = new File(rootPath, ".dml");
-			}else{
-				hasThingsDir = true;
+				if(configFile.exists()) {
+					hasThingsDir = false;
+				}
 			}
 			if(!configFile.exists()){
 				configFile = new File(rootPath, "dml.properties");
+				if(configFile.exists()) {
+					hasThingsDir = false;
+				}
 			}
 			if(!configFile.exists()){
 				configFile = new File(rootPath, "dml.prj");
+				if(configFile.exists()) {
+					hasThingsDir = false;
+				}
 			}
 			if(configFile.exists()){				
 				FileInputStream fin = null; 
@@ -1548,6 +1556,10 @@ public class World {
 					link = properties.getProperty("link");
 					if((link != null && link.trim().equals("")) || "null".equals(link)){
 						link = null;
+					}
+					
+					if("false".equals(properties.getProperty("hasThingsDir"))) {
+						hasThingsDir = false;
 					}
 					
 					//事物管理器的类

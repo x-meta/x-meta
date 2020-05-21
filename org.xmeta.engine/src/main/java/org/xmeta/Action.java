@@ -621,45 +621,45 @@ public class Action extends Semaphore{
 		return runArrayParams(new ActionContext(), (Object[]) null, null, false);
 	}
 	
-	public <T> T  run(ActionContext context){
-		return runMapParams(context, null, null, false);
+	public <T> T  run(ActionContext actionContext){
+		return runMapParams(actionContext, null, null, false);
 	}
 	
-	public <T> T  run(ActionContext context, Object... params){
-		return runArrayParams(context, params, null, false);
+	public <T> T  run(ActionContext actionContext, Object... params){
+		return runArrayParams(actionContext, params, null, false);
 	}
 	
 	public <T> T  exec(Object... params){
 		return runArrayParams(null, params, null, false);
 	}
 	
-	public <T> T  exec(ActionContext context, Object... params){
-		return runArrayParams(context, params, null, false);
+	public <T> T  exec(ActionContext actionContext, Object... params){
+		return runArrayParams(actionContext, params, null, false);
 	}
 	
 	public <T> T call(ActionContext actionContext, Object ... params){
 		return runArrayParams(actionContext, params, null, false);
 	}
 	
-	public <T> T  call(ActionContext context, Map<String, Object> parameters){
-		return runMapParams( context, parameters, null, false);
+	public <T> T  call(ActionContext actionContext, Map<String, Object> parameters){
+		return runMapParams( actionContext, parameters, null, false);
 	}
 	
-	public <T> T  run(ActionContext context, Map<String, Object> parameters){
-		return runMapParams( context, parameters, null, false);
+	public <T> T  run(ActionContext actionContext, Map<String, Object> parameters){
+		return runMapParams( actionContext, parameters, null, false);
 	}
 	
-	public <T> T  run(ActionContext context, Map<String, Object> parameters, boolean isSubAction){
-		return runMapParams(context, parameters, null, isSubAction);
+	public <T> T  run(ActionContext actionContext, Map<String, Object> parameters, boolean isSubAction){
+		return runMapParams(actionContext, parameters, null, isSubAction);
 	}
 	
-	public <T> T  run(ActionContext context, Map<String, Object> parameters, Object caller, boolean isSubAction) {
-		return runMapParams(context, parameters, caller, isSubAction);
+	public <T> T  run(ActionContext actionContext, Map<String, Object> parameters, Object caller, boolean isSubAction) {
+		return runMapParams(actionContext, parameters, caller, isSubAction);
 	}
 	
-	public <T> T runArrayParams(ActionContext context, Object[] params_, Object caller,  boolean isSubAction){
-		if(context == null){
-			context = new ActionContext();
+	public <T> T runArrayParams(ActionContext actionContext, Object[] params_, Object caller,  boolean isSubAction){
+		if(actionContext == null){
+			actionContext = new ActionContext();
 		}
 		
 		Bindings bindings = new Bindings();
@@ -683,12 +683,12 @@ public class Action extends Semaphore{
 			}			
 		}*/
 		
-		return this.dorun(context, bindings, bindings, caller, isSubAction);
+		return this.dorun(actionContext, bindings, bindings, caller, isSubAction);
 	}
 	
-	public <T> T runMapParams(ActionContext context, Map<String, Object> parameters, Object caller, boolean isSubAction) {
-		if(context == null){
-			context = new ActionContext();
+	public <T> T runMapParams(ActionContext actionContext, Map<String, Object> parameters, Object caller, boolean isSubAction) {
+		if(actionContext == null){
+			actionContext = new ActionContext();
 		}
 		
 		Bindings bindings = new Bindings();
@@ -697,14 +697,14 @@ public class Action extends Semaphore{
 			bindings.putAll(parameters);
 		}
 		
-		return this.dorun(context, bindings, parameters, caller, isSubAction);
+		return this.dorun(actionContext, bindings, parameters, caller, isSubAction);
 	}
 	
 	/**
 	 * 执行动作。
 	 * 
 	 * @param methodName 方法名称
-	 * @param context 动作的上下文
+	 * @param actionContext 动作的上下文
 	 * @param isSubAction 是否是子动作
 	 * 
 	 * @return 执行的结果
@@ -712,7 +712,7 @@ public class Action extends Semaphore{
 	 * @throws ClassNotFoundException 
 	 */
 	@SuppressWarnings("unchecked")
-	private <T> T dorun(ActionContext context, Bindings bindings, Map<String, Object> parameters, Object caller, boolean isSubAction) {
+	private <T> T dorun(ActionContext actionContext, Bindings bindings, Map<String, Object> parameters, Object caller, boolean isSubAction) {
 		//long start = System.nanoTime();
 		//log.info("dorun started");
 		//是否禁止全局上下文具有继承的性质
@@ -721,10 +721,10 @@ public class Action extends Semaphore{
 		//}
 		
 		//动作记录
-		if(!context.isDisableGloableContext() && world.isHaveActionListener()){
+		if(!actionContext.isDisableGloableContext() && world.isHaveActionListener()){
 			ActionListener listener = world.getActionListener();
 			try{
-				listener.actionExecuted(this, caller, context, parameters, -1, true);
+				listener.actionExecuted(this, caller, actionContext, parameters, -1, true);
 			}catch(Throwable t){
 				log.log(Level.SEVERE, "ActionRecorder error", t);
 			}
@@ -756,12 +756,12 @@ public class Action extends Semaphore{
 		}
 		
 		//外面的调用已经压入
-		context.push(bindings);		
+		actionContext.push(bindings);		
 		//if(!isSubAction || isCreateLocalVarScope){ 2016-04-15现在方法的调用没有自动的局部变量范围了
 		if(isCreateLocalVarScope){
 			bindings.setVarScopeFlag();//.isVarScopeFlag = true;//可以判定是函数调用的入口，因此设置一个局部变量范围标志
 		}
-		context.pushAction(this);
+		actionContext.pushAction(this);
 				
 		//总是输入一些常量
 		bindings.put("world", world);
@@ -779,7 +779,7 @@ public class Action extends Semaphore{
 			for(Thing vars : thing.getChilds("Variables")){
 	        	for(Thing var : vars.getChilds()){
 	        		String key = var.getMetadata().getName();
-	        		Object value = var.getAction().run(context, null, true);
+	        		Object value = var.getAction().run(actionContext, null, true);
 	        		bindings.put(key, value);
 	        	}
 	        }
@@ -787,7 +787,7 @@ public class Action extends Semaphore{
 				
 		Object result = null;
 		//动作上下文事物
-		List<Thing> allContexts = getContextThings(context);
+		List<Thing> allContexts = getContextThings(actionContext);
 		/*
 		List<ThingEntry> allContexts = new ArrayList<ThingEntry>();
 		if(!disableGlobalContext){
@@ -805,18 +805,18 @@ public class Action extends Semaphore{
 			//首先是全局上下文		
 			if(allContexts.size() > 0){
 				for(Thing contextThing : allContexts){
-					initContext(this, contextThing, context);
+					initContext(this, contextThing, actionContext);
 				}
 			}
 			
 			if(useOtherAction){
 				//如果一个动作是引用其他动作的，那么执行被引用的动作 
-				Bindings callerBindings = context.getScope(context.getScopesSize() - 2);
+				Bindings callerBindings = actionContext.getScope(actionContext.getScopesSize() - 2);
 				try{
-					context.push(callerBindings);
-					result = outerAction.run(context, parameters, isSubAction);
+					actionContext.push(callerBindings);
+					result = outerAction.run(actionContext, parameters, isSubAction);
 				}finally{
-					context.pop();
+					actionContext.pop();
 				}
 			}else if(isJava){
 				//如果动作时原生动作，即Java动作，那么通过反射机制调用 
@@ -827,9 +827,9 @@ public class Action extends Semaphore{
 						if(annotationHelper != null) {
 							if((method.getModifiers() & Modifier.STATIC) != Modifier.STATIC){
 								//静态方法不要创建实例
-								classInstance = annotationHelper.createObject(context);
+								classInstance = annotationHelper.createObject(actionContext);
 							}
-							paramValues = annotationHelper.getParamValues(context);
+							paramValues = annotationHelper.getParamValues(actionContext);
 						}
 						
 						//如果不是静态方法，实例化一个对象
@@ -839,7 +839,7 @@ public class Action extends Semaphore{
 						
 						if(paramValues == null) {
 							if(method.getParameterCount() > 0) {
-								paramValues = new Object[]{context};
+								paramValues = new Object[]{actionContext};
 							}else {
 								paramValues = new Object[0];
 							}
@@ -858,12 +858,12 @@ public class Action extends Semaphore{
 					//self类型的动作，当一个动作作为子动作时，而变量self还需要是自己，那么需要定义成此类型 
 					if(attributeTemplate){
 						//属性模板，动作的属性可以设置成freemarker模板，在执行时用模板生成真正的属性值 
-						Thing fthing = (Thing) thing.run("processAttributeTemplate", context, (Map<String, Object>) null, isSubAction, true);
+						Thing fthing = (Thing) thing.run("processAttributeTemplate", actionContext, (Map<String, Object>) null, isSubAction, true);
 						if(fthing != null){
-							result = fthing.run("run", context, (Map<String, Object>) null, isSubAction, true);
+							result = fthing.run("run", actionContext, (Map<String, Object>) null, isSubAction, true);
 						}
 					}else{
-						result = thing.run("run", context, (Map<String, Object>) null, isSubAction, true);
+						result = thing.run("run", actionContext, (Map<String, Object>) null, isSubAction, true);
 					}
 				}else{
 					//获取事物自己的行为run，然后执行 
@@ -875,7 +875,7 @@ public class Action extends Semaphore{
 						}catch(Exception e){
 							throw new ActionException("Get run action error, thing=" + thing.getMetadata().getPath(), e);
 						}
-						result = ac.run(context, null, caller, isSubAction);
+						result = ac.run(actionContext, null, caller, isSubAction);
 					}
 				}
 				//result = thing.doAction("run", context, parameters, isSubAction);
@@ -883,7 +883,7 @@ public class Action extends Semaphore{
 			
 			//返回值的变量保存
 			if(saveReturn && returnVarName != null  && !"".equals(returnVarName)){
-				Bindings returnVarBindings = UtilAction.getVarScope(thingEntry.getThing(), context);
+				Bindings returnVarBindings = UtilAction.getVarScope(thingEntry.getThing(), actionContext);
 				if(returnVarBindings != null){
 					returnVarBindings.put(returnVarName, result);
 				}
@@ -894,7 +894,7 @@ public class Action extends Semaphore{
 				String resultStr = String.valueOf(result);
 				for(Thing child : thing.getChilds()) {
 					if(resultStr.equals(child.getMetadata().getName())) {
-						result = child.getAction().run(context, null, caller, isSubAction);
+						result = child.getAction().run(actionContext, null, caller, isSubAction);
 						break;
 					}
 				}
@@ -924,12 +924,12 @@ public class Action extends Semaphore{
 				}					
 			} */				
 			
-			if(context.getStatus() == ActionContext.EXCEPTION && isSubAction == false){
+			if(actionContext.getStatus() == ActionContext.EXCEPTION && isSubAction == false){
 				//动作抛除异常
-				if(context.getThrowedObject() instanceof Throwable){
-					throw (Throwable) context.getThrowedObject();
+				if(actionContext.getThrowedObject() instanceof Throwable){
+					throw (Throwable) actionContext.getThrowedObject();
 				}else{
-					Object throwedObject = context.getThrowedObject();
+					Object throwedObject = actionContext.getThrowedObject();
 					if(throwedObject != null){
 						if(throwedObject instanceof Throwable){
 							throw (Throwable) throwedObject;
@@ -947,12 +947,12 @@ public class Action extends Semaphore{
 			if("failure".equals(result)){
 				contxtMethod = "failure";
 			}
-			Throwable exception = doContextMethod(allContexts, context, contxtMethod, null, result);
+			Throwable exception = doContextMethod(allContexts, actionContext, contxtMethod, null, result);
 			if(exception == null){				
 				return (T) result;			
 			}else{
 				if(!throwException){
-					logHideenExceptionStackTrace(exception, context);
+					logHideenExceptionStackTrace(exception, actionContext);
 					return null;
 				}else{
 					throw exception;
@@ -965,10 +965,10 @@ public class Action extends Semaphore{
 				}
 			}
 		}catch(Throwable e){			
-			Throwable exception = doContextMethod(allContexts, context, "exception", e, null);
+			Throwable exception = doContextMethod(allContexts, actionContext, "exception", e, null);
 			
 			if(throwableRecordCount > 0){
-				throwables.add(new ThrowableRecord(exception, context));
+				throwables.add(new ThrowableRecord(exception, actionContext));
 				while(throwables.size() > throwableRecordCount ){
 					throwables.remove(0);
 				}
@@ -978,11 +978,11 @@ public class Action extends Semaphore{
 			}else{
 				//exception.printStackTrace();
 				if(!throwException){
-					logHideenExceptionStackTrace(e, context);
+					logHideenExceptionStackTrace(e, actionContext);
 					//log.warn("action exception is hidded : " + thing.getMetadata().getPath(), e);
 					return null;
 				}else{
-					throw wrapToActionException(exception, context);
+					throw wrapToActionException(exception, actionContext);
 					/*
 					if(exception instanceof RuntimeException){
 						throw (RuntimeException) exception;
@@ -992,11 +992,11 @@ public class Action extends Semaphore{
 				}
 			}			
 		}finally{
-			context.pop();
-			context.popAction();
+			actionContext.pop();
+			actionContext.popAction();
 			
 			if(!isSubAction){
-				context.setStatus(ActionContext.RUNNING);
+				actionContext.setStatus(ActionContext.RUNNING);
 			}
 			
 			//如果是同步的，那么通知其他线程这里已经结束
