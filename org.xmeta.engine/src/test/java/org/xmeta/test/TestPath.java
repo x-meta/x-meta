@@ -46,6 +46,7 @@ public class TestPath {
 			System.out.println("GetPath by cache2 , count=" + count + ", time = " + (System.currentTimeMillis() - start));
 			
 			start = System.currentTimeMillis();*/
+			System.out.println("Test");
 			for(int i=0; i<count; i++) {
 				test.getPath(path + i);
 			}
