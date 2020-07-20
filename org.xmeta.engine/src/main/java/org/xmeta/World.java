@@ -360,6 +360,9 @@ public class World {
 			return this;
 		}
 		
+		if("xworker.ide.worldExplorer.things.ProjectSet".equals(pathStr)) {
+			System.out.println();
+		}
 //		if("Test".equals(pathStr)) {
 //			System.out.println();
 //		}

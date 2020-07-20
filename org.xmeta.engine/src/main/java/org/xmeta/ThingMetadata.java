@@ -374,6 +374,9 @@ public class ThingMetadata {
 	 * @return 事物管理者
 	 */
 	public ThingManager getThingManager(){
+		if(category == null) {
+			throw new ActionException("Category is null, path= " + getPath());
+		}
 		return  category.getThingManager();
 	}
 
