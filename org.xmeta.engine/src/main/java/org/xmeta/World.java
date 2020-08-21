@@ -1184,6 +1184,8 @@ public class World {
         
 		//设置状态为已初始化，避免其他地方重复初始化
 		inited = true;
+		
+		Thread.currentThread().setContextClassLoader(worldClassLoader);
 	}
 
 	/**

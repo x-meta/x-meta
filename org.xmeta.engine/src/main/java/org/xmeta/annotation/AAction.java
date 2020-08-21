@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 用来标记一个方法是事物的行为。
+ * 用来标记一个方法是模型的行为。
  * 
  * @author zyx
  *

@@ -48,15 +48,11 @@ import org.xmeta.util.UtilString;
 import org.xmeta.util.UtilThing;
 import org.xml.sax.SAXException;
 
-//import ognl.OgnlException;
-
 /**
- * <p>在X-Meta引擎里用事物表示任何东西。</p>
+ * <p>模型也称为事物，意思是用来表示各种东西。模型也是对象，有属性、行为和子对象（子节点）。</p>
  * 
- * <p>事物有状态和行为，可以通过set和get、getxx方法来设置和获取事物的状态，可以通过doAction(String actionName)
- * 或doAction(String actionName, ActionContext actionContext)方法来执行事物。</p>
- * 
- * <p>事物之间有描述和继承关系，一个事物可以继承它的描述者行为以及继承继承者的属性和行为。</p>
+ * <p>模型实现了面向对象的方法。其中描述者(descriptor)相当于类，一个模型可以设置多个类，模型继承类的行为。
+ * 模型之间也有继承关系，一个模型可以继承多个其它模型，从而继承被继承模型的行为。</p>
  * 
  * @author <a href="mailto:zhangyuxiang@tom.com">zyx</a>
  *

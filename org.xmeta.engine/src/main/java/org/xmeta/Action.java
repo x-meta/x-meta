@@ -48,14 +48,11 @@ import org.xmeta.util.UtilAction;
 import org.xmeta.util.UtilString;
 
 /**
- * <p>动作是可以运行的程序，是事物的另一种形态。</p>
+ * <p>动作是由模型转化而来的，动作是可以执行的，是把模型当作程序来执行的方法。</p>
  * 
- * <p>动作的原生语言是Java，但可以通过动作的动作方式实现其他语言支持，可以在动作的结构中编写一个run方法，
- * 在run方法里解释执行动作中定义的代码。</p>
+ * <p>本动作能够直接解释执行的模型是类型为JavaAction的模型，JavaAction调用Java代码。
+ * 其它类型的动作，比如Groovy等脚本语言，可以用JavaAction来实现。</p>
  * 
- * <p>有些语言可能会编译成类或者动作发生了变化后会重新生成，此时为了避免事物发生变化了（如版本回退）而类不会重新编译，
- * 需要在编译类成功后调用动作的updateCompileTime()方法保存编译时间。</p>
- *  
  * @author <a href="mailto:zhangyuxiang@tom.com">zyx</a>
  *
  */

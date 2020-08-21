@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 用来标记一个字段是一个子事物。
+ * 用来标记一个字段是一个子模型。
  * 
  * @author zyx
  *

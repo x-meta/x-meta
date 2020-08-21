@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 如果静态字段是XML代码，将转化为事物。
+ * 如果静态字段是XML代码，将转化为模型。
  * 
  * @author zyx
  *

@@ -24,14 +24,22 @@ import ognl.OgnlException;
 
 public class OgnlUtil {
 	private static String CACHE = "__ognl_attrPathCache_";
-	private static OgnlContext  ognlContext = new OgnlContext();
-	static{		
-		Ognl.setClassResolver(ognlContext, new OgnlClassResolver());
+	private static ThreadLocal<OgnlContext> ognlContextLocal = new ThreadLocal<OgnlContext>();
+	
+	private static OgnlContext getOgnlContext() {
+		OgnlContext ognlContext = ognlContextLocal.get();
+		if(ognlContext == null) {
+			ognlContext = new OgnlContext();
+			Ognl.setClassResolver(ognlContext, new OgnlClassResolver());
+			ognlContextLocal.set(ognlContext);
+		}
+		
+		return ognlContext;
 	}
 	
 	public static Object getValue(Object tree, Object root) {
 		try {
-			return Ognl.getValue(tree, ognlContext, root);
+			return Ognl.getValue(tree, getOgnlContext(), root);
 		}catch(OgnlException e) {
 			throw new ActionException(e);
 		}		
@@ -39,7 +47,7 @@ public class OgnlUtil {
 	
 	public static Object getValue(String expression, Object root) {
 		try {
-			return Ognl.getValue(expression, ognlContext, root);
+			return Ognl.getValue(expression, getOgnlContext(), root);
 		}catch(OgnlException e) {
 			throw new ActionException(e);
 		}
@@ -47,7 +55,7 @@ public class OgnlUtil {
 	
 	public static void setValue(Object tree, Object root, Object value){
 		try {
-			Ognl.setValue(tree, ognlContext, root, value);
+			Ognl.setValue(tree, getOgnlContext(), root, value);
 		}catch(OgnlException e) {
 			throw new ActionException(e);
 		}
@@ -55,7 +63,7 @@ public class OgnlUtil {
 	 
 	public static void setValue(String expression, Object root, Object value) {
 		try {
-		    Ognl.setValue(expression, ognlContext, root, value);
+		    Ognl.setValue(expression, getOgnlContext(), root, value);
 		}catch(OgnlException e) {
 			throw new ActionException(e);
 		}

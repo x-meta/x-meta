@@ -96,7 +96,7 @@ public class ThingAnnotationUtils {
 			}	
 		}
 		
-		//方法的注解，设置事物的行为
+		//方法的注解，设置模型的行为
 		Thing actions = null;
 		for(Method method : cls.getDeclaredMethods()) {
 			AAction aaction = method.getAnnotation(AAction.class);
