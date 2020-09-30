@@ -157,7 +157,7 @@ public class UtilAction {
 		return bindings;
 	}
 	
-	public static Class<?> parseClass(String className) throws ClassNotFoundException{
+	public static Class<?> parseClass(ClassLoader classLoader, String className) throws ClassNotFoundException{
 		if("int".equals(className)) {
 			return int.class;
 		}else if("byte".equals(className)) {
@@ -170,13 +170,15 @@ public class UtilAction {
 			return float.class;
 		}else if("char".equals(className)) {
 			return char.class;
+		}else if("boolean".equals(className)) {
+			return boolean.class;
 		}else {
 			boolean isArray = false;
 			if(className.endsWith("[]")) {
 				isArray = true;
 				className = className.substring(0, className.length() - 2);
 			}
-			Class<?> cls = Class.forName(className);
+			Class<?> cls = classLoader.loadClass(className);
 			if(isArray) {
 				return Array.newInstance(cls, 0).getClass();
 			}else {
@@ -185,17 +187,25 @@ public class UtilAction {
 		}
 	}
 	
-	public static Class<?>[] parseClasses(String classNames) throws ClassNotFoundException{
+	public static Class<?> parseClass(String className) throws ClassNotFoundException{
+		return parseClass(World.getInstance().getClassLoader(), className);
+	}
+	
+	public static Class<?>[] parseClasses(ClassLoader classLoader, String classNames) throws ClassNotFoundException{
 		if(classNames == null || "".equals(classNames)) {
 			return new Class<?>[0];
 		}else {
 			String[] clNames = classNames.split("[,]");
 			Class<?>[] cls = new Class<?>[clNames.length];
 			for(int i=0; i<clNames.length; i++) {
-				cls[i] = parseClass(clNames[i]);
+				cls[i] = parseClass(classLoader, clNames[i]);
 			}
 			
 			return cls;
 		}
+	}
+	
+	public static Class<?>[] parseClasses(String classNames) throws ClassNotFoundException{
+		return parseClasses(World.getInstance().getClassLoader(), classNames);
 	}
 }

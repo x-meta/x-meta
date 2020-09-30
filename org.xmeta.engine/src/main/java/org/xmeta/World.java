@@ -1553,6 +1553,9 @@ public class World {
 					
 					//项目名称
 					String pname = properties.getProperty("projectName");
+					if(pname == null || "".equals(pname)) {
+						pname = properties.getProperty("name");
+					}
 					if(pname != null && !"".equals(pname.trim())){
 						name = pname.trim();
 					}

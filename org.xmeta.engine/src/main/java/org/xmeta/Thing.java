@@ -1192,7 +1192,9 @@ public class Thing {
 		if(actionSet != null){
 			for(Thing child : actionSet.getChilds()){
 				if(child.getMetadata().getName().equals(name)){// || child.getMetadata().getName().equals(name)){
-					linkedThingEntry.addThing(child);
+					if(linkedThingEntry != null) {
+						linkedThingEntry.addThing(child);
+					}
 					return child;
 				}
 			}
@@ -1322,6 +1324,87 @@ public class Thing {
 		}
 		
 		return actionThing;
+	}
+	
+	/**
+	 * 获取一个模型的指定动作的所有定义。依次从自己、描述者和继承上获取。
+	 * 
+	 * @param thing
+	 * @param name
+	 * @return
+	 */
+	public List<Thing> getActionThings(String name) {
+		List<Thing> actions = new ArrayList<Thing>();
+		Map<Thing, Object> context = new HashMap<Thing, Object>();
+		Thing action = this.getSelfActionThing(name, context, null);
+		if(action != null) {
+			actions.add(action);
+		}
+		
+		initSuperActionThings(name, context, new HashMap<Thing, Object>(), actions);
+		
+		return actions;
+	}
+	
+	private void initSuperActionThings(String name, Map<Thing, Object> context, Map<Thing, Object> superContext, List<Thing> actions){
+		Thing actionThing = null;
+		if(superContext.get(this) != null){
+			return;
+		}
+		superContext.put(this, this);
+		
+		//最后从MetaThing上找
+		Thing metaThing = World.getInstance().getThing("MetaThing");
+		
+		//从描述者自己上寻找	 		
+		if(actionThing == null){
+			for(Thing descriptor : getDescriptors()){
+				if(descriptor == metaThing) {
+					continue;						
+				}
+				
+				actionThing = descriptor.getSelfActionThing(name, context, null);
+				if(actionThing != null && !actions.contains(actionThing)){
+					actions.add(actionThing);
+				}
+			}
+		}
+		
+		//从继承者自己上寻找
+		if(actionThing == null){
+			for(Thing extend : getExtends()){
+				actionThing = extend.getSelfActionThing(name, context, null);
+				if(actionThing != null && !actions.contains(actionThing)){
+					actions.add(actionThing);
+				}
+			}
+		}
+		
+		//从描述者的父上寻找
+		if(actionThing == null){
+			for(Thing descriptor : getDescriptors()){
+				if(descriptor == metaThing) {
+					continue;						
+				}
+				
+				descriptor.initSuperActionThings(name, context, superContext, actions);
+			}
+		}
+		
+		//从继承者父上寻找
+		if(actionThing == null){
+			for(Thing extend : getExtends()){
+				extend.initSuperActionThings(name, context, superContext, actions);
+				
+			}
+		}
+		
+		if(actionThing == null){
+			Thing action = metaThing.getSelfActionThing(name, superContext, null);
+			if(action != null && !actions.contains(action)) {
+				actions.add(action);
+			}
+		}
 	}
 		
 	private void addToSourceByName(List<Thing> srcs, Thing forAdd){

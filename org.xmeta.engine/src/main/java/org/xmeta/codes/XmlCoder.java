@@ -362,7 +362,8 @@ public class XmlCoder {
 			String str = thing.getString(attrname);
 			writer.writeCharacters(NEW_LINE + ident + "    ");
 			writer.writeStartElement(attrname);
-			writer.writeCData(str);
+			
+			writer.writeCData(str.replaceAll("\\]\\]>", "_xmeta_cdata_tag_"));
 			writer.writeEndElement();
 		}
 		
@@ -520,7 +521,11 @@ public class XmlCoder {
 						
 						Node childNode = node.getFirstChild();
 						if(childNode.getNodeType() == Node.TEXT_NODE || childNode.getNodeType() == Node.CDATA_SECTION_NODE){
-							attributes.put(node.getNodeName().intern(), childNode.getNodeValue());
+							String value = childNode.getNodeValue();
+							if(value != null) {
+								value = value.replaceAll("_xmeta_cdata_tag_", "\\]\\]>");
+							}
+							attributes.put(node.getNodeName().intern(), value);
 						}
 					}else{				
 						Thing child = new Thing(null, null, null, false);
