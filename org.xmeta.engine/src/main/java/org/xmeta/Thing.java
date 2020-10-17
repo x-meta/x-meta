@@ -1329,7 +1329,6 @@ public class Thing {
 	/**
 	 * 获取一个模型的指定动作的所有定义。依次从自己、描述者和继承上获取。
 	 * 
-	 * @param thing
 	 * @param name
 	 * @return
 	 */

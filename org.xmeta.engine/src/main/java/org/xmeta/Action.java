@@ -889,9 +889,17 @@ public class Action extends Semaphore{
 			//Switch子节点
 			if(switchResult) {
 				String resultStr = String.valueOf(result);
-				for(Thing child : thing.getChilds()) {
-					if(resultStr.equals(child.getMetadata().getName())) {
-						result = child.getAction().run(actionContext, null, caller, isSubAction);
+				for(Thing switchs : thing.getChilds("ResultSwitch")) {
+					boolean ok = false;
+					for(Thing child : switchs.getChilds()) {
+						if(resultStr.equals(child.getMetadata().getName())) {
+							result = child.getAction().run(actionContext, null, caller, isSubAction);
+							ok = true;
+							break;
+						}
+					}
+					
+					if(ok) {
 						break;
 					}
 				}
