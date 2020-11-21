@@ -7,7 +7,7 @@ import org.xmeta.World;
 
 public class ProjectClassLoader extends ThingClassLoader{
 	public ProjectClassLoader(File projectDir) {
-		super(new URL[0], null);
+		super(new URL[0], World.getInstance().getClassLoader());
 		
 		//添加项目目录下可能存在的类库路径
 		addJarOrZip(new File(projectDir, "lib"));

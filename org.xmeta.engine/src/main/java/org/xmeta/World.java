@@ -1107,7 +1107,7 @@ public class World {
 	}
 	
 	public void init(String worldPath){
-		init(worldPath, Thread.currentThread().getContextClassLoader());
+		init(worldPath, World.class.getClassLoader());
 	}
 	
 	/**
@@ -1161,6 +1161,8 @@ public class World {
 		//初始化通过.lib文件自定义的类库
 		getClassLoader().initLibs();
 		
+		Thread.currentThread().setContextClassLoader(worldClassLoader);
+		
 		//添加World目录下的事物管理器
 		thingManagers.clear();
 		refresh();
@@ -1184,8 +1186,6 @@ public class World {
         
 		//设置状态为已初始化，避免其他地方重复初始化
 		inited = true;
-		
-		Thread.currentThread().setContextClassLoader(worldClassLoader);
 	}
 
 	/**

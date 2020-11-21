@@ -66,6 +66,7 @@ public class ActionException extends RuntimeException{
     public ActionException(Throwable cause, ActionContext actionContext){
         super(cause);        
         
+        actionContextStack = actionContext.getStackTrace();
         initBindings(actionContext);
     }
     

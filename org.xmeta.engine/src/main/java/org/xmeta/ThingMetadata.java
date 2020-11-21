@@ -375,7 +375,7 @@ public class ThingMetadata {
 	 */
 	public ThingManager getThingManager(){
 		if(category == null) {
-			throw new ActionException("Category is null, path= " + getPath());
+			throw new ActionException("Category is null, it may be a path case problem, path= " + getPath());
 		}
 		return  category.getThingManager();
 	}

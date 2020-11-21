@@ -3086,6 +3086,12 @@ public class Thing {
 		d.setLastModified(this.getMetadata().getLastModified());
 	}
 	
+	/**
+	 * 缓存一个对象到当前模型中。
+	 * 
+	 * @param key
+	 * @param data
+	 */
 	public void setData(String key, Object data){
 		if(key == null){
 			return;
@@ -3102,6 +3108,13 @@ public class Thing {
 		datas.put(key, data);
 	}
 	
+	/**
+	 * 获取缓存到当前模型的对象。
+	 * 
+	 * @param <T>
+	 * @param key
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getData(String key){
 		if(datas == null){
@@ -3127,8 +3140,8 @@ public class Thing {
 	 */
 	public void setCachedData(String key, Object data){
 		String timeKey = "__" + key + "__Modified__";
-		datas.put(key, data);
-		datas.put(timeKey, getMetadata().getLastModified());
+		setData(key, data);
+		setData(timeKey, getMetadata().getLastModified());
 	}
 	
 	/**
@@ -3139,6 +3152,10 @@ public class Thing {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getCachedData(String key){
+		if(datas == null) {
+			return null;
+		}
+		
 		String timeKey = "__" + key + "__Modified__";
 		Object data = datas.get(key);
 		Long lastTime = (Long) datas.get(timeKey);
@@ -3149,24 +3166,89 @@ public class Thing {
 		}
 	}
 	
+	/**
+	 * 设置缓存数据到World中，如果事物在后面修改了，那么缓存失效。
+	 * 
+	 * @param key key
+	 * @param data 数据
+	 */
+	public void setStaticCachedData(String key, Object data){
+		String timeKey = "__" + key + "__Modified__";
+		setStaticData(key, data);
+		setStaticData(timeKey, getMetadata().getLastModified());
+	}
+	
+	/**
+	 * 获取缓存到World中的数据。
+	 * 
+	 * @param key 键
+	 * @return 值
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T getStaticCachedData(String key){
+		if(datas == null) {
+			return null;
+		}
+		
+		String timeKey = "__" + key + "__Modified__";
+		Object data = getStaticData(key);
+		Long lastTime = (Long) getStaticData(timeKey);
+		if(lastTime == null || lastTime != getMetadata().getLastModified()){
+			return null;
+		}else{
+			return (T) data;
+		}
+	}
+	
+	/**
+	 * 数据是保存到到World中的，key是&lt;当前模型的路径&gt;_&lt;key&gt;。
+	 * 
+	 * @param key 
+	 * @param value
+	 */
 	public void setStaticData(String key , Object value) {
 		World.getInstance().setData(this.getMetadata().getPath() + "-" + key, value);
 	}
 	
+	/**
+	 * 从World的对象缓存中取对象，其中从缓存中去对象的键是&lt;当前模型的路径&gt;_&lt;key&gt;。
+	 * 
+	 * @param <T> 对象类型 
+	 * @param key 
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getStaticData(String key) {
 		return (T) World.getInstance().getData(this.getMetadata().getPath() + "-" + key);
 	}
 
+	/**
+	 * 保存线程相关的对象到World中，key是&lt;当前模型的路径&gt;_&lt;key&gt;。
+	 * 
+	 * @param key
+	 * @param value
+	 */
 	public void setStaticThreadData(String key , Object value) {
 		World.getInstance().setThreadData(this.getMetadata().getPath() + "-" + key, value);
 	}
 	
+	/**
+	 * 从World的线程相关的对象缓存中取对象，其中从缓存中去对象的键是&lt;当前模型的路径&gt;_&lt;key&gt;。
+	 * 
+	 * @param <T>
+	 * @param key
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getStaticThreadData(String key) {
 		return (T) World.getInstance().getThreadData(this.getMetadata().getPath() + "-" + key);
 	}
 	
+	/**
+	 * 设置模型是否是内存型的。
+	 * 
+	 * @param isTransient
+	 */
 	public void setTransient(boolean isTransient) {
 		setTransient(isTransient, new HashMap<Thing, Thing>());
 	}
@@ -3184,6 +3266,13 @@ public class Thing {
 		}
 	} 
 	
+	/**
+	 * 获取属性，并强制转换到相应的类型。
+	 * 
+	 * @param <T>
+	 * @param key
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getObject(String key){
 		return (T) get(key);
@@ -3247,7 +3336,5 @@ public class Thing {
 		public void setData(Object data) {
 			this.data = data;
 		}
-		
-		
 	}
 }
