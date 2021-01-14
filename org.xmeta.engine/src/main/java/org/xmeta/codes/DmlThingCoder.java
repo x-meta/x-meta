@@ -11,6 +11,7 @@ import org.xmeta.ThingCoder;
 import org.xmeta.ThingCoderException;
 import org.xmeta.ThingIndex;
 import org.xmeta.World;
+import org.xmeta.cache.ThingCache;
 
 /**
  * 
@@ -85,7 +86,9 @@ public class DmlThingCoder implements ThingCoder{
 				propertyThingCoder.decode(thing, bin, lastModifyed);
 				thing.getMetadata().setCoderType(TYPE_PROPERTY);
 			}else{
-				xmlThingCoder.decode(thing, bin, lastModifyed);
+				ThingCache.put(thing.getMetadata().getPath(), thing);
+				xmlThingCoder.decode(thing, bin, lastModifyed);				
+				XmlCoder.initDefaultValues(thing);
 				thing.getMetadata().setCoderType(TYPE_XML);
 			}
 			

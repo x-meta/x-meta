@@ -34,7 +34,7 @@ public class OgnlClassResolver implements ClassResolver{
 		return instance;
 	}
 	
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
 	public Class<?> classForName(String className, Map context) throws ClassNotFoundException{
     	return World.getInstance().getClassLoader().loadClass(className);
     }

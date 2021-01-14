@@ -160,5 +160,4 @@ public class RedisCategory extends CachedCategory{
 			}
 		}
 	}
-
 }

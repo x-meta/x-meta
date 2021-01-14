@@ -26,6 +26,7 @@ import org.xmeta.ThingIndex;
 import org.xmeta.ThingManager;
 import org.xmeta.World;
 import org.xmeta.XMetaException;
+import org.xmeta.util.ThingClassLoader;
 
 /**
  * 子包和事物索引都预先读取并缓存的包。
@@ -51,6 +52,8 @@ public abstract class CachedCategory implements Category{
 	
 	/** 是否已经刷新过 */
 	protected boolean refreshed = false;
+	
+	protected ThingClassLoader classLoader = null;
 	
 	public CachedCategory(ThingManager thingManager, Category parent, String name){
 		this.thingManager = thingManager;
@@ -311,5 +314,28 @@ public abstract class CachedCategory implements Category{
 	 */
 	public void addThingIndex(ThingIndex thingIndex){
 		thingIndexs.add(thingIndex);
+	}
+	
+	@Override
+	public ThingClassLoader getClassLoader() {
+		if(classLoader == null) {
+			Category parent = getParent();
+			if(parent == null) {
+				if(thingManager != null) {
+					return thingManager.getClassLoader();
+				}else {
+					return World.getInstance().getClassLoader();
+				}
+			}else {
+				return parent.getClassLoader();
+			}
+		}else {
+			return classLoader;
+		}
+	}
+
+	@Override
+	public void setClassLoader(ThingClassLoader classLoader) {
+		this.classLoader = classLoader;
 	}
 }

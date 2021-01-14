@@ -121,7 +121,6 @@ public class UtilData {
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
 	public static Object parse(String value, String valueType, String pattern) throws ParseException{
 		if(value == null) return null;
 		
@@ -379,7 +378,6 @@ public class UtilData {
     	return defaultValue;
     }
 	
-	@SuppressWarnings("deprecation")
 	public static char getChar(Object v, char defaultValue){
     	if(v == null || VALUE_BLANK.equals(v)){
     		return defaultValue;
@@ -495,6 +493,15 @@ public class UtilData {
 				return sf.parse(value);
 			} catch (ParseException e) {
 			}
+    		
+    		try {
+    			//可能是long类型
+    			long time = Long.parseLong(value);
+    			return new Date(time);
+    		}catch(Exception e) {    			
+    		}
+    	}else if(v instanceof Long) {
+    		return new Date((Long) v);
     	}
     	
     	return defaultValue;

@@ -37,7 +37,7 @@ public class JavaCompiler15 {
 		}else{
 			compileMethod.invoke(mainClass, new Object[]{new String[]{
 					"-cp", classPath,
-					"-d", world.getPath() + "/work/actionClasses",
+					"-d", targetDir,
 					fileName + ".java"
 			}});
 		}

@@ -22,6 +22,8 @@ import org.xmeta.Category;
 import org.xmeta.Thing;
 import org.xmeta.ThingIndex;
 import org.xmeta.ThingManager;
+import org.xmeta.World;
+import org.xmeta.util.ThingClassLoader;
 
 public class ClassCategory implements Category{
 	String name = null;
@@ -108,6 +110,15 @@ public class ClassCategory implements Category{
 
 	@Override
 	public void refresh(boolean includeChild) {
+	}
+	
+	@Override
+	public ThingClassLoader getClassLoader() {
+		return World.getInstance().getClassLoader();
+	}
+
+	@Override
+	public void setClassLoader(ThingClassLoader classLoader) {
 	}
 
 }

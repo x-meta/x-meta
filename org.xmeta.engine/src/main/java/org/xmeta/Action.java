@@ -20,11 +20,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,7 +41,6 @@ import java.util.logging.Logger;
 import org.xmeta.annotation.ActionAnnotationHelper;
 import org.xmeta.cache.ThingEntry;
 import org.xmeta.thingManagers.ClassThingManager;
-import org.xmeta.thingManagers.FileThingManager;
 import org.xmeta.util.JavaCompiler15;
 import org.xmeta.util.JavaCompiler16;
 import org.xmeta.util.Semaphore;
@@ -89,6 +90,12 @@ public class Action extends Semaphore{
 	public final static String str_parentContext = "parentContext";
 	public final static String str_action = "action";
 	public final static String str_actionThing = "actionThing";
+	/** 源码类型-类库 */
+	public final static byte SOURCE_LIB = 0;
+	/** 源码类型-事物管理器 */
+	public final static byte SOURCE_THINGMANAGER = 1;
+	/** 源码类型-模型 */
+	public final static byte SOURCE_THING = 2;
 	
 	//------------公共动作的属性 -----------------
 	/** 定义动作的事物 */
@@ -119,86 +126,87 @@ public class Action extends Semaphore{
 	private List<ThingEntry> contexts;
 	
 	/** Java类装载器，动态装载类 */
-	public ClassLoader classLoader;
+	private ClassLoader classLoader = null;
 	
 	/** 编译Java源文件时要用到的类库路径 */
 	//public String classPath;
 	
 	/** 编译后的类名 */
-	public String className;
+	private String className;
 	
 	/** 编译后的类存放的目录 */
-	public String classFileName;
+	private String classFileName;
 	
 	/** 类的包名 */
-	public String packageName;
+	private String packageName;
 	
 	/** 保存Java代码的文件名 */
-	public String fileName;	
+	private String fileName;	
 	
 	/** 代码 */
-	public String code;
+	private String code;
 	
 	/** 要运行的方法名 */
 	private String methodName;
 	
 	/** 是否使用系统外部的Java，即使用其他Java组件 */
-	private boolean useOuterJava;	
+	//private boolean useOuterJava;	
 	
 	/** 外部的Java类名 */
-	private String outerClassName;
+	//private String outerClassName;
 	
 	/** 是否在执行时替换属性模板 */
 	private boolean attributeTemplate;	
 	
 	/** 编译后并且装载了的类 */
-	public Class<?> actionClass = null;
+	private Class<?> actionClass = null;
 	
 	/** 动作的定义是否已经改变 */
-	public boolean changed = false;
+	private boolean changed = false;
 	
 	/** 禁止全局上下文 */
 	//private boolean disableGlobalContext = false;
 	
 	/** 外部动作，如果有引用*/
-	public Action outerAction = null;
+	private Action outerAction = null;
 	
 	/** 如果是Java动作，则有方法 */
-	public Method method = null;
+	private Method method = null;
 	
 	/** 是否根据返回值Switch子节点 */
-	public boolean switchResult = false;
+	private boolean switchResult = false;
 	
 	/** 用户数据，在代码或脚本理可以设置和Action绑定的数据 */
-	Map<String, Object> userData = new HashMap<String, Object>();
+	private Map<String, Object> userData = new HashMap<String, Object>();
 	
 	/** 动作对应的日志 */
 	//Logger logger;
 	
 	/** 子动作列表 */
-	List<ActionResult> results;
+	private List<ActionResult> results;
 	
 	/** 输入参数的定义 事物 */
-	Thing params = null;
+	//private Thing params = null;
 	
 	/** 是否保存返回值 */
-	boolean saveReturn;
+	private boolean saveReturn;
 	
 	/** 返回值变量名 */
-	String returnVarName;
+	private String returnVarName;
 	
 	/** 是否要创建本地变量范围  */
-	boolean isCreateLocalVarScope;
+	private boolean isCreateLocalVarScope;
 	
 	/** 子动作的定义 */
-	Map<String, Action> actionsDefiend = null;
+	private Map<String, Action> actionsDefiend = null;
 	
 	/** Class注解，对JavaAction生效 */
 	private ActionAnnotationHelper annotationHelper;
 	
 	/** 是否动作定义了Variables子节点，如果定义了在创建时用于生成局部变量 */
-	boolean hasVariables = false;
+	private boolean hasVariables = false;
 		
+	private boolean codeInited = false;
 	//----------构造函数和其他方法------------
 	/**
 	 * 构造函数，传入定义动作的事物。
@@ -233,14 +241,14 @@ public class Action extends Semaphore{
 		}
 	}
 	
-	public String getClassTargetDirectory(){
+	public String getClassTargetDirectory(){		
 		String fileManagerName = thingEntry.getThing().getMetadata().getThingManager().getName();
 		if(fileManagerName == null){
 			fileManagerName = "null";
 		}else{
 			fileManagerName = UtilString.trimFileName(fileManagerName);
 		}
-		return World.getInstance().getPath() + "/work/actionClasses/" +  fileManagerName; 
+		return World.getInstance().getPath() + "/work/actionClasses/" +  fileManagerName + "/"; 
 	}
 	
 	/**
@@ -255,7 +263,7 @@ public class Action extends Semaphore{
 	private void init() throws ClassNotFoundException, IOException, SecurityException, IllegalArgumentException, NoSuchMethodException, IllegalAccessException, InvocationTargetException{
 		Thing thing = thingEntry.getThing();
 		
-		params = thing.getThing("ins@0");
+		//params = thing.getThing("ins@0");
 		
 		//初始化共有的变量		
 		if(thing.getAttribute("throwException") == null){
@@ -311,82 +319,28 @@ public class Action extends Semaphore{
 		}
 		switchResult = thing.getBoolean("switchResult");
 		
-		//设置代码文件名、类名和编译后的类路径等
-		Thing parent = thing.getParent();			
-		Thing rootParent = thing.getRoot();
-		if(parent == null){
-			parent = thing;
-		}
-		String fileManagerName = thing.getMetadata().getThingManager().getName();
-		if(fileManagerName == null){
-			fileManagerName = "null";
-		}else{
-			fileManagerName = UtilString.trimFileName(fileManagerName);
-		}
+		//设置代码文件名、类名和编译后的类路径等，这部分代码对大多数动作是无用的
+		codeInited = false;
 		
-		className = rootParent.getMetadata().getPath();
-		if(rootParent != thing){
-			className = className + ".p" + thing.getMetadata().getPath().hashCode();
-			className = className.replace('-', '_');
-		}
-		String cName = thing.getString("className");			    
-		if(cName == null || "".equals(cName)){
-		    className = className + "." + thing.getMetadata().getName();
-		}else{
-			className = className + "." + cName;
-		}
-				
-		className = getClassName(className);
 		
-		int dotIndex = className.lastIndexOf(".");
-		if(dotIndex != -1){
-			packageName = className.substring(0, dotIndex);
-		}
-		
-		fileName = fileManagerName + "/" + className.replace('.', '/');
-		//fileName += ".java";
-					
-		
-		fileName = World.getInstance().getPath() + "/work/actionSources/" +  fileName;
-		classFileName = World.getInstance().getPath() + "/work/actionClasses/" +  fileManagerName + "/" + className.replace('.', '/') + ".class";
-		
-		//设置代码和方法名
-		code = thing.getString("code");
-		if(code == null){
-			code = "";
-		}
-		
-		methodName = thing.getString("methodName");
-		
-		//设置是否使用外部的Java，默认是使用外部java
+		//设置是否使用外部的Java，默认是使用外部java,使用上面的sourceType和javaClassName替代了
+		/*
 		if(thing.get("useOuterJava") == null){
 			useOuterJava = true;
 		}else{
 			useOuterJava  = thing.getBoolean("useOuterJava");
 		}
 		outerClassName = thing.getString("outerClassName");
+		*/
 					
 		//需要重新编译
+		actionClass = null;
 		actionClass = null;
 		if("JavaAction".equals(thing.getThingName())){
 			isJava = true;
 		}else{
 			isJava = false;
 		}	
-		
-		//初始化类装载器和编译时的类库路径
-		ThingClassLoader pclssLoader = thing.getMetadata().getThingManager().getClassLoader();
-		
-		String compleClassPath = pclssLoader.getCompileClassPath();
-		if(world.getMode() == World.MODE_WORKING){
-			classLoader = pclssLoader;
-		}else{
-			File classDir = new File(world.getPath() + "/work/actionClasses/" + fileManagerName);
-			if(classDir.exists() == false){
-				classDir.mkdirs();
-			}
-			classLoader = new ActionClassLoader(new URL[]{classDir.toURI().toURL()}, pclssLoader);
-		}
 		
 		results = new ArrayList<ActionResult>();
 		for(Thing child : thing.getAllChilds("Result")){
@@ -396,94 +350,88 @@ public class Action extends Semaphore{
 		
 		isCreateLocalVarScope = thing.getBoolean("createLocalVarScope");
 		
-		long classCompileTime = 0;
-		
-		if(thing.getMetadata().getThingManager() instanceof ClassThingManager){
-			//如果是从类路径装载的事物，尽量直接读取class，因为可能是打包运行的而不是开发环境的
-			try{
-				classCompileTime = getClassCompileTime(classFileName);
-				if(classCompileTime != 0 && classCompileTime == lastModified){
-					//不需要重新编译才直接读取，2013-03-12
-					actionClass = classLoader.loadClass(this.className);
-					if(actionClass != null){
-						classCompileTime = lastModified;
-					}
-				}
-			}catch(Throwable t){	
-				classCompileTime = getClassCompileTime(classFileName);
-			}
-		}else{
-			classCompileTime = getClassCompileTime(classFileName);
-		}
 		
 		if(isJava){
-			//查看是否需要编译获得重新装载
-			if(actionClass == null){
-				changed = false;
+			String javaClassName = null;
+			byte sourceType = SOURCE_LIB;
+			if(thing.getBoolean("useOuterJava")) {
+				sourceType = SOURCE_LIB;
+				javaClassName = thing.getString("outerClassName");
+			} else if(thing.getBoolean("useInnerJava")) {
+				sourceType = SOURCE_THINGMANAGER;
+				javaClassName = thing.getString("outerClassName");
+			}else {
+				sourceType = SOURCE_THING;
+				javaClassName = packageName + "." + thing.getString("className");			
+			}
+			initJava(thing,  sourceType, javaClassName);
+		}else if(useOtherAction){
+			outerAction = world.getAction(otherActionPath);
+		}else{
+			//由动作使用的动作，判断是否存在类，如果类的日期小于当前事物的日期，那么判定已更新
+			//if(lastModified != classCompileTime){
+			//	changed = true;
+			//}			
+			
+			//非Java调用才初始化日志
+			//logger = Logger.getLogger(this.className);
+		}
+	}
+	
+	private void initJava(Thing thing, byte sourceType, String javaClassName) throws ClassNotFoundException, IOException, SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+		initClassAndCode();
+		
+		//查看是否需要编译获得重新装载
+		if(actionClass == null){
+			changed = false;				
+			//需要编译或重新装载
+			if(sourceType == SOURCE_LIB){
+				//外部类库的Java类，直接加载
+				if(javaClassName == null || "".equals(javaClassName)) {
+					throw new ActionException("Out class name not setted, action=" + thing.getMetadata().getPath());
+				}
+				ClassLoader clsLoader = thing.getMetadata().getCategory().getClassLoader();
+				actionClass = clsLoader.loadClass(javaClassName); 						
+			}else{			
+				//内部需要自行编译通过ActionClassLoader加载的
+				boolean recompile = this.isNeedRecompile();
+				File classFile = new File(classFileName);
+				if(!classFile.exists()){
+					recompile = true;
+				}
 				
-				//需要编译或重新装载
-				if(useOuterJava){
-					if(outerClassName == null || "".equals(outerClassName)) {
-						throw new ActionException("Out class name not setted, action=" + thing.getMetadata().getPath());
-					}
-					actionClass = classLoader.loadClass(outerClassName); 						
-				}else{					
-					boolean recompile = false;
-					File classFile = new File(classFileName);
-					if(!classFile.exists()){
-						recompile = true;
-					}
-					
-					if(lastModified != classCompileTime){
-						recompile = true;							
-					}
-					
-					//编程模式才会重新编译
-					if(recompile && world.getMode() == World.MODE_PROGRAMING){
-						if(thing.getBoolean("useInnerJava")){
-							ThingManager thingManager = thing.getMetadata().getThingManager();
-							if(thingManager instanceof FileThingManager){
-								FileThingManager fileThingManager = (FileThingManager) thingManager;
-								String sourcePath = fileThingManager.getFilePath();
-								File codeFile = new File(sourcePath, outerClassName.replace('.', '/') + ".java");
-								boolean use16 = true;
-								boolean compiled = false;
-								try{							
-									Class.forName("javax.tools.JavaCompiler");
-								}catch(Exception e){
-									use16 = false;
-								}
-								
-								if(use16){
-									compiled = JavaCompiler16.compile(compleClassPath, sourcePath, codeFile, getClassTargetDirectory());
-								}							
-								if(!compiled){
-									JavaCompiler15.compile(compleClassPath, sourcePath, codeFile.getAbsolutePath(), getClassTargetDirectory());								
-								}	
-							}else{
-								throw new ActionException("useInnerJava is only fit for FileThingManager, actionThing=" + thing.getMetadata().getPath());
-							}
-						}else{
-							File codeFile = new File(fileName + ".java");
-							if(!codeFile.exists()){
+				ThingClassLoader pclssLoader = thing.getMetadata().getCategory().getClassLoader();
+
+				String compleClassPath = pclssLoader.getCompileClassPath();					
+				//编程模式才会重新编译
+				if(recompile && world.getMode() == World.MODE_PROGRAMING){
+					if(sourceType == SOURCE_THINGMANAGER){
+						String javaFileName = javaClassName.replace('.', '/') + ".java";
+						ThingManager thingManager = thing.getMetadata().getThingManager(); 
+						URL sourceURL = thingManager.findResource(javaFileName);
+						if(sourceURL == null) {
+							thingManager.findResource("/" + javaFileName);
+						}							
+						if(sourceURL != null) {
+							String sourcePath = World.getInstance().getPath() + "/work/actionSources/" + thingManager.getName() + "/"; 
+							File codeFile = new File(sourcePath + javaFileName);
+							if(codeFile.exists() == false) {
 								codeFile.getParentFile().mkdirs();
 							}
 							
 							FileOutputStream fout = new FileOutputStream(codeFile);
-							try{
-								//文件头增加一个事物路径的标识
-								fout.write(("/*path:" + thing.getMetadata().getPath() + "*/\n").getBytes());
-								fout.write(("package " + packageName + ";\n\n").getBytes());
-								fout.write(code.getBytes());								
-							}finally{
+							try {
+								InputStream uin = sourceURL.openStream();
+								byte[] bytes = new byte[4096];
+								int length = -1;
+								while((length = uin.read(bytes)) != -1) {
+									fout.write(bytes, 0, length);
+								}
+								uin.close();
+							}finally {
 								fout.close();
 							}
-							
-							File classDir = new File(world.getPath() + "/work/actionClasses");
-							if(!classDir.exists()){
-								classDir.mkdirs();
-							}
-								
+					
 							boolean use16 = true;
 							boolean compiled = false;
 							try{							
@@ -493,59 +441,125 @@ public class Action extends Semaphore{
 							}
 							
 							if(use16){
-								compiled = JavaCompiler16.compile(compleClassPath, null, codeFile, getClassTargetDirectory());
+								compiled = JavaCompiler16.compile(compleClassPath, sourcePath, codeFile, getClassTargetDirectory());
 							}							
 							if(!compiled){
-								JavaCompiler15.compile(compleClassPath, null, fileName, getClassTargetDirectory());								
+								JavaCompiler15.compile(compleClassPath, sourcePath, codeFile.getAbsolutePath(), getClassTargetDirectory());								
 							}	
+						}else{
+							throw new ActionException("Code file not found, java=" + javaFileName + ", actionThing=" + thing.getMetadata().getPath());
+						}
+					}else{
+						File codeFile = new File(fileName + ".java");
+						if(!codeFile.exists()){
+							codeFile.getParentFile().mkdirs();
 						}
 						
-						updateCompileTime();
+						FileOutputStream fout = new FileOutputStream(codeFile);
+						try{
+							//文件头增加一个事物路径的标识
+							fout.write(("/*path:" + thing.getMetadata().getPath() + "*/\n").getBytes());
+							fout.write(("package " + packageName + ";\n\n").getBytes());
+							fout.write(code.getBytes());								
+						}finally{
+							fout.close();
+						}
+						
+						File classDir = new File(world.getPath() + "/work/actionClasses");
+						if(!classDir.exists()){
+							classDir.mkdirs();
+						}
+							
+						boolean use16 = true;
+						boolean compiled = false;
+						try{							
+							Class.forName("javax.tools.JavaCompiler");
+						}catch(Exception e){
+							use16 = false;
+						}
+						
+						if(use16){
+							compiled = JavaCompiler16.compile(compleClassPath, null, codeFile, getClassTargetDirectory());
+						}							
+						if(!compiled){
+							JavaCompiler15.compile(compleClassPath, null, fileName, getClassTargetDirectory());								
+						}	
 					}
 					
-					if(thing.getBoolean("useInnerJava")){
-						actionClass = classLoader.loadClass(outerClassName); 	
-					}else{
-						actionClass = classLoader.loadClass(className);
-					}
+					updateCompileTime();
 				}
-				//java.lang.Compiler.compileClass(actionClass);
-				try{	
-					if(methodName != null && !"".equals(methodName)){
-						method = getDeclaredMethod(actionClass, methodName);//actionClass.getDeclaredMethod(methodName, new Class[]{ActionContext.class});
-						if(method == null) {
-							throw new NoSuchMethodException(methodName);
-						}
-						annotationHelper = ActionAnnotationHelper.parse(actionClass, method);
+				
+				//if(thing.getBoolean("useInnerJava")){
+				actionClass = getClassLoader().loadClass(javaClassName); 	
+				//}else{
+				//	actionClass = getClassLoader().loadClass(className);
+				//}
+			}
+			//java.lang.Compiler.compileClass(actionClass);
+			try{	
+				if(methodName != null && !"".equals(methodName)){
+					method = getDeclaredMethod(actionClass, methodName);//actionClass.getDeclaredMethod(methodName, new Class[]{ActionContext.class});
+					if(method == null) {
+						throw new NoSuchMethodException(methodName);
 					}
-				}catch(Throwable e){		
-					throw new ActionException("load method error, class=" + actionClass.getName() 
-							+ ", method=" + methodName + ",action=" + thing.getMetadata().getPath(), e);
+					annotationHelper = ActionAnnotationHelper.parse(actionClass, method);
 				}
-			}else if(method == null){
-				try{	
-					if(methodName != null && !"".equals(methodName)){
-						method = getDeclaredMethod(actionClass, methodName);//actionClass.getDeclaredMethod(methodName, new Class[]{ActionContext.class});
-						if(method == null) {
-							throw new NoSuchMethodException(methodName);
-						}
-						annotationHelper = ActionAnnotationHelper.parse(actionClass, method);
+			}catch(Throwable e){		
+				throw new ActionException("load method error, class=" + actionClass.getName() 
+						+ ", method=" + methodName + ",action=" + thing.getMetadata().getPath(), e);
+			}
+		}else if(method == null){
+			try{	
+				if(methodName != null && !"".equals(methodName)){
+					method = getDeclaredMethod(actionClass, methodName);//actionClass.getDeclaredMethod(methodName, new Class[]{ActionContext.class});
+					if(method == null) {
+						throw new NoSuchMethodException(methodName);
 					}
-				}catch(Exception e){		
-					throw new ActionException("", e);
+					annotationHelper = ActionAnnotationHelper.parse(actionClass, method);
+				}
+			}catch(Exception e){		
+				throw new ActionException("", e);
+			}
+		}		
+	}
+	
+	public ClassLoader getClassLoader() throws MalformedURLException {
+		if(this.classLoader == null || changed) {			
+			Thing thing = thingEntry.getThing();
+			
+			//查看是否是引用其它动作的类加载器
+			String actionClassLoader = thing.getStringBlankAsNull("actionClassLoader");
+			if(actionClassLoader != null) {
+				Action action = World.getInstance().getAction(actionClassLoader);
+				if(action != null) {
+					classLoader = action.getClassLoader();
+					return classLoader;
 				}
 			}
-		}else if(useOtherAction){
-			outerAction = world.getAction(otherActionPath);
-		}else{
-			//由动作使用的动作，判断是否存在类，如果类的日期小于当前事物的日期，那么判定已更新
-			if(lastModified != classCompileTime){
-				changed = true;
-			}			
 			
-			//非Java调用才初始化日志
-			//logger = Logger.getLogger(this.className);
+			//初始化类装载器和编译时的类库路径
+			ThingClassLoader pclssLoader = thing.getMetadata().getCategory().getClassLoader();
+			
+			//String compleClassPath = pclssLoader.getCompileClassPath();
+			if(world.getMode() == World.MODE_WORKING){
+				classLoader = pclssLoader;
+			}else{
+				String fileManagerName = thing.getMetadata().getThingManager().getName();
+				if(fileManagerName == null){
+					fileManagerName = "null";
+				}else{
+					fileManagerName = UtilString.trimFileName(fileManagerName);
+				}
+				
+				File classDir = new File(world.getPath() + "/work/actionClasses/" + fileManagerName);
+				if(classDir.exists() == false){
+					classDir.mkdirs();
+				}
+				classLoader = new ActionClassLoader(new URL[]{classDir.toURI().toURL()}, pclssLoader);
+			}
 		}
+		
+		return classLoader;
 	}
 	
 	private Method getDeclaredMethod(Class<?> cls, String methodName) throws Exception{
@@ -614,47 +628,47 @@ public class Action extends Semaphore{
 		return method;
 	}
 	
-	public <T> T  run(){
+	public final <T> T  run(){
 		return runArrayParams(new ActionContext(), (Object[]) null, null, false);
 	}
 	
-	public <T> T  run(ActionContext actionContext){
+	public final <T> T  run(ActionContext actionContext){
 		return runMapParams(actionContext, null, null, false);
 	}
 	
-	public <T> T  run(ActionContext actionContext, Object... params){
+	public final <T> T  run(ActionContext actionContext, Object... params){
 		return runArrayParams(actionContext, params, null, false);
 	}
 	
-	public <T> T  exec(Object... params){
+	public final <T> T  exec(Object... params){
 		return runArrayParams(null, params, null, false);
 	}
 	
-	public <T> T  exec(ActionContext actionContext, Object... params){
+	public final <T> T  exec(ActionContext actionContext, Object... params){
 		return runArrayParams(actionContext, params, null, false);
 	}
 	
-	public <T> T call(ActionContext actionContext, Object ... params){
+	public final <T> T call(ActionContext actionContext, Object ... params){
 		return runArrayParams(actionContext, params, null, false);
 	}
 	
-	public <T> T  call(ActionContext actionContext, Map<String, Object> parameters){
+	public final <T> T  call(ActionContext actionContext, Map<String, Object> parameters){
 		return runMapParams( actionContext, parameters, null, false);
 	}
 	
-	public <T> T  run(ActionContext actionContext, Map<String, Object> parameters){
+	public final <T> T  run(ActionContext actionContext, Map<String, Object> parameters){
 		return runMapParams( actionContext, parameters, null, false);
 	}
 	
-	public <T> T  run(ActionContext actionContext, Map<String, Object> parameters, boolean isSubAction){
+	public final <T> T  run(ActionContext actionContext, Map<String, Object> parameters, boolean isSubAction){
 		return runMapParams(actionContext, parameters, null, isSubAction);
 	}
 	
-	public <T> T  run(ActionContext actionContext, Map<String, Object> parameters, Object caller, boolean isSubAction) {
+	public final <T> T  run(ActionContext actionContext, Map<String, Object> parameters, Object caller, boolean isSubAction) {
 		return runMapParams(actionContext, parameters, caller, isSubAction);
 	}
 	
-	public <T> T runArrayParams(ActionContext actionContext, Object[] params_, Object caller,  boolean isSubAction){
+	public final <T> T runArrayParams(ActionContext actionContext, Object[] params_, Object caller,  boolean isSubAction){
 		if(actionContext == null){
 			actionContext = new ActionContext();
 		}
@@ -683,7 +697,7 @@ public class Action extends Semaphore{
 		return this.dorun(actionContext, bindings, bindings, caller, isSubAction);
 	}
 	
-	public <T> T runMapParams(ActionContext actionContext, Map<String, Object> parameters, Object caller, boolean isSubAction) {
+	public final <T> T runMapParams(ActionContext actionContext, Map<String, Object> parameters, Object caller, boolean isSubAction) {
 		if(actionContext == null){
 			actionContext = new ActionContext();
 		}
@@ -709,7 +723,7 @@ public class Action extends Semaphore{
 	 * @throws ClassNotFoundException 
 	 */
 	@SuppressWarnings("unchecked")
-	private <T> T dorun(ActionContext actionContext, Bindings bindings, Map<String, Object> parameters, Object caller, boolean isSubAction) {
+	private final <T> T dorun(ActionContext actionContext, Bindings bindings, Map<String, Object> parameters, Object caller, boolean isSubAction) {
 		//long start = System.nanoTime();
 		//log.info("dorun started");
 		//是否禁止全局上下文具有继承的性质
@@ -1071,7 +1085,7 @@ public class Action extends Semaphore{
 		}		
 	}
 	
-	private static Throwable doContextMethod(List<Thing> contexts, ActionContext actionContext, String methodName, Throwable exception, Object result){
+	private final static Throwable doContextMethod(List<Thing> contexts, ActionContext actionContext, String methodName, Throwable exception, Object result){
 		List<Thing> thingList = new ArrayList<Thing>();
 		for(Thing thing : contexts){
 			thingList.add(thing);
@@ -1091,7 +1105,7 @@ public class Action extends Semaphore{
 	 * 
 	 * @return 如果动作可以抛出异常则抛出异常
 	 */
-	public static Throwable doThingContextMethod(List<Thing> contexts, ActionContext actionContext, String methodName, Throwable exception, Object result){
+	public final static Throwable doThingContextMethod(List<Thing> contexts, ActionContext actionContext, String methodName, Throwable exception, Object result){
 		if(contexts.size() == 0){
 			return exception;
 		}
@@ -1105,8 +1119,9 @@ public class Action extends Semaphore{
 		//按照从后往前的顺序执行
 		for(int i=contexts.size() - 1; i>=0; i--){
 			Thing contextObj = contexts.get(i);
-			ActionContext acContext = bindings.getContexts().get(contextObj);
+			ActionContext acContext = bindings.getContexts().get(contextObj);			
 			if(acContext != null){
+				acContext.peek().put("result", result);
 				acContext.peek().put("exception", exception);
 			}
 			
@@ -1182,12 +1197,8 @@ public class Action extends Semaphore{
 		}		
 	}	
 	
-	public ClassLoader getClassLoader(){
-		return classLoader;
-	}	
-	
 	public String getCompileClassPath(){
-		return getThing().getMetadata().getThingManager().getClassLoader().getCompileClassPath();
+		return getThing().getMetadata().getCategory().getClassLoader().getCompileClassPath();
 	}
 	
 	/**
@@ -1254,7 +1265,30 @@ public class Action extends Semaphore{
 		return thingEntry.getThing();
 	}
 	
-	public static long getClassCompileTime(String classFileName){
+	/**
+	 * 返回是否需要重新编译。
+	 */
+	public boolean isNeedRecompile() {
+		initClassAndCode();
+		
+		long time = getClassCompileTime(thingEntry.getThing(), classFileName);
+		return time != lastModified;
+	}
+	
+	private long getClassCompileTime(Thing thing, String classFileName){
+		initClassAndCode();
+		//如果是从类路径装载的事物，尽量直接读取class，因为可能是打包运行的而不是开发环境的
+		if(thing.getMetadata().getThingManager() instanceof ClassThingManager){
+			try{
+				//不需要重新编译才直接读取，2013-03-12
+				actionClass = getClassLoader().loadClass(this.className);
+				if(actionClass != null){
+					return lastModified;
+				}
+			}catch(Throwable t){			
+			}
+		}
+		
 		File file = new File(classFileName);
 		String path = file.getParentFile().getAbsolutePath();
 		String className = file.getName();
@@ -1267,7 +1301,7 @@ public class Action extends Semaphore{
 		}
 	}
 	
-	private static void updateClassCompileTime(String classFileName, long time){
+	public static void updateClassCompileTime(String classFileName, long time){
 		File file = new File(classFileName);
 		String path = file.getParentFile().getAbsolutePath();
 		String className = file.getName();
@@ -1524,6 +1558,126 @@ public class Action extends Semaphore{
 		return throwables;
 	}
 	
+	public Class<?> getActionClass() {
+		initClassAndCode();
+		
+		return actionClass;
+	}
+		
+	public void setActionClass(Class<?> actionClass) {
+		this.actionClass = actionClass;
+	}
+
+	public boolean isChanged() {
+		return changed;
+	}
+	
+	public void setChanged(boolean changed) {
+		this.changed = changed;
+	}
+
+	public boolean isJava() {
+		return isJava;
+	}
+
+	public long getLastModified() {
+		return lastModified;
+	}
+
+	public String getOtherActionPath() {
+		return otherActionPath;
+	}
+
+	public String getClassName() {
+		initClassAndCode();
+		
+		return className;
+	}
+
+	public String getClassFileName() {
+		initClassAndCode();
+		
+		return classFileName;
+	}
+
+	public String getPackageName() {
+		initClassAndCode();
+		return packageName;
+	}
+
+	public String getFileName() {
+		initClassAndCode();
+		return fileName;
+	}
+
+	public String getCode() {
+		initClassAndCode();
+		return code;
+	}
+
+	public Action getOuterAction() {
+		return outerAction;
+	}
+
+	public void setMethod(Method method) {
+		this.method = method;
+	}
+
+	private synchronized void initClassAndCode() {
+		if(codeInited) {
+			return;
+		}else {
+			codeInited = true;
+		}
+		Thing thing = thingEntry.getThing();
+		
+		Thing parent = thing.getParent();			
+		Thing rootParent = thing.getRoot();
+		if(parent == null){
+			parent = thing;
+		}
+		String fileManagerName = thing.getMetadata().getThingManager().getName();
+		if(fileManagerName == null){
+			fileManagerName = "null";
+		}else{
+			fileManagerName = UtilString.trimFileName(fileManagerName);
+		}
+		
+		className = rootParent.getMetadata().getPath();
+		if(rootParent != thing){
+			className = className + ".p" + thing.getMetadata().getPath().hashCode();
+			className = className.replace('-', '_');
+		}
+		String cName = thing.getString("className");			    
+		if(cName == null || "".equals(cName)){
+		    className = className + "." + thing.getMetadata().getName();
+		}else{
+			className = className + "." + cName;
+		}
+				
+		className = getClassName(className);
+		
+		int dotIndex = className.lastIndexOf(".");
+		if(dotIndex != -1){
+			packageName = className.substring(0, dotIndex);
+		}
+		
+		fileName = fileManagerName + "/" + className.replace('.', '/');
+		//fileName += ".java";
+		classLoader = null;
+		
+		fileName = World.getInstance().getPath() + "/work/actionSources/" +  fileName;
+		classFileName = World.getInstance().getPath() + "/work/actionClasses/" +  fileManagerName + "/" + className.replace('.', '/') + ".class";
+		
+		//设置代码和方法名
+		code = thing.getString("code");
+		if(code == null){
+			code = "";
+		}
+		
+		methodName = thing.getString("methodName");
+	}
+
 	/**
 	 * 异常记录。
 	 * 

@@ -46,7 +46,7 @@ public class ThingClassLoader extends URLClassLoader {
 	}
 	
 	public ThingClassLoader(URL[] urls, ClassLoader parent){
-		super(new URL[] {}, parent);
+		super(urls, parent);
 	}
 	
 	/**

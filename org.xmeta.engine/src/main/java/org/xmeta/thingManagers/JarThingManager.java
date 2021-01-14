@@ -20,7 +20,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -46,6 +48,7 @@ public class JarThingManager extends AbstractThingManager{
 	String name;
 	String jarFilePath = null;
 	boolean refreshed = false;
+	ThingClassLoader classLoader;
 	
 	public JarThingManager(String name, File jarFile){
 		super(name);
@@ -59,6 +62,12 @@ public class JarThingManager extends AbstractThingManager{
 		}
 		rootCategory = new JarCategory(this, null, null);
 		
+		try {
+			classLoader = new ThingClassLoader(new URL[] {jarFile.toURI().toURL()}, World.getInstance().getClassLoader());
+		} catch (MalformedURLException e) {
+			classLoader = World.getInstance().getClassLoader();
+			e.printStackTrace();
+		}
 		//refresh();
 	}
 	
@@ -117,7 +126,7 @@ public class JarThingManager extends AbstractThingManager{
 
 	@Override
 	public ThingClassLoader getClassLoader() {
-		return World.getInstance().getClassLoader();
+		return classLoader;
 	}
 
 	@Override

@@ -19,7 +19,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 /**
- * 动作事物的类装载器，每个动作都有一个自己的类装载器实例。
+ * 动作事物的类装载器，每个动作都有一个自己的类装载器实例，动作加载器指定的类有自己来加载。
  * 
  * @author zyx
  *
@@ -27,5 +27,7 @@ import java.net.URLClassLoader;
 public class ActionClassLoader extends URLClassLoader {
 	public ActionClassLoader(URL[] urls, ClassLoader parent) {		
 		super(urls, parent);		
+		
 	}
+	
 }

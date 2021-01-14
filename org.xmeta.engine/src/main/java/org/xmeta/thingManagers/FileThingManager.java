@@ -45,6 +45,8 @@ public class FileThingManager extends AbstractThingManager{
 	
 	boolean monitor = false;
 	
+	ThingClassLoader classLoader = null;
+	
 	public FileThingManager(String name, File rootFile){
 		this(name, rootFile, true);
 	}
@@ -56,6 +58,12 @@ public class FileThingManager extends AbstractThingManager{
 		this.rootFile = rootFile;
 		if(hasThingsDir){
 			this.thingRootFile = new File(rootFile, "things");
+			
+			World world = World.getInstance();
+			classLoader = new ThingClassLoader(new URL[] {}, world.getClassLoader());
+			classLoader.addJarOrZip(new File(rootFile, "lib"));
+			classLoader.addJarOrZip(new File(rootFile + "/os/lib/lib_" + world.getOS()));
+			classLoader.addJarOrZip(new File(rootFile + "/os/lib/lib_" + world.getOS() + "_" + world.getJVMBit()));
 		}else{
 			this.thingRootFile = rootFile;
 		}

@@ -18,6 +18,8 @@ package org.xmeta;
 import java.util.Iterator;
 import java.util.List;
 
+import org.xmeta.util.ThingClassLoader;
+
 /**
  * 目录是包含在事物管理者下的，用来对事物管理者中的事物进行分类。
  * 
@@ -149,4 +151,18 @@ public interface Category {
 	 * @return 事物遍历器
 	 */
 	public Iterator<Thing> iterator(String descriptorPath, boolean includeChildCategory);
+	
+	/**
+	 * 返回Category对应的ClassLoader。如果当前classLoader为null一般使用父级的classLoader。
+	 * 
+	 * @return
+	 */
+	public ThingClassLoader getClassLoader();
+	
+	/**
+	 * 设置当前Category的类加载器。
+	 * 
+	 * @param classLoader
+	 */
+	public void setClassLoader(ThingClassLoader classLoader);
 }

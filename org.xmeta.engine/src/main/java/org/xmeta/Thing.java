@@ -15,6 +15,7 @@
 ******************************************************************************/
 package org.xmeta;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -60,9 +61,9 @@ import org.xml.sax.SAXException;
 public class Thing {
 	/** 日志 */
 	//private static Logger log = LoggerFactory.getLogger(Thing.class);
-	private static Map<String, String> nameCache = new HashMap<String, String>(4096);
+	//private static final Map<String, String> nameCache = new HashMap<String, String>(4096);
 	
-	/** 事物的名字 */
+	/** 模型的名字 */
 	public static final String THING = "thing";
 	
 	/** 属性的名字 */
@@ -83,22 +84,22 @@ public class Thing {
 	/** 描述属性的名字 */
 	public static final String DESCRIPTION = "description";
 	
-	/** 原始事物的路径，尤其是在做detach时 */
+	/** 原始模型的路径，尤其是在做detach时 */
 	public static final String ORIGIN_THING_PATH = "__ORIGIN_THING_PATH__";
 	
-	/** 事物的属性集合。 */
-	protected Map<String, Object> attributes = new HashMap<String, Object>(32);
+	/** 模型的属性集合。 */
+	protected Map<String, Object> attributes = new HashMap<String, Object>();
 	
-	/** 父事物，包含此事物的父事物。 */
+	/** 父模型，包含此模型的父模型。 */
 	protected Thing parent = null;
 	
-	/** 事物的元数据，用于存放此事物在系统中的一些属性。 */
+	/** 模型的元数据，用于存放此模型在系统中的一些属性。 */
 	protected ThingMetadata metadata = new ThingMetadata(this);
 	
-	/** 子事物列表 */
+	/** 子模型列表 */
 	protected List<Thing> childs = new CopyOnWriteArrayList<Thing>();
 	
-	/** 事物的名称（类名）的缓存列表 */
+	/** 模型的名称（类名）的缓存列表 */
 	protected List<String> thingNames = new CopyOnWriteArrayList<String>();
 	
 	/** 继承列表的缓存 */
@@ -107,36 +108,39 @@ public class Thing {
 	/** 描述者列表的缓存 */
 	protected ThingEntry[] descriptorsCaches = null;
 	
-	/** 读取事物内部信息的缓存 */
+	/** 读取模型内部信息的缓存 */
 	//protected Map<String, Object> caches = new HashMap<String, Object>();
 	
-	/** 动作事物的缓存 */
+	/** 动作模型的缓存 */
 	protected Map<String, LinkedThingEntry> actionCaches = new ConcurrentHashMap<String, LinkedThingEntry>();
 		
 	/** 正在更新的线程 */
 	private static Map<Thread, Stack<Thread>> updatingThreads = new ConcurrentHashMap<Thread, Stack<Thread>>();
 	
-	/** 是否是瞬态的事物 */
+	/** 是否是瞬态的模型 */
 	protected boolean isTransient = false;
 	
-	/** 每一个事物都有动作的形态 */
+	/** 每一个模型都有动作的形态 */
 	protected Action action = null;
 	
-	/** 附加于事物的用户数据 */
+	/** 附加于模型的用户数据 */
 	protected Map<String, Object> datas = null;//new HashMap<String, Object>();
 	
 	/** 绑定到线程上的数据 */
 	protected ThreadLocal<Map<String, Object>> threadLocalDatas = null;//
 	
+	/** 模型监听器，监听模型的更新和移除事件等事件 */
+	protected ThingListener thingListener = null;
+	
 	/** 
-	 * 默认构造函数，构造一个空的瞬态事物。 
+	 * 默认构造函数，构造一个空的瞬态模型。 
 	 */
 	public Thing(){		
 		this(null, null, null, true);
 	}
 	
 	/**
-	 * 通过描述者的路径来构造一个瞬态事物。
+	 * 通过描述者的路径来构造一个瞬态模型。
 	 * 
 	 * @param descriptorPath 描述者的路径
 	 */
@@ -145,33 +149,42 @@ public class Thing {
 	}
 	
 	/**
-	 * 通过名称和标签创建一个瞬态事物。
+	 * 使用指定的描述者来创建一个瞬态模型。
 	 * 
-	 * @param name 事物的名称
-	 * @param label 事物的标签
+	 * @param descriptor
+	 */
+	public Thing(Thing descriptor) {		
+		this(descriptor.getMetadata().getName(), null, descriptor.getMetadata().getPath(), true);
+	}
+	
+	/**
+	 * 通过名称和标签创建一个瞬态模型。
+	 * 
+	 * @param name 模型的名称
+	 * @param label 模型的标签
 	 */
 	public Thing(String name, String label){
 		this(name, label, null, true);
 	}
 	
 	/**
-	 * 通过名称、标签和描述者的路径来构造一个瞬态事物。
+	 * 通过名称、标签和描述者的路径来构造一个瞬态模型。
 	 * 
-	 * @param name 事物的名称
-	 * @param label 事物的标签
-	 * @param descriptorPath 事物的路径
+	 * @param name 模型的名称
+	 * @param label 模型的标签
+	 * @param descriptorPath 模型的路径
 	 */
 	public Thing(String name, String label, String descriptorPath){
 		this(name, label, descriptorPath, true);
 	}
 	
 	/**
-	 * 指定名称、标签、描述者和是否是瞬态的来构造一个事物。
-	 * 非瞬态的事物一般有事物管理者创建。
+	 * 指定名称、标签、描述者和是否是瞬态的来构造一个模型。
+	 * 非瞬态的模型一般有模型管理者创建。
 	 * 
-	 * @param name 事物的名称
-	 * @param label 事物的标签
-	 * @param descriptorPath 事物的描述者
+	 * @param name 模型的名称
+	 * @param label 模型的标签
+	 * @param descriptorPath 模型的描述者
 	 * @param isTransient 是否是瞬态的
 	 */
 	public Thing(String name, String label, String descriptorPath, boolean isTransient){	
@@ -215,9 +228,9 @@ public class Thing {
 	}
 	
 	/**
-	 * 添加一个子事物。
+	 * 添加一个子模型。
 	 * 
-	 * @param childThing 子事物
+	 * @param childThing 子模型
 	 */
 	public synchronized void addChild(Thing childThing){	
 		//添加到子节点的末尾
@@ -233,13 +246,13 @@ public class Thing {
 	}		
 	
 	/** 
-	 * 在指定的索引位置添加一个子事物。
+	 * 在指定的索引位置添加一个子模型。
 	 * 
 	 * 如果指定索引不存在，那么尽量添加在最后面。
 	 * 
-	 * @param childThing 子事物
+	 * @param childThing 子模型
 	 * @param index 位置索引
-	 * @param changeParent 是否改变子事物的父事物为本事物
+	 * @param changeParent 是否改变子模型的父模型为本模型
 	 */
 	public synchronized void addChild(Thing childThing, int index, boolean changeParent){		
 		beginModify();
@@ -357,10 +370,10 @@ public class Thing {
 	}
 		
 	/**
-	 * 添加需要分离的子事物。
+	 * 添加需要分离的子模型。
 	 * 
-	 * @param forDetachedChild 需要分离的子事物
-	 * @param detachToTransient 是否克隆成瞬态事物
+	 * @param forDetachedChild 需要分离的子模型
+	 * @param detachToTransient 是否克隆成瞬态模型
 	 */
 	private void addDetachedChild(Thing thing, Thing forDetachedChild, Map<Thing, Thing> context){
 		beginModify();		
@@ -386,11 +399,11 @@ public class Thing {
 	}
 	
 	/**
-	 * <p>在指定位置添加一个继承事物。</p>
+	 * <p>在指定位置添加一个继承模型。</p>
 	 * 
 	 * 如果继承已经存在且位置不同，那么会切换到新的位置，如果index为-1那么添加至结尾。
 	 * 
-	 * @param extendThing 要继承的事物
+	 * @param extendThing 要继承的模型
 	 * @param index 参数位置
 	 */
 	public void addExtend(int index, Thing extendThing){		
@@ -409,14 +422,14 @@ public class Thing {
 	}
 	
 	/**
-	 * 改变一个子事物的位置索引。
+	 * 改变一个子模型的位置索引。
 	 * 
-	 * @param child 子事物
+	 * @param child 子模型
 	 * @param index 要移动的位置，如果为-1，那么通过moveStep来上移或下移
 	 * @param moveStep 小于0表示上移，大于0表示下移，步伐为其绝对值
 	 */
 	public void changeChildIndex(Thing child, int index, int moveStep){
-		//首先判断是本子事物
+		//首先判断是本子模型
 		int oldIndex = 0;
 		boolean have = false;
 		for(Thing chd : childs){
@@ -479,7 +492,7 @@ public class Thing {
 				}
 			}
 			
-			//添加子事物
+			//添加子模型
 			for(Thing childDescriptor : getAllChildsDescriptors()){
 				String childName = childDescriptor.getMetadata().getName();
 				
@@ -512,12 +525,12 @@ public class Thing {
 	}
 	
 	/**
-	 *  <p>认知另一事物并把认知结果作为自己的一部分。</p>
+	 *  <p>认知另一模型并把认知结果作为自己的一部分。</p>
 	 *  
-	 *  认识另一事物和认识非事物的对象的区别是，认识其他事物是把另一事物的所有内容保存到自身，而认识
-	 *  非事物物时是根据自身的描述者所描述的属性和子事物去从认知对象上取值的。
+	 *  认识另一模型和认识非模型的对象的区别是，认识其他模型是把另一模型的所有内容保存到自身，而认识
+	 *  非模型物时是根据自身的描述者所描述的属性和子模型去从认知对象上取值的。
 	 *  
-	 * @param thing 另一事物
+	 * @param thing 另一模型
 	 */
 	public void cognize(Thing thing){
 		if(thing == null){
@@ -527,16 +540,16 @@ public class Thing {
 		beginModify();
 		
 		try{
-			//获取被认知事物的描述者并添加到自己的描述者列表中
+			//获取被认知模型的描述者并添加到自己的描述者列表中
 			List<Thing> descriptors = thing.getDescriptors();
 			for(Thing descriptor : descriptors){
-				//元事物的描述者不添加
+				//元模型的描述者不添加
 				if(descriptor != World.getInstance().metaThing && !descriptor.getMetadata().getPath().equals("metaThing")){
 					addDescriptor(-1, descriptor);
 				}			
 			}
 			
-			//获取被认知的事物的继承对象并添加到自己的继承列表中
+			//获取被认知的模型的继承对象并添加到自己的继承列表中
 			List<Thing> extendThings = thing.getExtends();
 			for(Thing extend : extendThings){
 				addExtend(-1, extend);
@@ -555,9 +568,9 @@ public class Thing {
 				put(key, thing.getAttribute(key));
 			}
 			
-			//认知被认知事物的子事物
+			//认知被认知模型的子模型
 			for(Thing child : thing.getChilds()){
-				//判断自身的子事物是否含有相同的，判断第一个描述者是否相同和名称是否相同
+				//判断自身的子模型是否含有相同的，判断第一个描述者是否相同和名称是否相同
 				boolean have = false;
 				//Thing mySameChild = null;
 				/*List<Thing> childDescriptors = child.getDescriptors();			
@@ -574,7 +587,7 @@ public class Thing {
 				if(have){
 					//mySameChild.cognize(child);
 				}else{
-					//作为新的子事物添加
+					//作为新的子模型添加
 					Thing detachedChild = child.detach();
 					addChild(detachedChild);
 				}
@@ -615,11 +628,11 @@ public class Thing {
 	
 	
 	/**
-	 * 克隆一个新事物，新的事物是瞬态的。
+	 * 克隆一个新模型，新的模型是瞬态的。
 	 * 
-	 * 不会克隆事物的继承和描述，仅仅是克隆事物本身。
+	 * 不会克隆模型的继承和描述，仅仅是克隆模型本身。
 	 * 
-	 * @return 克隆的新事物
+	 * @return 克隆的新模型
 	 */
 	public Thing detach(){
 		Thing newThing = null;
@@ -650,7 +663,7 @@ public class Thing {
 	 * 使用detach()。
 	 * 
 	 * @param detachToTransient 是否detach到瞬态
-	 * @return 事物
+	 * @return 模型
 	 * @deprecated
 	 */
 	public Thing detach(boolean detachToTransient){
@@ -937,12 +950,12 @@ public class Thing {
 		while(childPath != null && currentThing != null){
 			switch(childPath.getType()){
 			case Path.TYPE_CHILD_THINGS:
-				//获取子事物列表
+				//获取子模型列表
 				List<Thing> childThings = new ArrayList<Thing>();
 				for(Iterator<Thing> iter = currentThing.getChildsIterator(); iter.hasNext();){
     				Thing child = iter.next();
     				if(childPath.getThingName() != null && !"".equals(childPath.getThingName()) && !child.isThingByName(childPath.getThingName())){
-    					//按照事物名取，但不是本事物名
+    					//按照模型名取，但不是本模型名
     					continue;
     				}
     				
@@ -950,13 +963,13 @@ public class Thing {
 				}
 				return childThings;
 			case Path.TYPE_CHILD_THING_AT_INDEX:
-				//获取第n个子事物
+				//获取第n个子模型
 				int index = 0;
 				nextCurrentThing = null;
 				for(Iterator<Thing> iter = currentThing.getChildsIterator(); iter.hasNext();){
 					Thing child = iter.next();
 					if(childPath.getThingName() != null && !"".equals(childPath.getThingName()) && !child.isThingByName(childPath.getThingName())){
-						//按照事物名取，但不是本事物名
+						//按照模型名取，但不是本模型名
 						continue;
 					}
 					
@@ -972,7 +985,7 @@ public class Thing {
 				currentThing = nextCurrentThing;
 				break;
 			case Path.TYPE_CHILD_THING:
-				//子事物
+				//子模型
 				nextCurrentThing = null;
 				for(Iterator<Thing> iter = currentThing.getChildsIterator(); iter.hasNext();){
 					Thing child = iter.next();
@@ -988,7 +1001,7 @@ public class Thing {
 				currentThing = nextCurrentThing;
 				break;
 			case Path.TYPE_CHILD_THING_BY_NAME:
-				//子事物，使用名字获取，只取第一个
+				//子模型，使用名字获取，只取第一个
 				nextCurrentThing = null;
 				for(Iterator<Thing> iter = currentThing.getChildsIterator(); iter.hasNext();){
 					Thing child = iter.next();
@@ -1011,7 +1024,7 @@ public class Thing {
 				for(Iterator<Thing> iter = currentThing.getChildsIterator(); iter.hasNext();){
     				Thing child = iter.next();
     				if(childPath.getThingName() != null && !"".equals(childPath.getThingName()) && !child.isThingByName(childPath.getThingName())){
-    					//按照事物名取，但不是本事物名
+    					//按照模型名取，但不是本模型名
     					continue;
     				}
     				
@@ -1055,9 +1068,9 @@ public class Thing {
 	}
 	
 	/**
-	 * <p>通过路径获得事物的属性或者子事物，可返回属性值、子事物或者子事物列表。</p>
+	 * <p>通过路径获得模型的属性或者子模型，可返回属性值、子模型或者子模型列表。</p>
 	 * 
-	 * 路径遵从事物的路径规则。
+	 * 路径遵从模型的路径规则。
 	 * 
 	 * @param path 路径
 	 * @return 路径对应的对象，找不到返回null
@@ -1285,18 +1298,18 @@ public class Thing {
 	}
 	
 	/**
-	 * <p>获得指定动作的事物定义。</p>
+	 * <p>获得指定动作的模型定义。</p>
 	 * 
-	 * 搜寻事物动作的规则是：
-	 *    如果不是super的动作，那么先搜寻事物本身定义的动作。
+	 * 搜寻模型动作的规则是：
+	 *    如果不是super的动作，那么先搜寻模型本身定义的动作。
 	 *    依次搜寻描述者和描述者的继承定义的动作。
-	 *    依次搜索事物的描述者的继承者定义的动作。
+	 *    依次搜索模型的描述者的继承者定义的动作。
 	 * 
 	 * @param name 动作名称
-	 * @return 动作事物，如果不存在返回null
+	 * @return 动作模型，如果不存在返回null
 	 */
 	public Thing getActionThing(String name){
-		//取事物定义的行为
+		//取模型定义的行为
 		if(name == null || "".equals(name)){
 			return null;
 		}
@@ -1356,53 +1369,43 @@ public class Thing {
 		Thing metaThing = World.getInstance().getThing("MetaThing");
 		
 		//从描述者自己上寻找	 		
-		if(actionThing == null){
-			for(Thing descriptor : getDescriptors()){
-				if(descriptor == metaThing) {
-					continue;						
-				}
-				
-				actionThing = descriptor.getSelfActionThing(name, context, null);
-				if(actionThing != null && !actions.contains(actionThing)){
-					actions.add(actionThing);
-				}
+		for(Thing descriptor : getDescriptors()){
+			if(descriptor == metaThing) {
+				continue;						
+			}
+			
+			actionThing = descriptor.getSelfActionThing(name, context, null);
+			if(actionThing != null && !actions.contains(actionThing)){
+				actions.add(actionThing);
 			}
 		}
 		
 		//从继承者自己上寻找
-		if(actionThing == null){
-			for(Thing extend : getExtends()){
-				actionThing = extend.getSelfActionThing(name, context, null);
-				if(actionThing != null && !actions.contains(actionThing)){
-					actions.add(actionThing);
-				}
+		for(Thing extend : getExtends()){
+			actionThing = extend.getSelfActionThing(name, context, null);
+			if(actionThing != null && !actions.contains(actionThing)){
+				actions.add(actionThing);
 			}
 		}
 		
 		//从描述者的父上寻找
-		if(actionThing == null){
-			for(Thing descriptor : getDescriptors()){
-				if(descriptor == metaThing) {
-					continue;						
-				}
-				
-				descriptor.initSuperActionThings(name, context, superContext, actions);
+		for(Thing descriptor : getDescriptors()){
+			if(descriptor == metaThing) {
+				continue;						
 			}
+			
+			descriptor.initSuperActionThings(name, context, superContext, actions);
 		}
 		
 		//从继承者父上寻找
-		if(actionThing == null){
-			for(Thing extend : getExtends()){
-				extend.initSuperActionThings(name, context, superContext, actions);
-				
-			}
+		for(Thing extend : getExtends()){
+			extend.initSuperActionThings(name, context, superContext, actions);
+			
 		}
 		
-		if(actionThing == null){
-			Thing action = metaThing.getSelfActionThing(name, superContext, null);
-			if(action != null && !actions.contains(action)) {
-				actions.add(action);
-			}
+		Thing action = metaThing.getSelfActionThing(name, superContext, null);
+		if(action != null && !actions.contains(action)) {
+			actions.add(action);
 		}
 	}
 		
@@ -1430,7 +1433,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 把当前事物转化为一个Runnable。
+	 * 把当前模型转化为一个Runnable。
 	 * 
 	 * @param actionContext 变量上下文
 	 * @return runnable
@@ -1440,7 +1443,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 把当前事物转化为一个Runnable。
+	 * 把当前模型转化为一个Runnable。
 	 * 
 	 * @param actionContext 变量上下文
 	 * @param params 参数
@@ -1451,7 +1454,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 把当前事物转化为一个Callable。
+	 * 把当前模型转化为一个Callable。
 	 * 
 	 * @param actionContext 变量上下文
 	 * @return callable
@@ -1461,7 +1464,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 把当前事物转化为一个Callable。
+	 * 把当前模型转化为一个Callable。
 	 * 
 	 * @param actionContext 变量上下文
 	 * @param params 参数
@@ -1476,14 +1479,14 @@ public class Thing {
 	}
 	
 	/**
-	 * 返回本事物的所有的动作定义，包括自身定义的、描述者定义的和继承定义的。
+	 * 返回本模型的所有的动作定义，包括自身定义的、描述者定义的和继承定义的。
 	 * 
 	 * @return 动作定义列表
 	 */
 	public List<Thing> getActionThings(){
 		List<Thing> actionThings = new ArrayList<Thing>();
 		
-		//找事物自身定义的动作
+		//找模型自身定义的动作
 		
 		Thing actionSet = null;
 		for(Thing child : childs){
@@ -1523,14 +1526,14 @@ public class Thing {
 	}
 	
 	/**
-	 * 取本事物的所有描述者所定义属性描述列表。
+	 * 取本模型的所有描述者所定义属性描述列表。
 	 * 
 	 * @return 属性描述列表
 	 */
 	public List<Thing> getAllAttributesDescriptors(){
 		List<Thing> attributesDescriptors = new ArrayList<Thing>();
 		
-		//取本事物的描述者列表
+		//取本模型的描述者列表
 		List<Thing> selfDescriptors = getDescriptors();
 		Map<String, String> context = new HashMap<String, String>(); //过滤重复名字的上下文
 		for(Thing descriptor : selfDescriptors){
@@ -1548,9 +1551,9 @@ public class Thing {
 	}
 		
 	/**
-	 * 获得所有的直接第一级子事物，包括继承的事物的子事物。
+	 * 获得所有的直接第一级子模型，包括继承的模型的子模型。
 	 * 
-	 * @return 所有的子事物
+	 * @return 所有的子模型
 	 */
 	public List<Thing> getAllChilds(){
 		List<Thing> childList = new ArrayList<Thing>();
@@ -1565,13 +1568,13 @@ public class Thing {
 	}
 	
 	/**
-	 * <p>根据描述者的名称来获取所有符合的子事物，包括继承的子事物。</p>
+	 * <p>根据描述者的名称来获取所有符合的子模型，包括继承的子模型。</p>
 	 * 
 	 * 注：这里是描述者的名，不是描述者的路径。
 	 * 
 	 * @param thingName 描述者的名称
 	 * 
-	 * @return 描述者的名称为指定名称的子事物
+	 * @return 描述者的名称为指定名称的子模型
 	 */
 	public List<Thing> getAllChilds(String thingName){
 		List<Thing> childList = new ArrayList<Thing>();
@@ -1588,7 +1591,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 获取子事物的描述者列表，返回本事物的所有描述者所定义的子事物的描述列表。
+	 * 获取子模型的描述者列表，返回本模型的所有描述者所定义的子模型的描述列表。
 	 * 
 	 * @return 描述者列表
 	 */
@@ -1603,9 +1606,9 @@ public class Thing {
 	}
 	
 	/**
-	 * 返回事物的所有继承事物列表，包括继承的继承...。
+	 * 返回模型的所有继承模型列表，包括继承的继承...。
 	 * 
-	 * @return 所有继承的事物列表
+	 * @return 所有继承的模型列表
 	 */
 	public List<Thing> getAllExtends(){
 		List<Thing> extendList = new ArrayList<Thing>();
@@ -1645,14 +1648,14 @@ public class Thing {
 		}else{
 			return null;
 			/*
-			//判断是否是当前事物的属性，如果是返回null
+			//判断是否是当前模型的属性，如果是返回null
 			for(Thing attributeDescriptor : getAllAttributesDescriptors()){
 				if(attributeDescriptor.getMetadata().getName().equals(name)){
 					return null;
 				}
 			}
 			
-			//不是当前事物所定义的属性，从继承事物中取属性
+			//不是当前模型所定义的属性，从继承模型中取属性
 			for(Thing extend : getAllExtends()){
 				value = extend.attributes.get(name);
 				if(value != null){
@@ -1708,12 +1711,12 @@ public class Thing {
 	}
 	
 	/**
-	 * <p>根获取事物属性描述列表，只返回第一个描述者的属性描述列表。</p>
+	 * <p>根获取模型属性描述列表，只返回第一个描述者的属性描述列表。</p>
 	 * 
-	 * @return 事物的属性描述列表
+	 * @return 模型的属性描述列表
 	 */
 	public List<Thing> getAttributesDescriptors(){
-		//取本事物的描述者列表
+		//取本模型的描述者列表
 		List<Thing> selfDescriptors = getDescriptors();
 		for(Thing descriptor : selfDescriptors){
 			List<Thing> attrDescriptors = descriptor.getChilds(Thing.ATTRIBUTE);
@@ -1796,20 +1799,20 @@ public class Thing {
 	}
 	
 	/**
-	 * 返回本事物的直接子事物，不包含继承的子事物。
+	 * 返回本模型的直接子模型，不包含继承的子模型。
 	 * 
-	 * @return 本事物的直接子事物
+	 * @return 本模型的直接子模型
 	 */
 	public List<Thing> getChilds(){
 		return childs;
 	}
 	 
 	/**
-	 * 根据描述者的名称来获取所有符合的子事物，不包括继承的子事物。
+	 * 根据描述者的名称来获取所有符合的子模型，不包括继承的子模型。
 	 * 
 	 * @param thingName 描述者的名称
 	 * 
-	 * @return 描述者的名称为指定名称的子事物
+	 * @return 描述者的名称为指定名称的子模型
 	 */
 	public List<Thing> getChilds(String thingName){
 		List<Thing> childThings = new ArrayList<Thing>();
@@ -1824,9 +1827,9 @@ public class Thing {
 	}
 	
 	/**
-	 * 获取子事物的描述者列表，只返回第一个描述者所定义的子事物的描述列表。
+	 * 获取子模型的描述者列表，只返回第一个描述者所定义的子模型的描述列表。
 	 * 
-	 * @return 子事物的描述者列表
+	 * @return 子模型的描述者列表
 	 */
 	public List<Thing> getChildsDescriptors(){
 		List<Thing> selfDescriptors = getDescriptors();
@@ -1854,7 +1857,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 返回事物的主要的描述者。
+	 * 返回模型的主要的描述者。
 	 * 
 	 * @return 第一个描述者
 	 */
@@ -1863,16 +1866,16 @@ public class Thing {
 	}
 	
 	/**
-	 * <p>返回本事物定义的的所有描述者的列表。</p>
+	 * <p>返回本模型定义的的所有描述者的列表。</p>
 	 * 
-	 * <p>一个事物的描述者列表是在属性descriptors里定义的，如果有多个那么之间用,号隔开。另外元事物是所有的
-	 * 事物的基本描述，一般在描述者列表中元事物被放到了列表的末端</p>
+	 * <p>一个模型的描述者列表是在属性descriptors里定义的，如果有多个那么之间用,号隔开。另外元模型是所有的
+	 * 模型的基本描述，一般在描述者列表中元模型被放到了列表的末端</p>
 	 * 
-	 * <p>如果事物的一个描述者继承了其他事物，那么继承的其他事物也是这个事物的描述者，这样的描述者在此方法里
-	 * 不能获得，如想取得事物的所有包含描述者继承的描述者，那么可以是用getAllDescriptors()方法。</p>
+	 * <p>如果模型的一个描述者继承了其他模型，那么继承的其他模型也是这个模型的描述者，这样的描述者在此方法里
+	 * 不能获得，如想取得模型的所有包含描述者继承的描述者，那么可以是用getAllDescriptors()方法。</p>
 	 * 
 	 * @see getAllDescriptors
-	 * @return 本事物的所有描述者的列表
+	 * @return 本模型的所有描述者的列表
 	 */
 	public List<Thing> getDescriptors(){
 		World world = World.getInstance();
@@ -1902,12 +1905,12 @@ public class Thing {
 	}
 	
 	/**
-	 * <p>返回本事物所有的描述者列表，包括描述者继承的事物。</p>
+	 * <p>返回本模型所有的描述者列表，包括描述者继承的模型。</p>
 	 * 
 	 * 与getDescriptors方法不同的是getDescriptors方法只返回自身定义的描述者的列表。
 	 * 
 	 * @see getDescriptors
-	 * @return 包含描述者继承的事物所有的描述者列表
+	 * @return 包含描述者继承的模型所有的描述者列表
 	 */
 	public List<Thing> getAllDescriptors(){
 		//添加自身定义的描述者
@@ -1940,7 +1943,7 @@ public class Thing {
 		}
 		
 		if(caches.get(World.getInstance().metaThing) == null){
-			//元事物是每个事物的描述者
+			//元模型是每个模型的描述者
 			descriptors.add(World.getInstance().metaThing);
 		}
 		
@@ -1960,9 +1963,9 @@ public class Thing {
 	}
 	
 	/**
-	 * 返回本事物的继承事物列表。
+	 * 返回本模型的继承模型列表。
 	 * 
-	 * @return 继承事物列表
+	 * @return 继承模型列表
 	 */
 	public List<Thing> getExtends() {
 		List<Thing> extendList = new ArrayList<Thing>();
@@ -2019,7 +2022,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 从事物中取指定的属性的字符串的值作为变量名，然后从ActionContext中取变量，支持var:或ognl:，默认相当于 var:。
+	 * 从模型中取指定的属性的字符串的值作为变量名，然后从ActionContext中取变量，支持var:或ognl:，默认相当于 var:。
 	 * @param name 属性名
 	 * @param actionContext 变量上下文
 	 * @return 返回对象 
@@ -2060,9 +2063,9 @@ public class Thing {
 	}
 	
 	/**
-	 * 获得本事物的元数据。
+	 * 获得本模型的元数据。
 	 * 
-	 * @return 当前事物的元数据
+	 * @return 当前模型的元数据
 	 */
 	public ThingMetadata getMetadata(){
 		return metadata;
@@ -2089,18 +2092,18 @@ public class Thing {
 	}
 	
 	/**
-	 * 返回本事物的父事物。
+	 * 返回本模型的父模型。
 	 * 
-	 * @return 父事物，如果没有返回null
+	 * @return 父模型，如果没有返回null
 	 */
 	public Thing getParent(){
 		return parent;
 	}
 	
 	/**
-	 * 返回本事物的最根级（顶层）父事物，如果当前事物已经是根事物，那么返回自身。
+	 * 返回本模型的最根级（顶层）父模型，如果当前模型已经是根模型，那么返回自身。
 	 * 
-	 * @return 根父事物
+	 * @return 根父模型
 	 */
 	public Thing getRoot(){
 		Map<Thing, Object> context = new HashMap<Thing, Object>();
@@ -2181,10 +2184,10 @@ public class Thing {
 	}
 	
 	/**
-	 * 通过指定的子事物的路径获取一个子事物。
+	 * 通过指定的子模型的路径获取一个子模型。
 	 * 
-	 * @param childThingPath 子事物的路径
-	 * @return 子事物
+	 * @param childThingPath 子模型的路径
+	 * @return 子模型
 	 */
 	public Thing getThing(String childThingPath){
 		Object obj = get(childThingPath);
@@ -2196,26 +2199,26 @@ public class Thing {
 	}
 	
 	/**
-	 * 返回属性所指向的引用的事物，如果不存在替换为根事物的路径当前的根事物开始寻找。
+	 * 返回属性所指向的引用的模型，如果不存在替换为根模型的路径当前的根模型开始寻找。
 	 * 
-	 * 有的时候一个属性的值是一个所引用的事物的路径，由于模型引擎总是使用全路径，
-	 * 这样如果引用时本事物根事物的某个字事物，并且根事物拷贝到了其它目录下或改名了，
+	 * 有的时候一个属性的值是一个所引用的模型的路径，由于模型引擎总是使用全路径，
+	 * 这样如果引用时本模型根模型的某个字模型，并且根模型拷贝到了其它目录下或改名了，
 	 * 那么这个引用就会失效。
 	 * 
-	 * 通过使用此方法可以避免这个问题，并且属性的值会重设，如果引用的事物同属一个根
-	 * 事物的话。
+	 * 通过使用此方法可以避免这个问题，并且属性的值会重设，如果引用的模型同属一个根
+	 * 模型的话。
 	 * 
 	 * @param attribute 属性名称
-	 * @return 所引用的事物
+	 * @return 所引用的模型
 	 */
 	public Thing getQuotedThing(String attribute){
 		return UtilThing.getQuoteThing(this, attribute);
 	}
 	
 	/**
-	 * 返回事物的事物名，相当于Java对象的类名。
+	 * 返回模型的模型名，相当于Java对象的类名。
 	 * 
-	 * @return 事物名
+	 * @return 模型名
 	 */
 	public String getThingName(){
 		List<Thing> descriptors = getDescriptors();
@@ -2223,9 +2226,9 @@ public class Thing {
 	}
 	
 	/**
-	 * 返回事物的所有事物名。
+	 * 返回模型的所有模型名。
 	 * 
-	 * @return 事物名
+	 * @return 模型名
 	 */
 	public List<String> getThingNames(){
 		if(thingNames.size() == 0){
@@ -2262,6 +2265,11 @@ public class Thing {
 			return;
 		}
 		
+    	//if(world.isLoading(this.getRoot().getMetadata().getPath())) {
+    	//	world.addDelayInitTask(new DelayInitTask(this, DelayInitTask.INIT_DESCRIPTORS, false));
+    	//	return;
+    	//}
+		
 		thingNames.clear();
 		
 		List<ThingEntry> tempList = new ArrayList<ThingEntry>();
@@ -2295,7 +2303,7 @@ public class Thing {
 	}
 	
 	/**
-     * 初始化事物属性的默认值。
+     * 初始化模型属性的默认值。
      *
      */
 	
@@ -2304,12 +2312,18 @@ public class Thing {
 	}
 	
 	/**
-     * 初始化事物属性的默认值。
+     * 初始化模型属性的默认值。
      * 
-     * @param forece 如果为ture，那么即使事物的属性已经设置过了，也会被默认值代替，如果描述者设置了默认值。
+     * @param forece 如果为ture，那么即使模型的属性已经设置过了，也会被默认值代替，如果描述者设置了默认值。
      *
      */
-    public void initDefaultValue(boolean forece){   	
+    public void initDefaultValue(boolean forece){
+    	World world = World.getInstance();
+    	//if(world.isLoading(this.getRoot().getMetadata().getPath())) {
+    	//	world.addDelayInitTask(new DelayInitTask(this, DelayInitTask.INIT_DEFAULT_VALUES, forece));
+    	//	return;
+    	//}
+    	
     	beginModify();
     	try{
 	        List<Thing> fields = this.getAllAttributesDescriptors();        
@@ -2333,7 +2347,7 @@ public class Thing {
 	        	}
 	        }
 	        
-	        //设置默认的名字属性，不要在这里默认初始化名字属性，因为有些已存在的事物name允许为空
+	        //设置默认的名字属性，不要在这里默认初始化名字属性，因为有些已存在的模型name允许为空
 	        /*
 	        if(attributes.get(NAME) == null){
 	        	Thing descriptor = this.getDescriptor();
@@ -2351,6 +2365,12 @@ public class Thing {
 		if(world == null){
 			return;
 		}
+		/*
+		if(world.isLoading(this.getRoot().getMetadata().getPath())) {
+    		world.addDelayInitTask(new DelayInitTask(this, DelayInitTask.INIT_EXTENDS, false));
+    		return;
+    	}*/		
+		
 		extendsCaches = null;
 		
 		List<ThingEntry> tempList = new ArrayList<ThingEntry>();
@@ -2407,7 +2427,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 重新初始化所有子事物的路径。
+	 * 重新初始化所有子模型的路径。
 	 */
 	public void initChildPath(){
 		for(Thing child : childs){
@@ -2416,9 +2436,9 @@ public class Thing {
 	}
 	
 	/**
-	 * 初始化子事物的元数据。
+	 * 初始化子模型的元数据。
 	 * 
-	 * @param child 子事物
+	 * @param child 子模型
 	 */
 	protected void initChildMetadata(Thing child){
 		ThingMetadata childMeta = child.getMetadata();
@@ -2463,11 +2483,11 @@ public class Thing {
 	}
 	
 	/**
-	 * 根据指定的描述者来判断该事物是否是这个指定描述者的所描述的事物。
+	 * 根据指定的描述者来判断该模型是否是这个指定描述者的所描述的模型。
 	 * 类似Java的instanceof的作用。
 	 * 
 	 * @param descriptorPath 描述者的路径
-	 * @return 是否是描述者所描述的事物
+	 * @return 是否是描述者所描述的模型
 	 */
 	public boolean isThing(String descriptorPath){
 		Thing descriptor = World.getInstance().getThing(descriptorPath);
@@ -2476,11 +2496,11 @@ public class Thing {
 	}
 	
 	/**
-	 * 根据指定的描述者来判断该事物是否这个指定描述者所描述的事物。
+	 * 根据指定的描述者来判断该模型是否这个指定描述者所描述的模型。
 	 * 类似Java的instanceof的作用。
 	 * 
 	 * @param descriptor 描述者
-	 * @return 是否这个描述者所描述的事物
+	 * @return 是否这个描述者所描述的模型
 	 */
 	public boolean isThing(Thing descriptor){
 		Map<Thing, Object> context = new HashMap<Thing, Object>();
@@ -2489,11 +2509,11 @@ public class Thing {
 	}
 		
 	/**
-	 * 根据描述者的名称返回当前事物是否是指定的事物，此判定方法并非严格。
+	 * 根据描述者的名称返回当前模型是否是指定的模型，此判定方法并非严格。
 	 * 类似Java的instanceof的作用。
 	 * 
 	 * @param descriptorName 描述者的名称
-	 * @return 是否是该事物
+	 * @return 是否是该模型
 	 */
 	public boolean isThingByName(String descriptorName){
 		List<Thing> allDescriptors = this.getAllDescriptors();
@@ -2562,7 +2582,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 使用新的事物来覆盖当前事物。
+	 * 使用新的模型来覆盖当前模型。
 	 * 
 	 * @param thing
 	 */
@@ -2575,7 +2595,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 返回本事物是否是瞬态的。
+	 * 返回本模型是否是瞬态的。
 	 * 
 	 * @return 是否是瞬态的
 	 */
@@ -2593,7 +2613,7 @@ public class Thing {
 		allChilds.addAll(childs);
 		excludes.put(getMetadata().getPath(), getMetadata().getPath()); //把自己放到排除中，避免递归
 		
-		//添加继承者的子事物
+		//添加继承者的子模型
 		if(childName != null && "thing".equals(childName)) {
 			String excludeDescriptorsForChilds = getStringBlankAsNull("excludeDescriptorsForChilds");
 		    if(excludeDescriptorsForChilds != null){
@@ -2637,19 +2657,22 @@ public class Thing {
 	 * @param value 属性的值
 	 * @return 值
 	 */
-	public Object put(Object name, Object value){
+	public Object put(String name, Object value){
 		if(name == null){
 			return null;
 		}
 		
 		//使用名字缓存，试图减少一些内存占用
+		/*
 		String key = name.toString();
 		String k = nameCache.get(key);
 		if(k == null){
 			k = key;
 			nameCache.put(k, k);
 		}
-		attributes.put(k, value);
+		*/
+		attributes.put(name, value);
+		
 		
 		if(name.equals(Thing.DESCRIPTORS)){
 			initDescriptors();
@@ -2685,7 +2708,7 @@ public class Thing {
 	 * @param name 属性名
 	 * @param value 值
 	 */
-	public void set(Object name, Object value){
+	public void set(String name, Object value){
 		put(name, value);
 	}
 	
@@ -2697,7 +2720,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 从本事物的描述者列表中移除指定的描述者。
+	 * 从本模型的描述者列表中移除指定的描述者。
 	 * 
 	 * @param descriptor 描述者
 	 */
@@ -2725,9 +2748,9 @@ public class Thing {
 	}
 	
 	/**
-	 * 删除指定的子事物。
+	 * 删除指定的子模型。
 	 * 
-	 * @param child 要删除的子事物
+	 * @param child 要删除的子模型
 	 */
 	public void removeChild(Thing child){
 		if(childs.contains(child)){
@@ -2752,38 +2775,46 @@ public class Thing {
 	}
 	
 	/**
-	 * 删除调用自身的事物管理者删除自己，设置自身的状态为已删除。
+	 * 删除调用自身的模型管理者删除自己，设置自身的状态为已删除。
 	 *
 	 *@return 是否成功
 	 */
 	public boolean remove(){
-		if(this.getParent() != null){
-			this.getParent().removeChild(this);
-			return true;
-		}else{
-			metadata.setRemoved(true);
-			updateLastModified();
-			
-			ThingCache.remove(metadata.getPath());
-			ThingManager manager = metadata.getThingManager();
-			if(manager != null){
-				return manager.remove(this);
+		try {
+			if(this.getParent() != null){
+				this.getParent().removeChild(this);
+				return true;
 			}else{
-				return false;
+				metadata.setRemoved(true);
+				updateLastModified();
+				
+				ThingCache.remove(metadata.getPath());
+				ThingManager manager = metadata.getThingManager();
+				if(manager != null){
+					return manager.remove(this);
+				}else{
+					return false;
+				}
 			}
+		}finally {
+			if(thingListener != null) {
+		    	thingListener.removed(this);
+		    }
 		}
 	}
 	
+	/*
+	 * 此方法的内容多余且会导致在快速创建Thing时耗内存，故注释取消了。
 	@Override
 	protected void finalize() throws Throwable {
 		this.metadata.removed = true;
 		ThingCache.remove(metadata.getPath());
-	}
+	}*/
 
 	/**
-	 * 从本事物的继承列表中移除指定的继承事物。
+	 * 从本模型的继承列表中移除指定的继承模型。
 	 * 
-	 * @param extend 继承的事物
+	 * @param extend 继承的模型
 	 */
 	public void removeExtend(Thing extend){
 		if(extend == null){
@@ -2809,7 +2840,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 保存自己，通常是调用事物所在的事物管理者来保存。
+	 * 保存自己，通常是调用模型所在的模型管理者来保存。
 	 *
 	 * @return 是否成功
 	 */
@@ -2836,10 +2867,10 @@ public class Thing {
 	}
 	
 	/**
-	 * 把自己按照指定的路径保存到指定的目录下，如果目标事物存在那么会替换目标事物。
+	 * 把自己按照指定的路径保存到指定的目录下，如果目标模型存在那么会替换目标模型。
 	 * 
-	 * @param thingManager 事物管理器
-	 * @param path 事物路径
+	 * @param thingManager 模型管理器
+	 * @param path 模型路径
 	 */
 	public void saveAs(String thingManager, String path){
 		Thing thing = this.getRoot();
@@ -2858,7 +2889,7 @@ public class Thing {
 		ThingManager manager = World.getInstance().getThingManager(thingManager);		
 		if(manager != null){
 			if(!"_transient".equals(thingManager) && (thing.isTransient() || this.isTransient())){
-				//如果不是瞬态的事物管理器，也修改为非瞬态的状态
+				//如果不是瞬态的模型管理器，也修改为非瞬态的状态
 				this.setTransient(false);
 			}
 			
@@ -2880,7 +2911,7 @@ public class Thing {
 			ThingUtil.replaceThing(thing, oldPath, path);
 			manager.save(thing);
 			
-			//清除已有的事物缓存，使事物重新加载
+			//清除已有的模型缓存，使模型重新加载
 			ThingCache.remove(path);
 		}else{
 			throw new XMetaException("Thing manager not exists, name=" + thingManager);
@@ -2888,11 +2919,11 @@ public class Thing {
 	}
 	
 	/**
-	 * 把自己拷贝一个新的事物到指定的事物管理器的指定目录下。
+	 * 把自己拷贝一个新的模型到指定的模型管理器的指定目录下。
 	 * 
-	 * @param thingManager 事物管理器
+	 * @param thingManager 模型管理器
 	 * @param category 目录
-	 * @return 事物
+	 * @return 模型
 	 */
 	public Thing copyTo(String thingManager, String category){
 		Thing root = this.getRoot();
@@ -2948,6 +2979,10 @@ public class Thing {
 				if(change){
 					//System.out.println("modified");
 				    updateLastModified();
+				    
+				    if(thingListener != null) {
+				    	thingListener.changed(this);
+				    }
 				}
 			}
 		}
@@ -2967,7 +3002,7 @@ public class Thing {
 		this.getMetadata().setLastModified(lastModified);
 		context.put(this, this);
 		 
-		//更新父事物的最后更新时间
+		//更新父模型的最后更新时间
 		Thing parent = getParent();
 		while(parent != null && context.get(parent) == null){
 			parent.getMetadata().setLastModified(lastModified);
@@ -2975,7 +3010,7 @@ public class Thing {
 			parent = parent.getParent();
 		}
 		 
-		//更新子事物的最后更新时间
+		//更新子模型的最后更新时间
 		for(Thing child : getChilds()){
 			changeChildLastModified(child, context, lastModified);
 		}
@@ -2998,8 +3033,15 @@ public class Thing {
 			",path=" + getMetadata().getPath() + ",descriptios=" + getString("descriptors") + "}";
 	}
 	
+	public String toXML() {
+		ThingCoder coder = World.getInstance().getThingCoder("dml.xml");
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		coder.encode(this, bout);
+		return new String(bout.toByteArray());
+	}
+	
 	/**
-	 * 设置绑定到当前事物的ThreadLocal的数据。
+	 * 设置绑定到当前模型的ThreadLocal的数据。
 	 * 
 	 * @param key
 	 * @param data
@@ -3027,7 +3069,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 返回绑定到本事物的ThradLocal中的数据。
+	 * 返回绑定到本模型的ThradLocal中的数据。
 	 * 
 	 * @param key
 	 * @return
@@ -3050,7 +3092,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 返回一个和修改时间绑定的缓存，如果事物的当前修改时间和保存时不一样，那么缓存无效返回null。
+	 * 返回一个和修改时间绑定的缓存，如果模型的当前修改时间和保存时不一样，那么缓存无效返回null。
 	 * 
 	 * @param key
 	 * @return
@@ -3070,7 +3112,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 设置一个缓存数据。如果事物被修改了，那么缓存也变得无效了。
+	 * 设置一个缓存数据。如果模型被修改了，那么缓存也变得无效了。
 	 * 
 	 * @param key
 	 * @param data
@@ -3133,7 +3175,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 设置缓存数据，如果事物在后面修改了，那么缓存失效。
+	 * 设置缓存数据，如果模型在后面修改了，那么缓存失效。
 	 * 
 	 * @param key key
 	 * @param data 数据
@@ -3167,7 +3209,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 设置缓存数据到World中，如果事物在后面修改了，那么缓存失效。
+	 * 设置缓存数据到World中，如果模型在后面修改了，那么缓存失效。
 	 * 
 	 * @param key key
 	 * @param data 数据
@@ -3298,7 +3340,7 @@ public class Thing {
 	 * 
 	 * @param refChild
 	 * @param index
-	 * @return 如果超出子节点的范围或参考子节点不是当前事物的子节点返回null，否则返回对应的子节点。
+	 * @return 如果超出子节点的范围或参考子节点不是当前模型的子节点返回null，否则返回对应的子节点。
 	 */
 	public Thing getChildBy(Thing refChild, int index){
 		int rindex = childs.indexOf(refChild);
@@ -3310,7 +3352,25 @@ public class Thing {
 	}
 	
 	/**
-	 * 修改缓存数据。保存到事物的data中，同时记录事物的修改时间，当获取数据时如果事物的修改时间
+	 * 获取模型监听器，入股没有设置返回null。
+	 * 
+	 * @return
+	 */
+	public ThingListener getThingListener() {
+		return thingListener;
+	}
+
+	/**
+	 * 设置新的模型监听器，如果已有监听器将被覆盖。
+	 * 
+	 * @param thingListener
+	 */
+	public void setThingListener(ThingListener thingListener) {
+		this.thingListener = thingListener;
+	}
+
+	/**
+	 * 修改缓存数据。保存到模型的data中，同时记录模型的修改时间，当获取数据时如果模型的修改时间
 	 * 和记录的时间不一致，则返回null。
 	 * 
 	 * @author zyx
@@ -3335,6 +3395,44 @@ public class Thing {
 
 		public void setData(Object data) {
 			this.data = data;
+		}
+	}
+	
+	public static class DelayInitTask {
+		public static final byte INIT_DEFAULT_VALUES = 0;
+		public static final byte INIT_DESCRIPTORS = 1;
+		public static final byte INIT_EXTENDS = 2;
+		Thing thing;
+		boolean forece;
+		byte type;
+		
+		public DelayInitTask(Thing thing, byte type, boolean forece) {
+			this.thing = thing;
+			this.forece = forece;
+			this.type = type;
+		}
+		
+		public void run() {
+			if(type == INIT_DEFAULT_VALUES) {
+				thing.initDefaultValue(forece);
+			}else if(type == INIT_DESCRIPTORS) {
+				thing.initDescriptors();
+			}else if(type == INIT_EXTENDS) {
+				thing.initExtends();
+			}
+		}
+		
+		public boolean equals(Object task) {
+			if(!(task instanceof DelayInitTask)) {
+				return false;
+			}
+			
+			DelayInitTask t = (DelayInitTask) task;
+			if(t.thing == this.thing && t.type == this.type) {
+				return true;
+			}
+			
+			return false;
 		}
 	}
 }

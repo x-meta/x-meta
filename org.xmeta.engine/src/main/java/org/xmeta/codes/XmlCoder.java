@@ -42,6 +42,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xmeta.Thing;
 import org.xmeta.ThingCoderException;
+import org.xmeta.cache.ThingCache;
 import org.xmeta.util.UtilData;
 import org.xml.sax.SAXException;
 
@@ -417,8 +418,9 @@ public class XmlCoder {
         document = builder.parse(bis);
         
         Element root = document.getDocumentElement();
+        ThingCache.put(thing.getMetadata().getPath(), thing);
         parse(thing, descriptor, root, System.currentTimeMillis());
-        
+        initDefaultValues(thing);
         setLastModified(thing, System.currentTimeMillis());
 	}
 	
@@ -453,9 +455,18 @@ public class XmlCoder {
         document = builder.parse(input);
         
         Element root = document.getDocumentElement();
+        ThingCache.put(thing.getMetadata().getPath(), thing);
         parse(thing, descriptor, root, System.currentTimeMillis());
-        
+        initDefaultValues(thing);        
         setLastModified(thing, System.currentTimeMillis());
+	}
+	
+	public static void initDefaultValues(Thing thing) {
+		thing.initDefaultValue();
+		
+		for(Thing child : thing.getChilds()) {
+			initDefaultValues(child);
+		}
 	}
 	
 	/**
@@ -474,7 +485,7 @@ public class XmlCoder {
 		String descriptors = element.getAttribute("descriptors");
 		if(descriptors != null && !"".equals(descriptors.trim())){
 			attributes.put("descriptors", descriptors);
-			thing.initDefaultValue();
+			//thing.initDefaultValue();
 		}else if(parentDescriptor != null){
 			//通过节点名确定描述者，父描述不为空的情况下			
 			for(Thing descriptor : parentDescriptor.getAllChilds("thing")){
@@ -486,7 +497,7 @@ public class XmlCoder {
 			
 			if(descriptors != null) {
 				attributes.put("descriptors", descriptors);
-				thing.initDefaultValue();
+				//thing.initDefaultValue();
 			}
 		}
 		//如果descriptors为空，默认设置为元事物
@@ -528,7 +539,8 @@ public class XmlCoder {
 							attributes.put(node.getNodeName().intern(), value);
 						}
 					}else{				
-						Thing child = new Thing(null, null, null, false);
+						Thing child = new Thing(null, null, null, false);		
+						child.setParent(thing);
 						parse(child, thing.getDescriptor(), (Element) node, lastModifyed);
 						if(child != null){
 							thing.addChild(child);

@@ -75,6 +75,8 @@ public class World {
 	
 	/** 世界的唯一单态实例 */
 	private final static World worldInstance = new World();
+	//private ThreadLocal<Stack<String>> loadingStack = new ThreadLocal<Stack<String>>();
+	//private ThreadLocal<List<DelayInitTask>> delayInitTasks = new ThreadLocal<List<DelayInitTask>>();
 
 	/** 瞬态事物的管理者 */
 	private TransientThingManager transientThingManager = new TransientThingManager();
@@ -140,6 +142,7 @@ public class World {
 	private String PROCESSOR_ARCHITECTURE;
 	/**  web文件根路径 */
 	private String webFileRoot = null;
+	
 	/**
 	 * 私有构造方法，目前系统中只允许存在一个世界。
 	 * 
@@ -178,7 +181,7 @@ public class World {
 						
 		//System.out.println("newworld init ognl: " + (System.currentTimeMillis() - start));
 	}
-
+	
 	/**
 	 * 取得世界的实例。
 	 * 
@@ -187,6 +190,67 @@ public class World {
 	public static World getInstance() {
 		return worldInstance;
 	}
+    /*
+	protected void pushLoading(String path) {
+		Stack<String> stack = loadingStack.get();
+		if(stack == null) {
+			stack = new Stack<String>();
+			loadingStack.set(stack);
+		}
+		
+		stack.push(path);
+	}
+	
+	protected void popLoading() {
+		Stack<String> stack = loadingStack.get();
+		if(stack != null) {
+			stack.pop();
+			if(stack.size() == 0) {
+				List<DelayInitTask> initTasks = delayInitTasks.get();
+				if(initTasks != null) {
+					for(DelayInitTask initTask : initTasks) {
+						initTask.run();
+					}
+				}
+				
+				delayInitTasks.set(null);
+			}
+		}
+	}
+	
+	protected void addDelayInitTask(DelayInitTask initTask) {
+		List<DelayInitTask> initTasks = delayInitTasks.get();
+		if(initTasks == null) {
+			initTasks = new ArrayList<DelayInitTask>();
+			delayInitTasks.set(initTasks);
+		}
+		
+		if(!initTasks.contains(initTask)) {
+			initTasks.add(initTask);
+		}
+	}
+	
+	protected boolean isLoading(String path) {
+		if(path == null || "".equals(path)) {
+			return false;
+		}
+		
+		Stack<String> stack = loadingStack.get();
+		if(stack != null) {
+			int count = 0;
+			for(String p : stack) {
+				if(path.equals(p)) {
+					count ++;
+					if(count == 10) {
+						//说明存在递归
+						return true;
+					}
+				}
+			}
+		}
+		
+		return false;
+	}*/
 	
 	public void setMode(byte mode){
 		this.mode = mode;
@@ -360,9 +424,9 @@ public class World {
 			return this;
 		}
 		
-		if("xworker.ide.worldExplorer.things.ProjectSet".equals(pathStr)) {
-			System.out.println();
-		}
+		//if("xworker.lang.actions.Action".equals(pathStr)) {
+		//	System.out.println();
+		//}
 //		if("Test".equals(pathStr)) {
 //			System.out.println();
 //		}
@@ -405,14 +469,20 @@ public class World {
 				}*/
 				
 				//按照事务管理器列表，获取第一个事物
-				for(int i=0; i<thingManagers.size(); i++){
-					ThingManager thingManager = thingManagers.get(i);
-					thing = thingManager.getThing(path.getPath());
-					if(thing != null){
-						path.setType(Path.TYPE_THING);
-						break;
+				String thingPath = path.getPath();
+				//try {
+					//this.pushLoading(thingPath);
+					for(int i=0; i<thingManagers.size(); i++){
+						ThingManager thingManager = thingManagers.get(i);
+						thing = thingManager.getThing(thingPath);
+						if(thing != null){
+							path.setType(Path.TYPE_THING);
+							break;
+						}
 					}
-				}
+				//}finally {
+					//this.popLoading();
+				//}
 				
 				if(thing != null){
 					ThingCache.put(path.getPath(), thing);
@@ -452,7 +522,16 @@ public class World {
 		}
 		
 		if(thing == null){
-			thing = loadThingFromClasspath(path.getPath());
+			String thingPath = path.getPath();
+			//try {
+			//	this.pushLoading(thingPath);
+				thing = loadThingFromClasspath(thingPath);
+				if(thing != null) {
+					ThingCache.put(thingPath, thing);
+				}
+			//}finally {
+			//	this.popLoading();
+			//}
 		}
 		if(thing != null){
 			return thing.get(path);

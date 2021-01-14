@@ -23,6 +23,8 @@ import org.xmeta.Category;
 import org.xmeta.Thing;
 import org.xmeta.ThingIndex;
 import org.xmeta.ThingManager;
+import org.xmeta.World;
+import org.xmeta.util.ThingClassLoader;
 
 /**
  * 瞬态事物管理者下的目录。
@@ -155,6 +157,15 @@ public class TransientCategory implements Category{
 	@Override
 	public String getFilePath() {
 		return null;
+	}
+
+	@Override
+	public ThingClassLoader getClassLoader() {
+		return World.getInstance().getClassLoader();
+	}
+
+	@Override
+	public void setClassLoader(ThingClassLoader classLoader) {
 	}
 
 }

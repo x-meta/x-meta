@@ -89,6 +89,7 @@ public class JsonThingCoder implements ThingCoder{
 					if(v instanceof Map){
 						if(!decodeIndex){
 							Thing child = new Thing();
+							child.setParent(thing);
 							decode(child, key, v, imports, lastModifyed, decodeIndex);
 							thing.addChild(child);
 						}

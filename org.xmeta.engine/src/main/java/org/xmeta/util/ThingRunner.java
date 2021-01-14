@@ -304,6 +304,7 @@ public class ThingRunner {
 		thing.doAction("run");
 	}
 	
+	@SuppressWarnings("unused")
 	private static boolean editThing(String thingPath){		
 		Thing globalConfig = World.getInstance().getThing("_local.xworker.config.GlobalConfig");
 		if(globalConfig == null){

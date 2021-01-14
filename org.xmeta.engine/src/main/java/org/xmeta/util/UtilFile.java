@@ -158,18 +158,19 @@ public class UtilFile {
 		String path = null;
 		if(fileName == null){
 			return fileName;
-		}else if(fileName.startsWith("world|")){
+		}else if(fileName.startsWith("world|") || fileName.startsWith("world:")){
 			//相对于World的路径
 			path = World.getInstance().getPath() + "/" + fileName.substring(6, fileName.length());			
 		}else if(fileName.startsWith("project|") || fileName.indexOf(":") != -1){
 			//相对于项目的路径
 			int index = fileName.indexOf(":");
+			/*
 			String projectName = null;
 			if(fileName.startsWith("project|")){
 				projectName = fileName.substring(8, index);
 			}else{
 				projectName = fileName.substring(0, index);
-			}
+			}*/
 			fileName = fileName.substring(index + 1, fileName.length());
 			
 		}else{

@@ -74,6 +74,9 @@ public class Bindings extends HashMap<String, Object>{
 		return isVarScopeFlag;
 	}
 	
+	/**
+	 *　标记为本地变量栈层。
+	 */
 	public void setVarScopeFlag(){
 		isVarScopeFlag = true;
 	}
