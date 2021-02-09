@@ -2284,7 +2284,8 @@ public class Thing {
 						descriptor = MetaThing.instance;
 					}else if("xworker.lang.MetaDescriptor3/@actions".equals(descriptorName)) {
 						descriptor = MetaThing.instance.getThing("actions@0");
-					}else if("xworker.lang.actions.JavaAction".equals(descriptorName)) {
+					}else if("xworker.lang.actions.JavaAction".equals(descriptorName) || 
+							"xworker.lang.actions.Actions/@JavaAction".equals(descriptorName)) {
 						descriptor = MetaThing.instance.getThing("actions@0/JavaAction@0");
 					}
 				}
