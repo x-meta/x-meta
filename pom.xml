@@ -87,7 +87,7 @@
       </executions>
       <configuration>  
             <encoding>UTF-8</encoding>
-            <additionalJOption> -source 1.6</additionalJOption>
+            <additionalJOption> -source 1.8</additionalJOption>
       </configuration> 
     </plugin>
      <plugin>
