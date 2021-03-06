@@ -2889,7 +2889,7 @@ public class Thing {
 	}
 	
 	/**
-	 * 把自己按照指定的路径保存到指定的目录下，如果目标模型存在那么会替换目标模型。
+	 * 相当于move根节点，在原来的地方删除根节点，把根节点按照指定的路径保存到指定的目录下，如果目标模型存在那么会替换目标模型。
 	 * 
 	 * @param thingManager 模型管理器
 	 * @param path 模型路径
@@ -2908,8 +2908,11 @@ public class Thing {
 			thingName = path.substring(dotIndex + 1, path.length());
 		}
 		
-		ThingManager manager = World.getInstance().getThingManager(thingManager);		
+		ThingManager manager = World.getInstance().getThingManager(thingManager);
 		if(manager != null){
+			//从原来的地方删除
+			thing.remove();
+
 			if(!"_transient".equals(thingManager) && (thing.isTransient() || this.isTransient())){
 				//如果不是瞬态的模型管理器，也修改为非瞬态的状态
 				this.setTransient(false);
@@ -2932,7 +2935,7 @@ public class Thing {
 			//替换属性路径
 			ThingUtil.replaceThing(thing, oldPath, path);
 			manager.save(thing);
-			
+
 			//清除已有的模型缓存，使模型重新加载
 			ThingCache.remove(path);
 		}else{

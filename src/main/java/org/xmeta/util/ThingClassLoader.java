@@ -169,6 +169,12 @@ public class ThingClassLoader extends URLClassLoader {
 			}
 		}
 	}
+
+	public void addClassPath(URL url){
+		if(url != null){
+			this.addURL(url);
+		}
+	}
 	
 	private void initLib(File file){
 		FileInputStream fin = null;
