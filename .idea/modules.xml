@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/org.xmeta.engine.iml" filepath="$PROJECT_DIR$/org.xmeta.engine.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../xworker/xworker_parent.iml" filepath="$PROJECT_DIR$/../xworker/xworker_parent.iml" />
     </modules>
   </component>
 </project>

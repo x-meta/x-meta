@@ -3,41 +3,9 @@
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
-        <option value="$PROJECT_DIR$/org.xmeta.engine/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/pom.xml" />
         <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
-    <option name="ignoredFiles">
-      <set>
-        <option value="$PROJECT_DIR$/../xworker/xworker_ai/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_app/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_beanshell/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_core/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_dataobject/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_explorer/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_function/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_groovy/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_javafx/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_javafx_examples/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_jetty/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_jfreechart/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_jsoup/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_jython/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_kafka/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_lang/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_libgdx/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_misc/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_netty/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_protobuf/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_swt/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_swt_nebula/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_swt_thingeditor/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_uiflow/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_web/pom.xml" />
-        <option value="$PROJECT_DIR$/../xworker/xworker_web_extjs/pom.xml" />
-      </set>
-    </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_10" project-jdk-name="10" project-jdk-type="JavaSDK" />
 </project>
