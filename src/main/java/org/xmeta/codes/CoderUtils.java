@@ -16,7 +16,7 @@ public class CoderUtils {
 		String inputtype = attribute.getString("inputtype");
 		
 		//布尔值的默认值都是false
-		if("boolean".equals(type) || "truefalse".equals(inputtype) || "truefalseselect".equals(inputtype)){
+		if("truefalse".equals(inputtype)){
 			if(defaultValue == null){
 				defaultValue = "false";
 			}
