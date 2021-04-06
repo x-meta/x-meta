@@ -24,6 +24,8 @@ public class ActionAnnotationHelper {
 	private Class<?> actionClass;
 	
 	private Method actionMethod;
+
+	private boolean isActionClass = false;
 	
 	/**
 	 * 分析方法和方法所述的类有没有定义动作相关的注解，如果有那么返回Helper，如果没有那么返回null。
@@ -52,7 +54,10 @@ public class ActionAnnotationHelper {
 		ActionClass actionClass = cls.getAnnotation(ActionClass.class);
 		//静态方法不需要创建实例化的对象
 		if(actionClass != null && (method.getModifiers() & Modifier.STATIC) != Modifier.STATIC) {
-			helper.creator = cls.getMethod(actionClass.creator(), ActionContext.class);
+			helper.isActionClass = true;
+			if(!actionClass.creator().isEmpty()) {
+				helper.creator = cls.getMethod(actionClass.creator(), ActionContext.class);
+			}
 		}
 		
 		//查找字段的注解
@@ -104,8 +109,16 @@ public class ActionAnnotationHelper {
 		Object obj = null;
 		if(creator != null) {
 			obj = creator.invoke(null, actionContext);
-		}else if(fields != null || ((actionMethod.getModifiers() & Modifier.STATIC) == Modifier.STATIC)) {
-			obj = actionClass.getConstructor(new Class<?>[0]).newInstance();
+		}else if(fields != null || ((actionMethod.getModifiers() & Modifier.STATIC) != Modifier.STATIC)) {
+			if(isActionClass){
+				obj = actionContext.get(actionClass.getName());
+			}
+			if(obj == null) {
+				obj = actionClass.getConstructor(new Class<?>[0]).newInstance();
+			}
+			if(isActionClass) {
+				actionContext.g().put(actionClass.getName(), obj);
+			}
 		}
 		
 		//设置字段的值

@@ -2720,7 +2720,19 @@ public class Thing {
 	 */
 	public void putAll(Map<String, Object> values){
 		attributes.putAll(values);
-		
+
+		if(values.containsKey(Thing.DESCRIPTORS)){
+			initDescriptors();
+
+			actionCaches.clear();
+		}
+
+		if(values.containsKey(Thing.EXTENDS)){
+			initExtends();
+
+			actionCaches.clear();
+		}
+
 		updateLastModified();
 	}
 	
