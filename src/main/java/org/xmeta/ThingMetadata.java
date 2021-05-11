@@ -130,7 +130,7 @@ public class ThingMetadata {
 		
 		if(id == null || "".equals(id)){
 			try{
-				id = (String) thing.getAttributes().get("id");
+				id = (String) thing.getString("id");
 			}catch(Exception e){				
 			}
 		}
@@ -164,13 +164,13 @@ public class ThingMetadata {
 	 * @return 事物的名成
 	 */
 	public String getName(){
-		String name = (String) thing.attributes.get(Thing.NAME);
+		String name = (String) thing.getString(Thing.NAME);
 		if(name != null && !"".equals(name)){
 			return name;
 		}else{
 			List<Thing> descriptors = thing.getDescriptors();
 			if(descriptors.size() > 0){				
-				name = (String) descriptors.get(0).attributes.get(Thing.NAME);
+				name = (String) descriptors.get(0).getString(Thing.NAME);
 				if(name == null) {
 					return "thing";
 				}else {

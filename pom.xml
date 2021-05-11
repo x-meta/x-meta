@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.x-meta</groupId>
   <artifactId>org.xmeta.engine</artifactId>
-  <version>1.4.4-SNAPSHOT</version>
+  <version>1.4.5-SNAPSHOT</version>
   <licenses>
      <license>
        <name>The Apache License, Version 2.0</name>
