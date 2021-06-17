@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.xmeta.Action;
 import org.xmeta.ActionContext;
+import org.xmeta.ActionException;
 
 public class ActionAnnotationHelper {
 	/** 带有注解的字段列表 */
@@ -167,6 +169,19 @@ public class ActionAnnotationHelper {
 		}
 		
 		return values;
+	}
+
+	public Object invoke(Object object, ActionContext actionContext){
+		if(actionMethod == null){
+			return null;
+		}
+
+		Object[] params = getParamValues(actionContext);
+		try {
+			return actionMethod.invoke(object, params);
+		} catch (Exception e) {
+			return  new ActionException(e);
+		}
 	}
 		
 }

@@ -1,15 +1,14 @@
 package org.xmeta.util;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.xmeta.Action;
-import org.xmeta.ActionContext;
-import org.xmeta.ActionException;
-import org.xmeta.Thing;
-import org.xmeta.World;
+import org.xmeta.*;
+import org.xmeta.annotation.ActionAnnotationHelper;
 
 /**
  * 动作容器，在一些模型中使用，用来存储各种动作。
@@ -25,11 +24,14 @@ public class ActionContainer {
 	private Thing actions;
 	private ActionContext actionContext;
 	private List<Thing> actionThings = null;
+	private Object object;
+	private Map<String, ActionAnnotationHelper> methods;
 
 	public ActionContainer(Thing actions, ActionContext actionContext) {
 		this.actionContext = actionContext;
 		this.actions = actions;
 
+		this.object = ThingLoader.getObject();
 	}
 
 	public Thing getThing() {
@@ -48,6 +50,39 @@ public class ActionContainer {
 		return actionThings;
 	}
 
+	private <T> T invokeMethod(String name){
+		if(object == null){
+			return null;
+		}
+
+		if(methods == null){
+			methods = new HashMap<>();
+		}
+
+		ActionAnnotationHelper helper = methods.get(name);
+		if(helper == null){
+			Class<?> cls = object.getClass();
+			for(Method method1 : cls.getMethods()) {
+				if(method1.getName().equals(name) ) {
+					try {
+						helper = ActionAnnotationHelper.parse(cls, method1);
+					} catch (NoSuchMethodException e) {
+						throw new ActionException(e);
+					}
+					break;
+				}
+			}
+
+			if(helper == null){
+				helper = new ActionAnnotationHelper();
+			}
+
+			methods.put(name, helper);
+		}
+
+		return (T) helper.invoke(object, actionContext);
+	}
+
 	public <T> T doAction(String name) {
 		try {
 			Thing actionThing = getActionThing(name);
@@ -56,7 +91,7 @@ public class ActionContainer {
 						.getPath());
 				return action.run(actionContext);
 			} else {
-				return null;
+				return invokeMethod(name);
 			}
 		} catch (Throwable e) {
 			throw new ActionException("Container do action [" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);
@@ -71,7 +106,7 @@ public class ActionContainer {
 						.getPath());
 				return action.run(actionContext);
 			} else {
-				return null;
+				return invokeMethod(name);
 			}
 		} catch (Throwable e) {
 			throw new ActionException("Container do action [" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);
@@ -86,7 +121,15 @@ public class ActionContainer {
 						.getPath());
 				return action.run(actionContext, parameters);
 			} else {
-				return null;
+				Bindings bindings = actionContext.push();
+				try {
+					if(parameters != null){
+						bindings.putAll(parameters);
+					}
+					return invokeMethod(name);
+				}finally {
+					actionContext.pop();
+				}
 			}
 		} catch (Throwable e) {
 			throw new ActionException("Container do action [" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);
@@ -101,7 +144,15 @@ public class ActionContainer {
 						.getPath());
 				return action.run(actionContext, parameters);
 			} else {
-				return null;
+				Bindings bindings = actionContext.push();
+				try {
+					if(parameters != null){
+						bindings.putAll(parameters);
+					}
+					return invokeMethod(name);
+				}finally {
+					actionContext.pop();
+				}
 			}
 		} catch (Throwable e) {
 			throw new ActionException("Container do action [" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);

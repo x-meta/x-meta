@@ -1207,6 +1207,13 @@ public class World {
 		
 		//System.out.println("world clear cache: " + (System.currentTimeMillis() - start));
 		File f = new File(worldPath);
+
+		//check _local projects
+		File _local = new File(f, "projects/_local");
+		if(!_local.exists()){
+			_local.mkdirs();
+		}
+
 		this.worldPath = f.getAbsolutePath();
 
 		//os和架构等变量的初始化

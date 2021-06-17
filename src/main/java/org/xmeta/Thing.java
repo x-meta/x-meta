@@ -521,6 +521,7 @@ public class Thing {
 	 */
 	public void cognize(String xmlData) throws ParserConfigurationException, SAXException, IOException{
 		Thing thing = new Thing();
+		thing.set(Thing.DESCRIPTORS, this.getString(Thing.DESCRIPTORS));
 		XmlCoder.parse(thing, xmlData);
 		cognize(thing);
 	}
