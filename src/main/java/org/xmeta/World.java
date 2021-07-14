@@ -178,7 +178,13 @@ public class World {
 				}
 			}
 		}).start();
-						
+
+		String worldClassPath = System.getenv("xworker.class.path");
+		if(worldClassPath != null){
+			for(String path :worldClassPath.split("[" + File.pathSeparator + "]")){
+				this.addLib(path);
+			}
+		}
 		//System.out.println("newworld init ognl: " + (System.currentTimeMillis() - start));
 	}
 	
@@ -1299,7 +1305,7 @@ public class World {
 			tmp[paths.length] = s;
 			field.set(null, tmp);
 		} catch (Exception e) {
-			log.log(Level.WARNING, "error on init library path", e);
+			log.log(Level.FINER, "error on init library path", e);
 		}
 	}
 

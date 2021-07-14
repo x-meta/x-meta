@@ -59,7 +59,7 @@ public class UtilAction {
 		String fileName = className.replace('.', '/');
 		//fileName += ".java";
 					
-		return World.getInstance().getPath() + "/actionSources/" + fileName + "." + ext;
+		return World.getInstance().getPath() + "/work/actionSources/" + fileName + "." + ext;
 	}
 	
 	/**

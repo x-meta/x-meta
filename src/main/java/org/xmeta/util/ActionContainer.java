@@ -1,10 +1,8 @@
 package org.xmeta.util;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.xmeta.*;
@@ -18,20 +16,82 @@ import org.xmeta.annotation.ActionAnnotationHelper;
  */
 public class ActionContainer {
 	//private static Logger log = LoggerFactory.getLogger(ActionContainer.class);
-	private static Logger logger = Logger.getLogger(ActionContainer.class.getName());
+	private static final Logger logger = Logger.getLogger(ActionContainer.class.getName());
 	static World world = World.getInstance();
 
-	private Thing actions;
-	private ActionContext actionContext;
+	private final Thing actions;
+	private final ActionContext actionContext;
 	private List<Thing> actionThings = null;
 	private Object object;
 	private Map<String, ActionAnnotationHelper> methods;
+	private boolean log = false;
 
 	public ActionContainer(Thing actions, ActionContext actionContext) {
 		this.actionContext = actionContext;
 		this.actions = actions;
 
-		this.object = ThingLoader.getObject();
+		//添加继承
+		for(Thing ext : actions.getExtends()) {
+			append(ext);
+		}
+
+		//是否打印日志，如果是那么打印更详细的信息
+		this.log = actions.getBoolean("log");
+
+		//初始化对象
+		if(actions.getBoolean("thingLoader")){
+			this.object = ThingLoader.getObject();
+			if(log){
+				logger.info("Get object from ThingLoader, object=" + object);
+			}
+		}else{
+			this.object = actions.doAction("getObject", actionContext);
+			if(log){
+				logger.info("Get object from getObject, object=" + object);
+			}
+			if(this.object == null){
+				Class<?> cls = actions.doAction("getClass", actionContext);
+				if(log){
+					logger.info("Get object from getClass, class=" + cls);
+				}
+				if(cls != null){
+					try {
+						this.object = cls.getConstructor(new Class<?>[0]).newInstance(new Object[0]);
+
+						if(log){
+							logger.info("Get object from getClass, object=" + object);
+						}
+						if(this.object != null){
+							ThingLoader.load(this.object, actionContext);
+						}
+					}catch(Exception e){
+						logger.log(Level.WARNING, "New object error, actions=" + actions.getMetadata().getPath(), e);
+					}
+				}
+			}
+		}
+
+		if(this.object != null){
+			setObject(object);
+		}
+	}
+
+	public void setObject(Object object){
+		this.object = object;
+
+		methods = new HashMap<>();
+
+		//init methods
+		Class<?> cls = object.getClass();
+		for(Method method1 : cls.getMethods()) {
+			String name = method1.getName();
+			try {
+				ActionAnnotationHelper helper = ActionAnnotationHelper.parse(cls, method1);
+				methods.put(name, helper);
+			} catch (NoSuchMethodException e) {
+				throw new ActionException(e);
+			}
+		}
 	}
 
 	public Thing getThing() {
@@ -46,117 +106,67 @@ public class ActionContainer {
 		actionThings.add(action);
 	}
 	
-	public List<Thing> getAppednActions(){
+	public List<Thing> getAppendActions(){
 		return actionThings;
 	}
 
-	private <T> T invokeMethod(String name){
-		if(object == null){
+	public ActionAnnotationHelper getMethodHelper(String name){
+		if(methods == null){
 			return null;
 		}
 
-		if(methods == null){
-			methods = new HashMap<>();
-		}
-
-		ActionAnnotationHelper helper = methods.get(name);
-		if(helper == null){
-			Class<?> cls = object.getClass();
-			for(Method method1 : cls.getMethods()) {
-				if(method1.getName().equals(name) ) {
-					try {
-						helper = ActionAnnotationHelper.parse(cls, method1);
-					} catch (NoSuchMethodException e) {
-						throw new ActionException(e);
-					}
-					break;
-				}
-			}
-
-			if(helper == null){
-				helper = new ActionAnnotationHelper();
-			}
-
-			methods.put(name, helper);
-		}
-
-		return (T) helper.invoke(object, actionContext);
+		return methods.get(name);
 	}
 
 	public <T> T doAction(String name) {
-		try {
-			Thing actionThing = getActionThing(name);
-			if (actionThing != null) {
-				Action action = world.getAction(actionThing.getMetadata()
-						.getPath());
-				return action.run(actionContext);
-			} else {
-				return invokeMethod(name);
-			}
-		} catch (Throwable e) {
-			throw new ActionException("Container do action [" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);
-		}
+		return (T) doAction(name, Collections.EMPTY_MAP);
 	}
 
 	public <T> T doAction(String name, ActionContext context) {
-		try {
-			Thing actionThing = getActionThing(name);
-			if (actionThing != null) {
-				Action action = world.getAction(actionThing.getMetadata()
-						.getPath());
-				return action.run(actionContext);
-			} else {
-				return invokeMethod(name);
-			}
-		} catch (Throwable e) {
-			throw new ActionException("Container do action [" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);
-		}
+		return (T) doAction(name, Collections.EMPTY_MAP);
 	}
 
 	public <T> T doAction(String name, Map<String, Object> parameters) {
 		try {
-			Thing actionThing = getActionThing(name);
-			if (actionThing != null) {
-				Action action = world.getAction(actionThing.getMetadata()
-						.getPath());
-				return action.run(actionContext, parameters);
-			} else {
+			ActionAnnotationHelper helper = getMethodHelper(name);
+			if(helper != null){
+				if(log){
+					logger.info("Do action [" + actions.getMetadata().getPath() + ":" + name + "] by method, method=" + helper.getActionMethod());
+				}
 				Bindings bindings = actionContext.push();
 				try {
 					if(parameters != null){
 						bindings.putAll(parameters);
 					}
-					return invokeMethod(name);
+					return (T) helper.invoke(object, actionContext);
 				}finally {
 					actionContext.pop();
 				}
+			}else{
+				Thing actionThing = getActionThing(name);
+				if (actionThing != null) {
+					if(log){
+						logger.info("Do action [" + actions.getMetadata().getPath() + ":" + name + "] by action, action=" + actionThing.getMetadata().getPath());
+					}
+
+					Action action = world.getAction(actionThing.getMetadata().getPath());
+					return action.run(actionContext, parameters);
+				}else{
+					if(log){
+						logger.info("Can not do action [" + actions.getMetadata().getPath() + ":" + name + "], objec method or action not found");
+					}
+				}
+
+				return null;
 			}
+
 		} catch (Throwable e) {
-			throw new ActionException("Container do action [" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);
+			throw new ActionException("Container do action [" + actions.getMetadata().getPath() + ":" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);
 		}
 	}
 
 	public <T> T doAction(String name, ActionContext context, Map<String, Object> parameters) {
-		try {
-			Thing actionThing = getActionThing(name);
-			if (actionThing != null) {
-				Action action = world.getAction(actionThing.getMetadata()
-						.getPath());
-				return action.run(actionContext, parameters);
-			} else {
-				Bindings bindings = actionContext.push();
-				try {
-					if(parameters != null){
-						bindings.putAll(parameters);
-					}
-					return invokeMethod(name);
-				}finally {
-					actionContext.pop();
-				}
-			}
-		} catch (Throwable e) {
-			throw new ActionException("Container do action [" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);
-		}
+		return doAction(name, parameters);
 	}
 	
 	public <T> T doAction(String name, ActionContext context, Object ...parameters) {
@@ -200,18 +210,42 @@ public class ActionContainer {
 	}
 	
 	public List<Thing> getActionThings(){
-		List<Thing> list = new ArrayList<Thing>();
-		for (Thing child : actions.getAllChilds()) {
-			list.add(child);
+		List<Thing> list = new ArrayList<>();
+		Map<String, Thing> context = new HashMap<>();
+		initActions(actions, list, context);
+
+		if(actionThings != null){
+			for(Thing thing : actionThings){
+				initActions(thing, list, context);
+			}
 		}
-		
-		for(Thing ac : actions.getActionsThings()){
-			list.add(ac);
-		}
-		
+
+		Collections.sort(list, new Comparator<Thing>() {
+			@Override
+			public int compare(Thing o1, Thing o2) {
+				return o1.getMetadata().getName().compareTo(o2.getMetadata().getName());
+			}
+		});
 		return list;
 	}
 
+	private void initActions(Thing thing, List<Thing> list, Map<String, Thing> context){
+		for (Thing child : thing.getAllChilds()) {
+			String name = child.getMetadata().getName();
+			if(context.get(name) == null) {
+				list.add(child);
+				context.put(name, child);
+			}
+		}
+
+		for(Thing ac : thing.getActionsThings()){
+			String name = ac.getMetadata().getName();
+			if(context.get(name) == null) {
+				list.add(ac);
+				context.put(name, ac);
+			}
+		}
+	}
 	public ActionContext getActionContext() {
 		return actionContext;
 	}
@@ -227,14 +261,7 @@ public class ActionContainer {
 	
 	public <T> T execute(String name, Object ... parameters){
 		try {
-			Thing actionThing = getActionThing(name);
-			if (actionThing != null) {
-				Action action = world.getAction(actionThing.getMetadata()
-						.getPath());
-				return action.run(actionContext, parameters);
-			} else {
-				return null;
-			}
+			return doAction(name, actionContext, parameters);
 		} catch (Throwable e) {
 			throw new ActionException("Container do action [" + name + "] exception, actions=" + actions.getMetadata().getPath(), e);
 			//return null;

@@ -183,5 +183,8 @@ public class ActionAnnotationHelper {
 			return  new ActionException(e);
 		}
 	}
-		
+
+	public Method getActionMethod() {
+		return actionMethod;
+	}
 }

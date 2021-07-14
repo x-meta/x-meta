@@ -108,7 +108,30 @@ public abstract class Index {
 		
 		return null;
 	}
-	
+
+	public static Index getIndex(String type, String path){
+		return getIndex(Index.getInstance(), type, path);
+	}
+
+	public static Index getIndex(Index index, String type, String path){
+		if(index == null || type == null || path == null){
+			return null;
+		}
+
+		if(index.getType().equals(type) && index.getPath().equals(path)){
+			return index;
+		}
+
+		for(Index child : index.getChilds()){
+			Index result = getIndex(child, type, path);
+			if(result != null){
+				return result;
+			}
+		}
+
+		return null;
+	}
+
 	/**
 	 * 返回被索引的事物。
 	 * 

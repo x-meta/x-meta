@@ -196,7 +196,15 @@ public class ThingRunner {
 			//System.out.println("before init world： " + (System.currentTimeMillis() - start));
 			World world = World.getInstance();
 			//System.out.println("before init world1： " + (System.currentTimeMillis() - start));
-			world.init(worldPath);
+			//System.out.println("World.class.getClassLoader()=" + World.class.getClassLoader());
+			//System.out.println("ThingRunner.class.getClassLoader()=" + ThingRunner.class.getClassLoader());
+			//System.out.println("Thread.currentThread().getContextClassLoader()=" + Thread.currentThread().getContextClassLoader());
+			ClassLoader contextClassCloader = Thread.currentThread().getContextClassLoader();
+			if(contextClassCloader != null){
+				world.init(worldPath, contextClassCloader);
+			}else {
+				world.init(worldPath);
+			}
 			//System.out.println("init world： " + (System.currentTimeMillis() - start));
 			//初始化项目，如果当前目录存在projects目录的话
 			initProjects();
