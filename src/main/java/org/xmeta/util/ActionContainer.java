@@ -56,7 +56,7 @@ public class ActionContainer {
 				}
 				if(cls != null){
 					try {
-						this.object = cls.getConstructor(new Class<?>[0]).newInstance(new Object[0]);
+						this.object = cls.getConstructor(new Class<?>[0]).newInstance();
 
 						if(log){
 							logger.info("Get object from getClass, object=" + object);
@@ -118,14 +118,17 @@ public class ActionContainer {
 		return methods.get(name);
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> T doAction(String name) {
 		return (T) doAction(name, Collections.EMPTY_MAP);
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> T doAction(String name, ActionContext context) {
 		return (T) doAction(name, Collections.EMPTY_MAP);
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> T doAction(String name, Map<String, Object> parameters) {
 		try {
 			ActionAnnotationHelper helper = getMethodHelper(name);
@@ -152,9 +155,7 @@ public class ActionContainer {
 					Action action = world.getAction(actionThing.getMetadata().getPath());
 					return action.run(actionContext, parameters);
 				}else{
-					if(log){
-						logger.info("Can not do action [" + actions.getMetadata().getPath() + ":" + name + "], objec method or action not found");
-					}
+					logger.info("Can not do action [" + actions.getMetadata().getPath() + ":" + name + "], objec method or action not found");
 				}
 
 				return null;
@@ -199,14 +200,8 @@ public class ActionContainer {
 				return child;
 			}
 		}
-		
-		Thing child = actionThing.getActionThing(name);
-		if(child == null){			
-			
-			return null;
-		}else{
-			return child;
-		}
+
+		return actionThing.getActionThing(name);
 	}
 	
 	public List<Thing> getActionThings(){
@@ -220,12 +215,7 @@ public class ActionContainer {
 			}
 		}
 
-		Collections.sort(list, new Comparator<Thing>() {
-			@Override
-			public int compare(Thing o1, Thing o2) {
-				return o1.getMetadata().getName().compareTo(o2.getMetadata().getName());
-			}
-		});
+		list.sort((o1, o2) -> o1.getMetadata().getName().compareTo(o2.getMetadata().getName()));
 		return list;
 	}
 
@@ -252,11 +242,11 @@ public class ActionContainer {
 
 	@Override
 	public String toString() {
-		String str = "ActionContainer: path=" + actions.getMetadata().getPath() + "\n    actions=";
+		StringBuilder str = new StringBuilder("ActionContainer: path=" + actions.getMetadata().getPath() + "\n    actions=");
 		for(Thing ac : getActionThings()){
-			str = str + ac.getMetadata().getName() + ",";
+			str.append(ac.getMetadata().getName()).append(",");
 		}
-		return str;
+		return str.toString();
 	}
 	
 	public <T> T execute(String name, Object ... parameters){

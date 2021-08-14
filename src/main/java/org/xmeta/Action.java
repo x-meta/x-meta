@@ -220,7 +220,14 @@ public class Action extends Semaphore{
 			init();
 		}catch(Exception e){
 			//log.warn("init action error, action=" + thing.getMetadata().getPath(), e);
-			throw new ActionException("init action error, action=" + thing.getMetadata().getPath(), e);
+			StringBuilder sb = new StringBuilder("init action error, action=");
+			sb.append(thing.getMetadata().getPath());
+			String initExceptionMessage = thing.getStringBlankAsNull("initExceptionMessage");
+			if(initExceptionMessage != null){
+				sb.append("\n");
+				sb.append(initExceptionMessage);
+			}
+			throw new ActionException(sb.toString(), e);
 		}
 	}
 		
@@ -251,15 +258,6 @@ public class Action extends Semaphore{
 		return World.getInstance().getPath() + "/work/actionClasses/" +  fileManagerName + "/"; 
 	}
 	
-	/**
-	 * @throws ClassNotFoundException
-	 * @throws IOException
-	 * @throws SecurityException
-	 * @throws IllegalArgumentException
-	 * @throws NoSuchMethodException
-	 * @throws IllegalAccessException
-	 * @throws InvocationTargetException
-	 */
 	private void init() throws ClassNotFoundException, IOException, SecurityException, IllegalArgumentException, NoSuchMethodException, IllegalAccessException, InvocationTargetException{
 		Thing thing = thingEntry.getThing();
 		
@@ -415,7 +413,7 @@ public class Action extends Semaphore{
 						if(sourceURL != null) {
 							String sourcePath = World.getInstance().getPath() + "/work/actionSources/" + thingManager.getName() + "/"; 
 							File codeFile = new File(sourcePath + javaFileName);
-							if(codeFile.exists() == false) {
+							if(!codeFile.exists()) {
 								codeFile.getParentFile().mkdirs();
 							}
 							

@@ -1,7 +1,6 @@
 package org.xmeta.util;
 
 import org.xmeta.ActionContext;
-import org.xmeta.ActionException;
 import org.xmeta.Thing;
 import org.xmeta.annotation.ActionField;
 
@@ -38,19 +37,15 @@ public class ThingLoader {
     /**
      * 通过变量上下文对对象的有@ActionField的字段赋值
      *
-     * @param object
-     * @param actionContext
-     * @param <T>
-     * @return
      */
-    public static <T> T load(Object object, ActionContext actionContext){
+    public static <T> T load(Object object, ActionContext actionContext, Class<? extends Annotation> ... annotations){
         return load(object, (Thing) null, actionContext);
     }
 
     /**
      * 执行thing的create(actionContext)方法，执行后会遍历对象的注解为ActionField的字段，并从变量上下文中取值对字段赋值。
      */
-    public static <T> T load(Object object, Thing thing, ActionContext actionContext){
+    public static <T> T load(Object object, Thing thing, ActionContext actionContext, Class<? extends Annotation> ... annotations){
         Stack<Object> stack = objectLocal.get();
         if(stack == null) {
             stack = new Stack<>();
@@ -64,26 +59,7 @@ public class ThingLoader {
                 result = thing.doAction("create", actionContext);
             }
 
-            //查找字段的注解
-            java.util.List<Field> allFieldList = new ArrayList<>() ;
-            Class<?> tempClass = object.getClass();
-            while (tempClass != null) {//当父类为null的时候说明到达了最上层的父类(Object类).
-                allFieldList.addAll(Arrays.asList(tempClass .getDeclaredFields()));
-                tempClass = tempClass.getSuperclass(); //得到父类,然后赋给自己
-            }
-
-            for(Field field : allFieldList) {
-                ActionField actionField = field.getAnnotation(ActionField.class);
-                if(actionField != null) {
-                    String name = field.getName();
-                    String vname = actionField.name();
-                    if("".equals(vname)) {
-                        vname = name;
-                    }
-
-                    setFieldValue(object, field, vname, actionContext);
-                }
-            }
+            init(object, false, actionContext, annotations);
         }finally {
             stack.pop();
         }
@@ -94,7 +70,7 @@ public class ThingLoader {
     /**
      * 依次执行things的create(actionContext)方法，执行后会遍历对象的注解为ActionField的字段，并从变量上下文中取值对字段赋值。
      */
-    public static <T> T load(Object object, List<Thing> things, ActionContext actionContext){
+    public static <T> T load(Object object, List<Thing> things, ActionContext actionContext, Class<? extends Annotation> ... annotations){
         Stack<Object> stack = objectLocal.get();
         if(stack == null) {
             stack = new Stack<>();
@@ -108,31 +84,50 @@ public class ThingLoader {
                 result = thing.doAction("create", actionContext);
             }
 
-            //查找字段的注解
-            java.util.List<Field> allFieldList = new ArrayList<>() ;
-            Class<?> tempClass = object.getClass();
-            while (tempClass != null) {//当父类为null的时候说明到达了最上层的父类(Object类).
-                allFieldList.addAll(Arrays.asList(tempClass .getDeclaredFields()));
-                tempClass = tempClass.getSuperclass(); //得到父类,然后赋给自己
-            }
-
-            for(Field field : allFieldList) {
-                ActionField actionField = field.getAnnotation(ActionField.class);
-                if(actionField != null) {
-                    String name = field.getName();
-                    String vname = actionField.name();
-                    if("".equals(vname)) {
-                        vname = name;
-                    }
-
-                    setFieldValue(object, field, vname, actionContext);
-                }
-            }
+            init(object, false, actionContext, annotations);
         }finally {
             stack.pop();
         }
 
         return result;
+    }
+
+    public static void init(Object object, boolean doInitMethod, ActionContext actionContext, Class<? extends Annotation> ... annotations){
+        //查找字段的注解
+        java.util.List<Field> allFieldList = new ArrayList<>() ;
+        Class<?> tempClass = object.getClass();
+        while (tempClass != null) {//当父类为null的时候说明到达了最上层的父类(Object类).
+            allFieldList.addAll(Arrays.asList(tempClass .getDeclaredFields()));
+            tempClass = tempClass.getSuperclass(); //得到父类,然后赋给自己
+        }
+
+        for(Field field : allFieldList) {
+            ActionField actionField = field.getAnnotation(ActionField.class);
+
+            if(actionField != null) {
+                String name = field.getName();
+                String vname = actionField.name();
+                if("".equals(vname)) {
+                    vname = name;
+                }
+
+                setFieldValue(object, field, vname, actionContext);
+            } else if(annotations != null){
+                for(Class<? extends  Annotation>  annotationClass : annotations) {
+                    Object annotationField = field.getAnnotation(annotationClass);
+                    if (annotationField != null) {
+                        String name = field.getName();
+
+                        setFieldValue(object, field, name, actionContext);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if(doInitMethod){
+            init(object);
+        }
     }
 
     public static void init(Object object){
@@ -141,12 +136,10 @@ public class ThingLoader {
         }
 
         try {
-            Method method = object.getClass().getMethod("init", new Class<?>[]{});
-            if(method != null){
-                method.invoke(object, new Object[]{});
-            }
+            Method method = object.getClass().getMethod("init");
+            method.invoke(object);
         }catch (Exception e){
-            throw new ActionException(e);
+            logger.warning("Execute init() mtehod  exception, " + e);
         }
 
     }
@@ -221,7 +214,7 @@ public class ThingLoader {
         Class<?> objectForLoadClass = thing.doAction("getObjectForLoadClass", actionContext);
         if(objectForLoadClass != null){
             try {
-                return objectForLoadClass.getConstructor(new Class<?>[]{}).newInstance(new Object[]{});
+                return objectForLoadClass.getConstructor(new Class<?>[]{}).newInstance();
             }catch(Exception e){
                 logger.warning("NewInstance error, thing=" + thing.getMetadata().getPath() + ", " + e);
             }
@@ -231,10 +224,7 @@ public class ThingLoader {
     }
 
     /**
-     * xworker.lang.ThingLoader模型的create方法实现
-     *
-     * @param actionContext
-     * @return
+     * xworker.lang.ThingLoader模型的create方法实现.
      */
     public static Object create(ActionContext actionContext){
         Thing self = actionContext.getObject("self");
