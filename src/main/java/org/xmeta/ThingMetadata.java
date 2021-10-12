@@ -18,6 +18,7 @@ package org.xmeta;
 import java.util.List;
 import java.util.Locale;
 
+import org.xmeta.cache.ThingCache;
 import org.xmeta.codes.DmlThingCoder;
 import org.xmeta.ui.session.Session;
 import org.xmeta.ui.session.SessionManager;
@@ -59,7 +60,7 @@ public class ThingMetadata {
 	boolean removed = false;
 	
 	/** 编码类型 */
-	String coderType = DmlThingCoder.TYPE;
+	String coderType = DmlThingCoder.TYPE_XML;
 	/** 用户分组，一般是UI管理界面的用户自定义分组  */
 	String userGroup = null;
 	
@@ -196,8 +197,6 @@ public class ThingMetadata {
 	 * 获取标签。
 	 * 
 	 * @see #getLabel(String, ActionContext)
-	 * @param actionContext
-	 * @return
 	 */
 	public String getLabel(ActionContext actionContext) {		
 		return getLabel(null, actionContext);
@@ -206,9 +205,6 @@ public class ThingMetadata {
 	/**
 	 * 返回事物的标签。
 	 * 
-	 * @param env
-	 * @param actionContext
-	 * @return
 	 */
 	public String getLabel(String env, ActionContext actionContext) {
 		Session session = SessionManager.getSession(actionContext);
@@ -261,7 +257,11 @@ public class ThingMetadata {
 		String country = locale.getCountry();
 		String language = locale.getLanguage();
 		
-		String label = thing.getString(country + "_" + language + "_" + name);
+		String label = ThingCache.getLabel(getPath(), language);
+		if(label != null && !label.isEmpty()){
+			return label;
+		}
+		label = thing.getString(country + "_" + language + "_" + name);
 		if(label == null || "".equals(label)){
 			label = thing.getString(language + "_" + name);
 		}
@@ -320,8 +320,13 @@ public class ThingMetadata {
 		
 		String country = locale.getCountry();
 		String language = locale.getLanguage();
-		
-		String description = thing.getString(country + "_" + language + "_" + Thing.DESCRIPTION);
+
+		String description = ThingCache.getDesc(getPath(), language);
+		if(description != null && !description.isEmpty()){
+			return description;
+		}
+
+		description = thing.getString(country + "_" + language + "_" + Thing.DESCRIPTION);
 		if(description == null || "".equals(description)){
 			description = thing.getString(language + "_" + Thing.DESCRIPTION);
 		}

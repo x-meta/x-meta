@@ -77,19 +77,19 @@ public class ActionContext implements Map<String, Object>{
 	public final static String PARENT_CONTEXT = "parentContext";
 	
 	/** 由于ActionContext包含了自身，直接toString会递归，在此加入上下文 */
-	private static ThreadLocal<Map<ActionContext, ActionContext>> toStringContextLocal = new ThreadLocal<Map<ActionContext, ActionContext>>();
+	private static final ThreadLocal<Map<ActionContext, ActionContext>> toStringContextLocal = new ThreadLocal<>();
 	
 	/** 方法调用的变量堆栈每个线程使用各自的，除了初始化时公共的全局变量 */
-	private ThreadLocal<Stack<Bindings>> threadStacks = new ThreadLocal<Stack<Bindings>>();
+	private final ThreadLocal<Stack<Bindings>> threadStacks = new ThreadLocal<>();
 	
 	/** 线程里Action执行的状态 */
-	private ThreadLocal<Integer> threadStatus = new ThreadLocal<Integer>();
+	private final ThreadLocal<Integer> threadStatus = new ThreadLocal<>();
 	
 	/** 动作抛出的对象 */
-	private ThreadLocal<Object> threadThrowedObject = new ThreadLocal<Object>();
+	private final ThreadLocal<Object> threadThrowedObject = new ThreadLocal<>();
 	
 	/** 基础公用的堆栈，时初始化时的变量栈 */
-	private Stack<Bindings> baseStacks = new Stack<Bindings>();
+	private final Stack<Bindings> baseStacks = new Stack<>();
 
 	/** 创建次上下文的线程，具有维护基础公用变量堆栈的能力 */
 	private Thread createThread = null;
@@ -104,7 +104,7 @@ public class ActionContext implements Map<String, Object>{
 	 * 动作的解释事物需要设置本堆栈一边被解析的代码能够正确获得对应的动作，如GroovyAction实际执行脚本时的变量栈的-2位置
 	 * 才是代码对应的动作层，需要重新把-2层的动作压入栈中groovy脚本中才能正确获取对应的动作。 
 	 */
-	private ThreadLocal<Stack<Action>> actionStacks = new ThreadLocal<Stack<Action>>();
+	private final ThreadLocal<Stack<Action>> actionStacks = new ThreadLocal<>();
 	
 	/**
 	 * 变量上下文的标签，辅助用途，用于表示这个变量上下文是干什么的。
@@ -129,7 +129,7 @@ public class ActionContext implements Map<String, Object>{
 	public ActionContext(boolean managedByPool){
 		this((Bindings) null);
 		
-		managedByPool = true;
+		//managedByPool = true;
 	}
 	
 	/**
@@ -204,13 +204,35 @@ public class ActionContext implements Map<String, Object>{
 		return true;
 	}
 
+	/**
+	 * 把上下文中的栈设置的上下文模型加入到指定的列表中。
+	 */
+	public void addContextThing(List<Thing> contextThings){
+		Stack<Bindings> stack = threadStacks.get();
+		if(stack == null){
+			for(Bindings bindings : baseStacks){
+				Thing thing = bindings.getContextThing();;
+				if(thing != null){
+					contextThings.add(thing);
+				}
+			}
+		}else{
+			for(Bindings bindings : stack){
+				Thing thing = bindings.getContextThing();;
+				if(thing != null){
+					contextThings.add(thing);
+				}
+			}
+		}
+	}
+
 	private Stack<Bindings> getBindingStack(){
 		Stack<Bindings> stack = threadStacks.get();
 		if(stack == null){
 			if(createThread == Thread.currentThread()){
 				return baseStacks;
 			}else{
-				stack = new Stack<Bindings>();
+				stack = new Stack<>();
 				for(int i=0; i<dummyScopeCount + 1; i++){
 					stack.push(baseStacks.get(i));
 				}
@@ -327,7 +349,7 @@ public class ActionContext implements Map<String, Object>{
 	 * @return 变量绑定列表
 	 */
 	public List<Bindings> getScopes() {
-		List<Bindings> bindings = new ArrayList<Bindings>();
+		List<Bindings> bindings = new ArrayList<>();
 		Stack<Bindings> bindingsStack = getBindingStack();
 		for (int i = 0; i < bindingsStack.size(); i++) {
 			bindings.add(bindingsStack.get(i));
@@ -413,7 +435,20 @@ public class ActionContext implements Map<String, Object>{
 		//如果没有返回null
 		return null;
 	}
-	
+
+	/**
+	 * 使用XWorker的xworker.lang.context.DebugContext模型来打印栈信息，只针对当前栈及调用的子栈。
+	 *
+	 * 相当于peek().setContextThing(world.getThing("xworker.lang.context.DebugContext"));
+	 *
+	 * 如果xworker.lang.context.DebugContext模型不存在，则不执行任何操作。
+	 */
+	public void trace(){
+		Thing thing = World.getInstance().getThing("xworker.lang.context.DebugContext");
+		if(thing != null){
+			peek().setContextThing(thing);
+		}
+	}
 	
 	/**
 	 * 获取当前堆栈信息。

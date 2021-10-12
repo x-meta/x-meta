@@ -16,14 +16,45 @@
 package org.xmeta.cache;
 
 import java.lang.ref.SoftReference;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.xmeta.Thing;
 
 public class ThingCache {
-	private static Map<String, SoftReference<Thing>> cache = new ConcurrentHashMap<String, SoftReference<Thing>>(600);
-		
+	private static final Map<String, SoftReference<Thing>> cache = new ConcurrentHashMap<>(600);
+	private static final Map<String, Map<String, String>> labelCache = new HashMap<>();
+	private static final Map<String, Map<String, String>> descCache = new HashMap<>();
+
+	public static String getLabel(String thingPath, String lang){
+		Map<String, String> lcache = labelCache.get(lang);
+		if(lcache != null){
+			return lcache.get(thingPath);
+		}
+
+		return null;
+	}
+
+	public static void putLabel(String thingPath, String lang, String label){
+		Map<String, String> lcache = labelCache.computeIfAbsent(lang, k -> new HashMap<>());
+		lcache.put(thingPath, label);
+	}
+
+	public static String getDesc(String thingPath, String lang){
+		Map<String, String> lcache = descCache.get(lang);
+		if(lcache != null){
+			return lcache.get(thingPath);
+		}
+
+		return null;
+	}
+
+	public static void putDesc(String thingPath, String lang, String desc){
+		Map<String, String> lcache = descCache.computeIfAbsent(lang, k -> new HashMap<>());
+		lcache.put(thingPath, desc);
+	}
+
 	/**
 	 * 获取缓存。
 	 * 

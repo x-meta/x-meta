@@ -60,17 +60,17 @@ import org.xmeta.util.UtilString;
 public class Action extends Semaphore{
 	/** 日志 */
 	//private static Logger log = LoggerFactory.getLogger(Action.class);	
-	private static Logger log = Logger.getLogger(Action.class.getName());
+	private static final Logger log = Logger.getLogger(Action.class.getName());
 	
-	private static World world = World.getInstance();
+	private static final World world = World.getInstance();
 	
 	/** 记录异常的列表 */
-	private static List<ThrowableRecord> throwables = new ArrayList<ThrowableRecord>();
+	private static final List<ThrowableRecord> throwables = new ArrayList<>();
 	/** 记录异常的数量 */
 	private static int throwableRecordCount = 0;
 	
 	/** 记录类编译时间的文件类集合 */
-	private static Map<String, SoftReference<ClassCompileTimeFile>> classTimeFiles = new HashMap<String, SoftReference<ClassCompileTimeFile>>();
+	private static final Map<String, SoftReference<ClassCompileTimeFile>> classTimeFiles = new HashMap<>();
 	
 	/** Java关键字列表，不能作为类和包的名称 */
 	public final static String[] javaKeyWords = new String[]{
@@ -177,7 +177,7 @@ public class Action extends Semaphore{
 	private boolean switchResult = false;
 	
 	/** 用户数据，在代码或脚本理可以设置和Action绑定的数据 */
-	private Map<String, Object> userData = new HashMap<String, Object>();
+	private final Map<String, Object> userData = new HashMap<>();
 	
 	/** 动作对应的日志 */
 	//Logger logger;
@@ -260,7 +260,7 @@ public class Action extends Semaphore{
 	
 	private void init() throws ClassNotFoundException, IOException, SecurityException, IllegalArgumentException, NoSuchMethodException, IllegalAccessException, InvocationTargetException{
 		Thing thing = thingEntry.getThing();
-		
+
 		//params = thing.getThing("ins@0");
 		
 		//初始化共有的变量		
@@ -272,7 +272,7 @@ public class Action extends Semaphore{
 		isSynchronized = thing.getBoolean("isSynchronized");
 		lastModified = thing.getMetadata().getLastModified();
 
-		contexts = new ArrayList<ThingEntry>();
+		contexts = new ArrayList<>();
 		Thing contextsThing = thing.getThing("contexts@0");
 		if(contextsThing != null){
 			List<Thing> contextList = contextsThing.getChilds();
@@ -333,14 +333,9 @@ public class Action extends Semaphore{
 					
 		//需要重新编译
 		actionClass = null;
-		actionClass = null;
-		if("JavaAction".equals(thing.getThingName())){
-			isJava = true;
-		}else{
-			isJava = false;
-		}	
+		isJava = "JavaAction".equals(thing.getThingName());
 		
-		results = new ArrayList<ActionResult>();
+		results = new ArrayList<>();
 		for(Thing child : thing.getAllChilds("Result")){
 			ActionResult result = new ActionResult(child);		
 			results.add(result);
@@ -353,14 +348,14 @@ public class Action extends Semaphore{
 			String javaClassName = null;
 			byte sourceType = SOURCE_LIB;
 			if(thing.getBoolean("useOuterJava")) {
-				sourceType = SOURCE_LIB;
 				javaClassName = thing.getString("outerClassName");
 			} else if(thing.getBoolean("useInnerJava")) {
 				sourceType = SOURCE_THINGMANAGER;
 				javaClassName = thing.getString("outerClassName");
 			}else {
 				sourceType = SOURCE_THING;
-				javaClassName = packageName + "." + thing.getString("className");			
+				initClassAndCode();
+				javaClassName = this.className;//packageName + "." + thing.getString("className");
 			}
 			initJava(thing,  sourceType, javaClassName);
 		}else if(useOtherAction){
@@ -416,18 +411,15 @@ public class Action extends Semaphore{
 							if(!codeFile.exists()) {
 								codeFile.getParentFile().mkdirs();
 							}
-							
-							FileOutputStream fout = new FileOutputStream(codeFile);
-							try {
+
+							try (FileOutputStream fout = new FileOutputStream(codeFile)) {
 								InputStream uin = sourceURL.openStream();
 								byte[] bytes = new byte[4096];
 								int length = -1;
-								while((length = uin.read(bytes)) != -1) {
+								while ((length = uin.read(bytes)) != -1) {
 									fout.write(bytes, 0, length);
 								}
 								uin.close();
-							}finally {
-								fout.close();
 							}
 					
 							boolean use16 = true;
@@ -452,15 +444,12 @@ public class Action extends Semaphore{
 						if(!codeFile.exists()){
 							codeFile.getParentFile().mkdirs();
 						}
-						
-						FileOutputStream fout = new FileOutputStream(codeFile);
-						try{
+
+						try (FileOutputStream fout = new FileOutputStream(codeFile)) {
 							//文件头增加一个事物路径的标识
 							fout.write(("/*path:" + thing.getMetadata().getPath() + "*/\n").getBytes());
 							fout.write(("package " + packageName + ";\n\n").getBytes());
-							fout.write(code.getBytes());								
-						}finally{
-							fout.close();
+							fout.write(code.getBytes());
 						}
 						
 						File classDir = new File(world.getPath() + "/work/actionClasses");
@@ -550,7 +539,7 @@ public class Action extends Semaphore{
 				}
 				
 				File classDir = new File(world.getPath() + "/work/actionClasses/" + fileManagerName);
-				if(classDir.exists() == false){
+				if(!classDir.exists()){
 					classDir.mkdirs();
 				}
 				classLoader = new ActionClassLoader(new URL[]{classDir.toURI().toURL()}, pclssLoader);
@@ -563,10 +552,7 @@ public class Action extends Semaphore{
 	private Method getDeclaredMethod(Class<?> cls, String methodName) throws Exception{
 		Exception exception = null;
 		try {
-			Method method_ = cls.getDeclaredMethod(methodName, ActionContext.class);
-			if(method_ != null) {
-				return method_;
-			}
+			return cls.getDeclaredMethod(methodName, ActionContext.class);
 		}catch(Exception e) {
 			exception = e;
 		}
@@ -576,11 +562,8 @@ public class Action extends Semaphore{
 				return method;
 			}
 		}
-		
-		if(exception != null) {
-			throw exception;
-		}
-		return null;
+
+		throw exception;
 	}
 	
 	/**
@@ -619,7 +602,7 @@ public class Action extends Semaphore{
 	}
 	
 	public void updateCompileTime(){
-		updateClassCompileTime(classFileName, lastModified);
+		updateClassCompileTime(classFileName, this.className, lastModified);
 	}
 	
 	public Method getMethod(){
@@ -711,19 +694,9 @@ public class Action extends Semaphore{
 	
 	/**
 	 * 执行动作。
-	 * 
-	 * @param actionContext 动作的上下文
-	 * @param bindings
-	 * @param parameters
-	 * @param caller
-	 * @param isSubAction
-	 * 
-	 * @return 执行的结果
-	 * @throws IOException 
-	 * @throws ClassNotFoundException 
 	 */
 	@SuppressWarnings("unchecked")
-	private final <T> T dorun(ActionContext actionContext, Bindings bindings, Map<String, Object> parameters, Object caller, boolean isSubAction) {
+	private <T> T dorun(ActionContext actionContext, Bindings bindings, Map<String, Object> parameters, Object caller, boolean isSubAction) {
 		//long start = System.nanoTime();
 		//log.info("dorun started");
 		//是否禁止全局上下文具有继承的性质
@@ -737,7 +710,7 @@ public class Action extends Semaphore{
 			try{
 				listener.actionExecuted(this, caller, actionContext, parameters, -1, true);
 			}catch(Throwable t){
-				log.log(Level.SEVERE, "ActionRecorder error", t);
+				log.log(Level.WARNING, "ActionRecorder error", t);
 			}
 		}
 		
@@ -819,7 +792,7 @@ public class Action extends Semaphore{
 					initContext(this, contextThing, actionContext);
 				}
 			}
-			
+
 			if(useOtherAction){
 				//如果一个动作是引用其他动作的，那么执行被引用的动作 
 				Bindings callerBindings = actionContext.getScope(actionContext.getScopesSize() - 2);
@@ -943,7 +916,7 @@ public class Action extends Semaphore{
 				}					
 			} */				
 			
-			if(actionContext.getStatus() == ActionContext.EXCEPTION && isSubAction == false){
+			if(actionContext.getStatus() == ActionContext.EXCEPTION && !isSubAction){
 				//动作抛除异常
 				if(actionContext.getThrowedObject() instanceof Throwable){
 					throw (Throwable) actionContext.getThrowedObject();
@@ -1028,26 +1001,28 @@ public class Action extends Semaphore{
 	}
 	
 	private List<Thing> getContextThings(ActionContext actionContext){
-		if(actionContext.isDisableGloableContext()) {
-			return Collections.emptyList();
-		}
-		
-		List<Thing> allContexts = new ArrayList<Thing>();
+		List<Thing> allContexts = new ArrayList<>();
 		//是否禁止全局变量上下文
 		if(!actionContext.isDisableGloableContext()){
 			for(ThingEntry entry : world.globalContexts){
 				addContextThing(allContexts, entry.getThing());
 			}		
 		}
+
 		if(contexts.size() > 0){
 			for(ThingEntry entry : contexts){
 				addContextThing(allContexts, entry.getThing());
 			}
 		}
-		
+
+		//上下文中的变量上下文呢
+		if(!actionContext.isDisableGloableContext()) {
+			actionContext.addContextThing(allContexts);
+		}
+		/*
 		for(Bindings bindings : actionContext.getScopes()){
 			addContextThing(allContexts, bindings.getContextThing());
-		}
+		}*/
 		
 		return allContexts;
 	}
@@ -1085,11 +1060,8 @@ public class Action extends Semaphore{
 		}		
 	}
 	
-	private final static Throwable doContextMethod(List<Thing> contexts, ActionContext actionContext, String methodName, Throwable exception, Object result){
-		List<Thing> thingList = new ArrayList<Thing>();
-		for(Thing thing : contexts){
-			thingList.add(thing);
-		}
+	private static Throwable doContextMethod(List<Thing> contexts, ActionContext actionContext, String methodName, Throwable exception, Object result){
+		List<Thing> thingList = new ArrayList<>(contexts);
 		
 		return doThingContextMethod(thingList, actionContext, methodName, exception, result);
 	}
@@ -1105,7 +1077,7 @@ public class Action extends Semaphore{
 	 * 
 	 * @return 如果动作可以抛出异常则抛出异常
 	 */
-	public final static Throwable doThingContextMethod(List<Thing> contexts, ActionContext actionContext, String methodName, Throwable exception, Object result){
+	public static Throwable doThingContextMethod(List<Thing> contexts, ActionContext actionContext, String methodName, Throwable exception, Object result){
 		if(contexts.size() == 0){
 			return exception;
 		}
@@ -1142,7 +1114,7 @@ public class Action extends Semaphore{
 					}
 				}
 			}catch(Exception e){
-				log.log(Level.WARNING, "执行" + contextObj.getMetadata().getPath() + "上下文方法" + methodName + "失败：", e);
+				log.log(Level.WARNING, "Execute context " + contextObj.getMetadata().getPath() + " : " + methodName + " exception.", e);
 				//如果上下文抛出异常，那么后面的也执行异常的方法
 				if("exception".equals(onError)){
 					tempMethodName = "exception";		
@@ -1187,7 +1159,7 @@ public class Action extends Semaphore{
 			
 		}
 		
-		if(inheritObj != null && inheritObj instanceof ActionContext){
+		if(inheritObj instanceof ActionContext){
 			//如果继承了，那么什么事都不作
 			bindings.getContexts().put(context, (ActionContext) inheritObj);
 		}else{
@@ -1285,31 +1257,23 @@ public class Action extends Semaphore{
 				if(actionClass != null){
 					return lastModified;
 				}
-			}catch(Throwable t){			
+			}catch(Throwable ignored){
 			}
 		}
 		
 		File file = new File(classFileName);
 		String path = file.getParentFile().getAbsolutePath();
-		String className = file.getName();
-		
+
 		ClassCompileTimeFile timeFile = getClassCompileTimeFile(path);
-		if(timeFile != null){
-			return timeFile.getTime(className);
-		}else{
-			return 0;
-		}
+		return timeFile.getTime(className);
 	}
 	
-	public static void updateClassCompileTime(String classFileName, long time){
+	public static void updateClassCompileTime(String classFileName, String  className, long time){
 		File file = new File(classFileName);
 		String path = file.getParentFile().getAbsolutePath();
-		String className = file.getName();
-		
+
 		ClassCompileTimeFile timeFile = getClassCompileTimeFile(path);
-		if(timeFile != null){
-			timeFile.updateTime(className, time);
-		}
+		timeFile.updateTime(className, time);
 	}
 	
 	private static ClassCompileTimeFile getClassCompileTimeFile(String path){
@@ -1380,7 +1344,7 @@ public class Action extends Semaphore{
 		public long getTime(String className){
 			Long time = classTimes.get(className);
 			if(time != null){
-				return time.longValue();
+				return time;
 			}else{
 				return 0;
 			}
@@ -1407,19 +1371,19 @@ public class Action extends Semaphore{
 				if(fout != null){
 					try {
 						fout.close();
-					} catch (IOException e) {
+					} catch (IOException ignored) {
 					}
 				}
 			}
 		}
 	}
 	
-	class Rate{
+	static class Rate{
 		int minRate;
 		int maxRate;
 	}
 	
-	class ActionResult{
+	static class ActionResult{
 		String name;
 		String runType;
 		String condition;
@@ -1439,10 +1403,6 @@ public class Action extends Semaphore{
 		/**
 		 * 原来执行的是动作，现在使用事物执行，原来可能为了保留调用者的self，现在self变量
 		 * 被结果动作事物替换，调用者的变量引用有程序编写者自行控制。2011-11-04张玉祥
-		 * 
-		 * @param actionContext
-		 * @return
-		 * @throws Exception
 		 */
 		public Object run(ActionContext actionContext) throws Exception{
 			Thing resultThing = resultObj.getThing();

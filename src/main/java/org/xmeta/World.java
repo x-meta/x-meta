@@ -65,7 +65,7 @@ import org.xmeta.util.UtilJava;
 public class World {
 	/** 日志 */
 	//private static Logger log = LoggerFactory.getLogger(World.class);
-	private static Logger log = Logger.getLogger(World.class.getName());
+	private static final Logger log = Logger.getLogger(World.class.getName());
 	/** 编程模式，默认 */
 	public static byte MODE_PROGRAMING = 0;
 	/** 工作模式，一般JavaAction等发生变更时不重新编译 */
@@ -79,26 +79,26 @@ public class World {
 	//private ThreadLocal<List<DelayInitTask>> delayInitTasks = new ThreadLocal<List<DelayInitTask>>();
 
 	/** 瞬态事物的管理者 */
-	private TransientThingManager transientThingManager = new TransientThingManager();
-	private ClassThingManager classThingManager = new ClassThingManager();
+	private final TransientThingManager transientThingManager = new TransientThingManager();
+	private final ClassThingManager classThingManager = new ClassThingManager();
 		
 	/** 元事物 */
 	public Thing metaThing = null;//new MetaThing();
 
 	/** 全局上下文 */
-	protected List<ThingEntry> globalContexts = new CopyOnWriteArrayList<ThingEntry>();
+	protected List<ThingEntry> globalContexts = new CopyOnWriteArrayList<>();
 
 	/** 世界的路径，项目、目录和存放事物的根目录 */
 	private String worldPath = ".";
 
 	/** 用户数据 */
-	private Map<String, Object> userDatas = new HashMap<String, Object>();
+	private final Map<String, Object> userDatas = new HashMap<>();
 	
 	/** 绑定到线程上的数据 */
-	protected ThreadLocal<Map<String, Object>> threadLocalDatas = null;//
+	protected volatile ThreadLocal<Map<String, Object>> threadLocalDatas = null;//
 
 	/** 公共事物管理这的监听者注册列表 */
-	private Map<String, List<ThingManagerListener>> thingManagerListeners = new ConcurrentHashMap<String, List<ThingManagerListener>>();
+	private final Map<String, List<ThingManagerListener>> thingManagerListeners = new ConcurrentHashMap<>();
 
 	/** 世界级的类装载器 */
 	private ThingClassLoader worldClassLoader = null;
@@ -107,7 +107,7 @@ public class World {
 	private ActionListener actionListener = null;
 	
 	/** 帮助列表，运行时对用户解决问题可能有帮助的内容，可以在任何一个事物的帮助菜单中查看 */
-	private List<Help> helps = new ArrayList<Help>();
+	private final List<Help> helps = new ArrayList<>();
 	/** 帮助列表的最大个数 */
 	public int helpSize = 100;
 	/** 是否打印装载信息 */
@@ -119,14 +119,14 @@ public class World {
 	/** 打印verbose的缓存，相同的不需要再次打印 */
 	private Map<String, String> verboseThingCache = null;
 	/** 事物管理器列表 */
-	private List<ThingManager> thingManagers = new CopyOnWriteArrayList<ThingManager>();
+	private final List<ThingManager> thingManagers = new CopyOnWriteArrayList<>();
 	/** 事物编码器 */
-	private List<ThingCoder> thingCoders = new ArrayList<ThingCoder>();
-	/** 目录缓存 */
+	private final List<ThingCoder> thingCoders = new ArrayList<>();
+	/* 目录缓存 */
 	//private Map<String, CategoryCache> categoryCaches = new HashMap<String, CategoryCache>();
 	/** 初始化发送生错的事物管理器会放在这里，避免重复初始化  */
-	private List<String> failureThingManangers = new ArrayList<String>();
-	private List<String> libList = new ArrayList<String>();
+	private final List<String> failureThingManangers = new ArrayList<>();
+	private final List<String> libList = new ArrayList<>();
 
 	/**
 	 * 运行时所有的事物基本都通过World获取，为提交性能增加路径缓存。
@@ -174,7 +174,7 @@ public class World {
 				try{
 					UtilJava.invokeMethod("org.xmeta.util.ThingOgnlAccessor", "init", new Class<?>[0], new Object[0]);
 					///ThingOgnlAccessor.init();
-				}catch(Throwable e){			
+				}catch(Throwable ignored){
 				}
 			}
 		}).start();
@@ -581,12 +581,12 @@ public class World {
 				}
 				Category category = classThingManager.getCategory(categoryPath);
 				metadata.setCategory(category);
-				
-				try {				
+
+				try {
 					InputStream fin = url.openStream();
 					try{
 						thing.beginModify();
-						
+
 						long lastModified = System.currentTimeMillis();
 						String fileName = url.getFile();
 						if(fileName != null){
@@ -601,26 +601,24 @@ public class World {
 						e.printStackTrace();
 						return null;
 					}finally{
-						if(thing != null){
-							thing.endModify(false);
-						}
-						
+						thing.endModify(false);
+
 						if(fin != null){
 							try {
 								fin.close();
-							} catch (IOException e) {
+							} catch (IOException ignored) {
 							}
 						}
 					}
-					
+
 					//如果是文件，加入到文件监控，文件变化了可以重新读取事物，可用于在Java项目手工编程时
 					if(url.getProtocol().toLowerCase().equals("file")){
 						FileMonitor.getInstance().addFile(thingPath, thing, new File(url.getFile()), false);
 					}
-					
+
 					//放到缓存中
 					ThingCache.put(metadata.getPath(), thing);
-					
+
 					return thing;
 				} catch (IOException e) {
 					//e.printStackTrace();
@@ -670,15 +668,15 @@ public class World {
 		path = path.replace('\\', '/');
 		if(path.startsWith("world|")){
 			//相对于World的路径
-			path = World.getInstance().getPath() + "/" + path.substring(6, path.length());	
+			path = World.getInstance().getPath() + "/" + path.substring(6);
 			
 			File file = new File(path);
 			if(file.exists()){
 				return file.toURI().toURL();
 			}else{
-				return this.getClassLoader().getResource("/" + path.substring(6, path.length()));
+				return this.getClassLoader().getResource("/" + path.substring(6));
 			}
-		}else if(path.startsWith("project|") || path.indexOf(":") != -1){
+		}else if(path.startsWith("project|") || path.contains(":")){
 			//基于项目的路径，旧的路径规则，已不再使用
 			int index = path.indexOf(":");
 			String projectName = null;
@@ -687,7 +685,7 @@ public class World {
 			}else{
 				projectName = path.substring(0, index);
 			}
-			path = path.substring(index + 1, path.length());
+			path = path.substring(index + 1);
 			path = "/" + projectName + "/" + path;
 			for(ThingManager thingManager : getThingManagers()){
 				URL in = thingManager.findResource(path);
@@ -724,7 +722,7 @@ public class World {
 				URL in = getClassLoader().getResource(path);
 				if(in == null){
 					if(path.startsWith("/") || path.startsWith("\\")){
-						in = getClassLoader().getResource(path.substring(1, path.length()));
+						in = getClassLoader().getResource(path.substring(1));
 					}else{
 						in = getClassLoader().getResource("/" + path);
 					}
@@ -751,15 +749,15 @@ public class World {
 		path = path.replace('\\', '/');
 		if(path.startsWith("world|")){
 			//相对于World的路径
-			path = World.getInstance().getPath() + "/" + path.substring(6, path.length());	
+			path = World.getInstance().getPath() + "/" + path.substring(6);
 			
 			File file = new File(path);
 			if(file.exists()){
 				return new FileInputStream(file);
 			}else{
-				return this.getClassLoader().getResourceAsStream("/" + path.substring(6, path.length()));
+				return this.getClassLoader().getResourceAsStream("/" + path.substring(6));
 			}
-		}else if(path.startsWith("project|") || path.indexOf(":") != -1){
+		}else if(path.startsWith("project|") || path.contains(":")){
 			//基于项目的路径，旧的路径规则，已不再使用
 			int index = path.indexOf(":");
 			String projectName = null;
@@ -768,7 +766,7 @@ public class World {
 			}else{
 				projectName = path.substring(0, index);
 			}
-			path = path.substring(index + 1, path.length());
+			path = path.substring(index + 1);
 			path = "/" + projectName + "/" + path;
 			for(ThingManager thingManager : getThingManagers()){
 				InputStream in = thingManager.getResourceAsStream(path);
@@ -885,9 +883,6 @@ public class World {
 	
 	/**
 	 * 设置绑定到当前事物的ThreadLocal的数据。
-	 * 
-	 * @param key
-	 * @param data
 	 */
 	public void setThreadData(String key, Object data) {
 		if(key == null) {
@@ -1049,12 +1044,13 @@ public class World {
 		return worldClassLoader;
 	}
 
+	/*
 	private void initLibraryPath(){
 		File f = new File(worldPath);
 		
 		String libraryPath = System.getProperty("java.library.path");
 		String[] paths = libraryPath == null ? new String[] {} : libraryPath.split("[" + File.pathSeparator + "]");
-		
+
 		//设置world目录下的os/library/<OS>/为类库位置
 		String path = new File(f, "os/library/" + OS).getAbsolutePath();
 		boolean changed = false;
@@ -1077,14 +1073,10 @@ public class World {
 			System.setProperty("java.library.path", libraryPath);
 			//log.info("java.library.path changed=" + libraryPath);
 		}
-	}
+	}*/
 	
 	/**
 	 * 判断动态库的路径是否已经设置过了。
-	 * 
-	 * @param paths
-	 * @param path
-	 * @return
 	 */
 	private boolean isLibraryExists(String paths[], String path) {
 		File pathFile = new File(path);
@@ -1094,7 +1086,7 @@ public class World {
 		
 		for(int i=0; i<paths.length; i++) {
 			File f = new File(paths[i]);
-			if(f.exists() == false) {
+			if(!f.exists()) {
 				continue;
 			}
 			
@@ -1209,6 +1201,7 @@ public class World {
 			worldPath = getHomeFormSytsem();
 			
 		}
+		System.setProperty("XMETA_HOME", worldPath);
 		ThingCache.clear();
 		
 		//System.out.println("world clear cache: " + (System.currentTimeMillis() - start));
@@ -1231,8 +1224,8 @@ public class World {
 		worldClassLoader = new ThingClassLoader(classLoader);
 		
 		//System.out.println("world worldClassLoader: " + (System.currentTimeMillis() - start));
-		// 设置library path
-		initLibraryPath();
+		// 设置library path，Java目前不建议使用该方法，因此屏蔽先
+		//initLibraryPath();
 		
 		//System.out.println("world initLibraryPath: " + (System.currentTimeMillis() - start));
 		// 初始化项目等
@@ -1289,6 +1282,7 @@ public class World {
 		return inited;
 	}
 
+	/*
 	public static void addLibraryDir(String s) {
 		try {
 			java.lang.reflect.Field field = ClassLoader.class
@@ -1307,7 +1301,7 @@ public class World {
 		} catch (Exception e) {
 			log.log(Level.FINER, "error on init library path", e);
 		}
-	}
+	}*/
 
 	/**
 	 * 刷新当前世界中项目。
@@ -1316,7 +1310,7 @@ public class World {
 	public void refresh() {
 		//long start = System.currentTimeMillis();
 		
-		Map<String, String> context = new HashMap<String, String>();
+		Map<String, String> context = new HashMap<>();
 		for(ThingManager manager : thingManagers){
 			context.put(manager.getName(), manager.getName());
 		}

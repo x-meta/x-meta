@@ -180,6 +180,7 @@ public class ThingRunner {
 			//logger.debug("action name : " + actionName);
 			
 			System.setProperty("XWORKER_HOME", worldPath);
+			System.setProperty("XMETA_HOME", worldPath);
 			System.setProperty("MODEL", getThingPathAsModelForLog(thingPath));
 			
 			//下面参数用于初始化log4j

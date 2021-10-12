@@ -19,8 +19,9 @@ import org.xmeta.thingManagers.JarThingManager;
  */
 public class JarThingManagerIniter implements Runnable{
 	//private static Logger logger = LoggerFactory.getLogger(JarThingManagerIniter.class);
-	private static Logger logger = java.util.logging.Logger.getLogger(JarThingManagerIniter.class.getName());
-	
+	private static final Logger logger = java.util.logging.Logger.getLogger(JarThingManagerIniter.class.getName());
+	private static boolean inited = false;
+
 	private boolean hasProtocol(String path) {
 		try {
 			URL purl = new URL(path);
@@ -66,7 +67,13 @@ public class JarThingManagerIniter implements Runnable{
 			}
 		}catch(Exception e) {
 			logger.log(Level.WARNING, "Init jar file manager exception, " + e.getMessage());
-		}				
+		}finally {
+			inited = true;
+		}
+	}
+
+	public static boolean isInited(){
+		return inited;
 	}
 
 	public Properties getProperties(String path, String dmlPrjFile) throws IOException {
