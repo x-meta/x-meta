@@ -48,6 +48,10 @@ public class ThingEntry {
 	
 	public Thing getThing(){
 		Thing thing = thingReference.get();
+		if(thing != null && thing.isTransient()){
+			return thing;
+		}
+
 		if(thing != null && !thing.getMetadata().isRemoved() && lastmodified == thing.getMetadata().getLastModified()){
 			return thing;
 		}else{

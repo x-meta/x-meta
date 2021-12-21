@@ -41,12 +41,7 @@ import java.util.logging.Logger;
 import org.xmeta.annotation.ActionAnnotationHelper;
 import org.xmeta.cache.ThingEntry;
 import org.xmeta.thingManagers.ClassThingManager;
-import org.xmeta.util.JavaCompiler15;
-import org.xmeta.util.JavaCompiler16;
-import org.xmeta.util.Semaphore;
-import org.xmeta.util.ThingClassLoader;
-import org.xmeta.util.UtilAction;
-import org.xmeta.util.UtilString;
+import org.xmeta.util.*;
 
 /**
  * <p>动作是由模型转化而来的，动作是可以执行的，是把模型当作程序来执行的方法。</p>
@@ -148,13 +143,7 @@ public class Action extends Semaphore{
 	
 	/** 要运行的方法名 */
 	private String methodName;
-	
-	/** 是否使用系统外部的Java，即使用其他Java组件 */
-	//private boolean useOuterJava;	
-	
-	/** 外部的Java类名 */
-	//private String outerClassName;
-	
+
 	/** 是否在执行时替换属性模板 */
 	private boolean attributeTemplate;	
 	
@@ -163,9 +152,6 @@ public class Action extends Semaphore{
 	
 	/** 动作的定义是否已经改变 */
 	private boolean changed = false;
-	
-	/** 禁止全局上下文 */
-	//private boolean disableGlobalContext = false;
 	
 	/** 外部动作，如果有引用*/
 	private Action outerAction = null;
@@ -179,14 +165,8 @@ public class Action extends Semaphore{
 	/** 用户数据，在代码或脚本理可以设置和Action绑定的数据 */
 	private final Map<String, Object> userData = new HashMap<>();
 	
-	/** 动作对应的日志 */
-	//Logger logger;
-	
 	/** 子动作列表 */
 	private List<ActionResult> results;
-	
-	/** 输入参数的定义 事物 */
-	//private Thing params = null;
 	
 	/** 是否保存返回值 */
 	private boolean saveReturn;
@@ -207,6 +187,10 @@ public class Action extends Semaphore{
 	private boolean hasVariables = false;
 		
 	private boolean codeInited = false;
+
+	/** 如果存在，用于替换动作模型本身的执行 */
+	private JavaAction javaAction;
+
 	//----------构造函数和其他方法------------
 	/**
 	 * 构造函数，传入定义动作的事物。
@@ -342,10 +326,11 @@ public class Action extends Semaphore{
 		}
 		
 		isCreateLocalVarScope = thing.getBoolean("createLocalVarScope");
-		
-		
+
+		//查找是否有替换本模型的
+		javaAction = JavaActionFactory.getActionJavaAction(thing.getMetadata().getPath());
 		if(isJava){
-			String javaClassName = null;
+			String javaClassName;
 			byte sourceType = SOURCE_LIB;
 			if(thing.getBoolean("useOuterJava")) {
 				javaClassName = thing.getString("outerClassName");
@@ -357,23 +342,23 @@ public class Action extends Semaphore{
 				initClassAndCode();
 				javaClassName = this.className;//packageName + "." + thing.getString("className");
 			}
+
 			initJava(thing,  sourceType, javaClassName);
 		}else if(useOtherAction){
 			outerAction = world.getAction(otherActionPath);
-		}else{
-			//由动作使用的动作，判断是否存在类，如果类的日期小于当前事物的日期，那么判定已更新
-			//if(lastModified != classCompileTime){
-			//	changed = true;
-			//}			
-			
-			//非Java调用才初始化日志
-			//logger = Logger.getLogger(this.className);
 		}
 	}
 	
 	private void initJava(Thing thing, byte sourceType, String javaClassName) throws ClassNotFoundException, IOException, SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		initClassAndCode();
-		
+
+		if(javaAction == null){
+			javaAction = JavaActionFactory.getJavaAction(javaClassName, methodName);
+		}
+		if(javaAction != null){
+			return;
+		}
+
 		//查看是否需要编译获得重新装载
 		if(actionClass == null){
 			changed = false;				
@@ -793,7 +778,9 @@ public class Action extends Semaphore{
 				}
 			}
 
-			if(useOtherAction){
+			if(javaAction != null){
+				result = javaAction.run(actionContext);
+			}else if(useOtherAction){
 				//如果一个动作是引用其他动作的，那么执行被引用的动作 
 				Bindings callerBindings = actionContext.getScope(actionContext.getScopesSize() - 2);
 				try{
@@ -842,7 +829,7 @@ public class Action extends Semaphore{
 					//self类型的动作，当一个动作作为子动作时，而变量self还需要是自己，那么需要定义成此类型 
 					if(attributeTemplate){
 						//属性模板，动作的属性可以设置成freemarker模板，在执行时用模板生成真正的属性值 
-						Thing fthing = (Thing) thing.run("processAttributeTemplate", actionContext, (Map<String, Object>) null, isSubAction, true);
+						Thing fthing = thing.run("processAttributeTemplate", actionContext, (Map<String, Object>) null, isSubAction, true);
 						if(fthing != null){
 							result = fthing.run("run", actionContext, (Map<String, Object>) null, isSubAction, true);
 						}

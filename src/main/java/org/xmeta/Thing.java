@@ -184,10 +184,14 @@ public class Thing {
 	public Thing(String name, String label, String descriptorPath, boolean isTransient){	
 		this.beginModify();
 		try{
-			this.put(Thing.NAME, name);
-			this.put(Thing.LABEL, label);
+			if(name != null) {
+				this.put(Thing.NAME, name);
+			}
+			if(label != null) {
+				this.put(Thing.LABEL, label);
+			}
 			this.put(Thing.DESCRIPTORS, descriptorPath);
-			
+
 			if(descriptorPath != null){
 				this.initDefaultValue(true);
 				
@@ -196,7 +200,15 @@ public class Thing {
 					initDescriptors();
 				}
 			}
-			
+
+			//三个字段有可能在initDefaultValue()时被修改了，但是初始化应该保持传入的值，因此重新设置保证值为传入的
+			if(name != null) {
+				this.put(Thing.NAME, name);
+			}
+			if(label != null) {
+				this.put(Thing.LABEL, label);
+			}
+			this.put(Thing.DESCRIPTORS, descriptorPath);
 			
 			if(isTransient){
 				TransientThingManager manager = World.getInstance().getTransientThingManager();
@@ -1128,7 +1140,7 @@ public class Thing {
     			String compareStr = ps[1];
     			if(compareStr.startsWith("?")){
     				isByName = true;
-    				compareStr = compareStr.substring(1, compareStr.length());
+    				compareStr = compareStr.substring(1);
     			}
     			
     			//List<Thing> currentChilds = current.getAllChilds();
@@ -1136,7 +1148,7 @@ public class Thing {
     			for(Iterator<Thing> iter = current.getChildsIterator(); iter.hasNext();){
     				Thing currentChild = iter.next();
     				if((ps[0].equals("") || currentChild.isThingByName(ps[0])) && 
-    						((isByName == false && compareStr.equals(currentChild.getMetadata().getId())) ||
+    						((!isByName && compareStr.equals(currentChild.getMetadata().getId())) ||
     								(isByName && compareStr.equals(currentChild.getMetadata().getName())))){    			
     					
     					current = currentChild;
@@ -1150,7 +1162,7 @@ public class Thing {
     				int index = -1;
         			try{
         				index = Integer.parseInt(ps[1]);
-        			}catch(Exception e){    				
+        			}catch(Exception ignored){
         			}
         			
         			if(index != -1){        			
@@ -1482,7 +1494,7 @@ public class Thing {
 	 * @return 动作定义列表
 	 */
 	public List<Thing> getActionThings(){
-		List<Thing> actionThings = new ArrayList<Thing>();
+		List<Thing> actionThings = new ArrayList<>();
 		
 		//找模型自身定义的动作
 		
@@ -1529,11 +1541,11 @@ public class Thing {
 	 * @return 属性描述列表
 	 */
 	public List<Thing> getAllAttributesDescriptors(){
-		List<Thing> attributesDescriptors = new ArrayList<Thing>();
+		List<Thing> attributesDescriptors = new ArrayList<>();
 		
 		//取本模型的描述者列表
 		List<Thing> selfDescriptors = getDescriptors();
-		Map<String, String> context = new HashMap<String, String>(); //过滤重复名字的上下文
+		Map<String, String> context = new HashMap<>(); //过滤重复名字的上下文
 		for(Thing descriptor : selfDescriptors){
 			for(Thing attr : descriptor.getAllChilds("attribute")){
 				String name = attr.getMetadata().getName();

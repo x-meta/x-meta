@@ -19,12 +19,11 @@ public abstract class ThingObjectEntry<T> {
 	
 	public T getObject() {
 		if(object == null || thingEntry.isChanged()) {
-			object = createObject();
-			thingEntry.getThing();
+			object = createObject(thingEntry.getThing());
 		}
 		
 		return object;
 	}
 	
-	protected abstract T createObject();
+	protected abstract T createObject(Thing thing);
 }

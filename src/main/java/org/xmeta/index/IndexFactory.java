@@ -81,12 +81,12 @@ public abstract class IndexFactory {
 	@SuppressWarnings("rawtypes")
 	public static void addOrRemoveChilds(Index parent, List<Index> childs, List indexObjects, IndexFactory indexFactory, String type){
 		//添加新的索引
-		Map<String, Index> existsMap = new HashMap<String, Index>();
+		Map<String, Index> existsMap = new HashMap<>();
 		for(Index child : childs){
 			existsMap.put(child.getName(), child);
 		}
 		
-		Map<String, Index> context = new HashMap<String, Index>();
+		Map<String, Index> context = new HashMap<>();
 		for(Object obj : indexObjects){
 			Index index = existsMap.get(indexFactory.getName(obj));
 			if(index == null){

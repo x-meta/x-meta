@@ -570,6 +570,9 @@ public class World {
 			//String resource = "/" + thingPath.replace('.', '/') + "." + coder.getType();
 			String resource = thingPath.replace('.', '/') + "." + coder.getType();
 			URL url = this.getClassLoader().getResource(resource);
+			if(url == null){
+				url = this.getClassLoader().getResource("/" + resource);
+			}
 			
 			if(url != null){
 				thing = new Thing(null, null, null, false);

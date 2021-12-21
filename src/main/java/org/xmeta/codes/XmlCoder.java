@@ -54,7 +54,7 @@ import org.xml.sax.SAXException;
  */
 public class XmlCoder {
 	public static final String NODE_NAME = "__node__name__";
-	public static final String NEW_LINE = "\r\n";
+	public static final String NEW_LINE = "\n";
 	/**
 	 * 把事物编码成XML字符串。
 	 * 
@@ -184,7 +184,7 @@ public class XmlCoder {
 		}
 		attrContext.put("name", name);
 		String id = thing.getMetadata().getId(); //写入meta中的id属性 
-		if(includeDefaultValue== false && id != null && !"".equals(id) && !id.equals(name)){ //如果id和name不同，写入
+		if(!includeDefaultValue && id != null && !"".equals(id) && !id.equals(name)){ //如果id和name不同，写入
 			writer.writeAttribute("_xmeta_id_", id);
 			lineWidth = lineWidth + id.length() + 15;
 		}
@@ -542,18 +542,14 @@ public class XmlCoder {
 						Thing child = new Thing(null, null, null, false);		
 						child.setParent(thing);
 						parse(child, thing.getDescriptor(), (Element) node, lastModifyed);
-						if(child != null){
-							thing.addChild(child);
-						}
+						thing.addChild(child);
 					}
 				}
 			}while((node = node.getNextSibling()) != null);
 		}
 		
 		//如果name属性为空，使用thingName
-		if(attributes.get("name") == null){
-			attributes.put("name", thingName);
-		}
+		attributes.putIfAbsent("name", thingName);
 		//如果id和name相同，编码会忽略，需要恢复
 		if(attributes.get("_xmeta_id_") != null){
 			thing.getMetadata().setId(attributes.get("_xmeta_id_").toString());

@@ -124,7 +124,7 @@ public class WorldIndex extends Index{
 		indexed = true;
 		
 		if(childs == null){
-			childs = new ArrayList<Index>();
+			childs = new ArrayList<>();
 		}
 		
 		World.getInstance().refresh();
@@ -142,12 +142,12 @@ public class WorldIndex extends Index{
 		}
 		
 		//已经在WorkingSet下的事物管理器不放到World下
-		Map<String, Index> context = new HashMap<String, Index>();
+		Map<String, Index> context = new HashMap<>();
 		for(Index childIndex : childs){
 			initWorkingSetThingManagers(childIndex, context);
 		}
 		
-		List<ThingManager> thingManagers = new ArrayList<ThingManager>();
+		List<ThingManager> thingManagers = new ArrayList<>();
 		for(ThingManager thingManager : World.getInstance().getThingManagers()){
 			if(context.get(thingManager.getName()) == null && !(thingManager instanceof TransientThingManager)){
 				thingManagers.add(thingManager);

@@ -38,13 +38,15 @@ public class ThingLoader {
      * 通过变量上下文对对象的有@ActionField的字段赋值
      *
      */
+    @SafeVarargs
     public static <T> T load(Object object, ActionContext actionContext, Class<? extends Annotation> ... annotations){
-        return load(object, (Thing) null, actionContext);
+        return load(object, (Thing) null, actionContext, annotations);
     }
 
     /**
      * 执行thing的create(actionContext)方法，执行后会遍历对象的注解为ActionField的字段，并从变量上下文中取值对字段赋值。
      */
+    @SafeVarargs
     public static <T> T load(Object object, Thing thing, ActionContext actionContext, Class<? extends Annotation> ... annotations){
         Stack<Object> stack = objectLocal.get();
         if(stack == null) {
@@ -70,6 +72,7 @@ public class ThingLoader {
     /**
      * 依次执行things的create(actionContext)方法，执行后会遍历对象的注解为ActionField的字段，并从变量上下文中取值对字段赋值。
      */
+    @SafeVarargs
     public static <T> T load(Object object, List<Thing> things, ActionContext actionContext, Class<? extends Annotation> ... annotations){
         Stack<Object> stack = objectLocal.get();
         if(stack == null) {
@@ -92,6 +95,7 @@ public class ThingLoader {
         return result;
     }
 
+    @SafeVarargs
     public static void init(Object object, boolean doInitMethod, ActionContext actionContext, Class<? extends Annotation> ... annotations){
         //查找字段的注解
         java.util.List<Field> allFieldList = new ArrayList<>() ;
